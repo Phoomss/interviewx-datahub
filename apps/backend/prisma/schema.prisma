@@ -1,0 +1,215 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum UserRole {
+  ADMIN
+  ML_ENGINEER
+  ANNOTATOR
+  VIEWER
+}
+
+enum DocumentStatus {
+  UPLOADED
+  PARSING
+  PARSED
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  ARCHIVED
+  PARSE_FAILED
+}
+
+enum SourceType {
+  SYNTHETIC
+  REAL_AUTHORIZED
+  PARTNER
+}
+
+enum JobStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+enum ExportFormat {
+  ALPACA
+  SHAREGPT
+  CHATML
+  EMBEDDING
+}
+
+model User {
+  id            String             @id @default(uuid())
+  email         String             @unique
+  passwordHash  String             @map("password_hash")
+  fullName      String             @map("full_name")
+  role          UserRole           @default(ANNOTATOR)
+  isActive      Boolean            @default(true) @map("is_active")
+  createdAt     DateTime           @default(now()) @map("created_at")
+  updatedAt     DateTime           @updatedAt @map("updated_at")
+
+  documents     Document[]         @relation("UserDocuments")
+  reviews       AnnotationReview[]
+  syntheticJobs SyntheticJob[]
+  datasetExports DatasetExport[]
+  auditLogs     AuditLog[]
+
+  @@map("users")
+}
+
+model ConsentRecord {
+  id                   String     @id @default(uuid())
+  subjectIdentifier    String     @map("subject_identifier")
+  consentType          String     @map("consent_type")
+  agreementDocumentUrl String?    @map("agreement_document_url")
+  isActive             Boolean    @default(true) @map("is_active")
+  grantedAt            DateTime   @default(now()) @map("granted_at")
+  revokedAt            DateTime?  @map("revoked_at")
+  createdAt            DateTime   @default(now()) @map("created_at")
+
+  documents            Document[]
+
+  @@map("consent_records")
+}
+
+model Document {
+  id             String          @id @default(uuid())
+  fileName       String          @map("file_name")
+  fileType       String          @map("file_type") // PDF or DOCX
+  fileSizeBytes  Int             @map("file_size_bytes")
+  storagePath    String          @map("storage_path") // MinIO object key
+  sourceType     SourceType      @default(SYNTHETIC) @map("source_type")
+  isSynthetic    Boolean         @default(true) @map("is_synthetic")
+  status         DocumentStatus  @default(UPLOADED)
+
+  consentId      String?         @map("consent_id")
+  uploadedById   String?         @map("uploaded_by_id")
+  syntheticJobId String?         @map("synthetic_job_id")
+
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime        @updatedAt @map("updated_at")
+  deletedAt      DateTime?       @map("deleted_at")
+
+  consent        ConsentRecord?  @relation(fields: [consentId], references: [id], onDelete: SetNull)
+  uploadedBy     User?           @relation("UserDocuments", fields: [uploadedById], references: [id], onDelete: SetNull)
+  syntheticJob   SyntheticJob?   @relation(fields: [syntheticJobId], references: [id], onDelete: SetNull)
+
+  parsedProfile  ParsedProfile?
+  piiVault       PiiVault?
+  reviews        AnnotationReview[]
+
+  @@index([status, isSynthetic])
+  @@index([createdAt(sort: Desc)])
+  @@map("documents")
+}
+
+model PiiVault {
+  id           String    @id @default(uuid())
+  documentId   String    @unique @map("document_id")
+  fullName     String?   @map("full_name")
+  email        String?
+  phoneNumber  String?   @map("phone_number")
+  address      String?
+  nationalId   String?   @map("national_id")
+  dateOfBirth  DateTime? @map("date_of_birth")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  document     Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@map("pii_vault")
+}
+
+model ParsedProfile {
+  id               String   @id @default(uuid())
+  documentId       String   @unique @map("document_id")
+  rawText          String?  @map("raw_text") @db.Text
+  structuredData   Json     @map("structured_data") // Summary, Skills, Experiences, Education
+  provenance       Json?    // Text offsets and confidence per field
+  confidenceScore  Float?   @map("confidence_score")
+  extractorVersion String?  @map("extractor_version")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  document         Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@map("parsed_profiles")
+}
+
+model AnnotationReview {
+  id           String    @id @default(uuid())
+  documentId   String    @map("document_id")
+  reviewerId   String    @map("reviewer_id")
+  status       String    // APPROVED, REJECTED, NEEDS_CORRECTION
+  corrections  Json?     // Field diffs and manual edits
+  reviewNotes  String?   @map("review_notes") @db.Text
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  document     Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  reviewer     User      @relation(fields: [reviewerId], references: [id], onDelete: Restrict)
+
+  @@map("annotation_reviews")
+}
+
+model SyntheticJob {
+  id               String     @id @default(uuid())
+  jobName          String     @map("job_name")
+  createdById      String     @map("created_by_id")
+  status           JobStatus  @default(QUEUED)
+  targetCount      Int        @map("target_count")
+  generatedCount   Int        @default(0) @map("generated_count")
+  generationConfig Json       @map("generation_config")
+  failureReason    String?    @map("failure_reason") @db.Text
+  startedAt        DateTime?  @map("started_at")
+  completedAt      DateTime?  @map("completed_at")
+  createdAt        DateTime   @default(now()) @map("created_at")
+
+  createdBy        User       @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  documents        Document[]
+
+  @@map("synthetic_jobs")
+}
+
+model DatasetExport {
+  id             String       @id @default(uuid())
+  exportName     String       @map("export_name")
+  createdById    String       @map("created_by_id")
+  exportFormat   ExportFormat @map("export_format")
+  status         JobStatus    @default(QUEUED)
+  recordCount    Int          @default(0) @map("record_count")
+  storagePath    String?      @map("storage_path")
+  filterCriteria Json         @map("filter_criteria")
+  dvcHash        String?      @map("dvc_hash")
+  mlflowRunId    String?      @map("mlflow_run_id")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  completedAt    DateTime?    @map("completed_at")
+
+  createdBy      User         @relation(fields: [createdById], references: [id], onDelete: Restrict)
+
+  @@map("dataset_exports")
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String?  @map("user_id")
+  action      String   // CREATE, UPDATE, DELETE, EXPORT, CONSENT_REVOKE
+  entityName  String   @map("entity_name")
+  entityId    String   @map("entity_id")
+  ipAddress   String?  @map("ip_address")
+  payloadDiff Json?    @map("payload_diff")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([entityName, entityId])
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("audit_logs")
+}

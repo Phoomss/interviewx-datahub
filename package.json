@@ -1,0 +1,23 @@
+{
+  "name": "interviewx-datahub",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Internal dataset management and annotation platform for InterviewX LLM development",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun --filter \"*\" dev",
+    "dev:backend": "bun --filter backend start:dev",
+    "dev:frontend": "bun --filter frontend dev",
+    "build": "bun --filter \"*\" build",
+    "lint": "bun --filter \"*\" lint",
+    "typecheck": "bun --filter \"*\" typecheck",
+    "test": "bun --filter \"*\" test"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "prettier": "^3.3.3"
+  }
+}
