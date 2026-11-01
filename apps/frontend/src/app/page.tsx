@@ -15,7 +15,7 @@ export default function Home() {
         <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
           แพลตฟอร์มบริหารจัดการและเตรียมข้อมูลเรซูเมสำหรับการฝึกสอน LLM ของ InterviewX
         </p>
-        <div className="mt-6 flex items-center justify-center gap-4">
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
           <Link
             href="/resumes/doc-001-demo/review"
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-lg shadow-sm transition"
@@ -28,6 +28,12 @@ export default function Home() {
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium text-sm rounded-lg shadow-2xs transition"
           >
             <span>ดูคลังเอกสาร (Repository)</span>
+          </Link>
+          <Link
+            href="/datasets"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm rounded-lg shadow-sm transition"
+          >
+            <span>ส่งออกชุดข้อมูล LLM (Phase 3)</span>
           </Link>
         </div>
       </header>
