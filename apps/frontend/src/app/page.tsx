@@ -35,6 +35,13 @@ export default function Home() {
           >
             <span>ส่งออกชุดข้อมูล LLM (Phase 3)</span>
           </Link>
+          <Link
+            href="/consent"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium text-sm rounded-lg shadow-sm transition"
+          >
+            <ShieldCheck className="w-4 h-4" />
+            <span>จัดการ Consent & PII Vault (Phase 4)</span>
+          </Link>
         </div>
       </header>
 
