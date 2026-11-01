@@ -42,6 +42,13 @@ export default function Home() {
             <ShieldCheck className="w-4 h-4" />
             <span>จัดการ Consent & PII Vault (Phase 4)</span>
           </Link>
+          <Link
+            href="/analytics"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-medium text-sm rounded-lg shadow-sm transition"
+          >
+            <Database className="w-4 h-4" />
+            <span>แดชบอร์ด Data Bias & Governance (Phase 5)</span>
+          </Link>
         </div>
       </header>
 
