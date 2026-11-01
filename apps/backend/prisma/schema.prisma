@@ -43,6 +43,10 @@ enum ExportFormat {
   SHAREGPT
   CHATML
   EMBEDDING
+  JSON
+  JSONL
+  CSV
+  XLSX
 }
 
 model User {
@@ -174,6 +178,7 @@ model SyntheticJob {
 
   createdBy        User       @relation(fields: [createdById], references: [id], onDelete: Restrict)
   documents        Document[]
+  datasetRecords   DatasetRecord[]
 
   @@map("synthetic_jobs")
 }
@@ -212,4 +217,122 @@ model AuditLog {
   @@index([entityName, entityId])
   @@index([userId, createdAt(sort: Desc)])
   @@map("audit_logs")
+}
+
+model Industry {
+  id          String       @id @default(uuid())
+  key         String       @unique
+  name        String
+  nameTh      String?      @map("name_th")
+  description String?      @db.Text
+  icon        String?
+  isCustom    Boolean      @default(false) @map("is_custom")
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  professions Profession[]
+  datasetRecords DatasetRecord[]
+
+  @@map("industries")
+}
+
+model Profession {
+  id                      String     @id @default(uuid())
+  industryId              String     @map("industry_id")
+  key                     String
+  name                    String
+  nameTh                  String?    @map("name_th")
+  description             String?    @db.Text
+  suggestedSkills         Json?      @map("suggested_skills")
+  professionSpecificFields Json?     @map("profession_specific_fields")
+  isCustom                Boolean    @default(false) @map("is_custom")
+  createdAt               DateTime   @default(now()) @map("created_at")
+
+  industry                Industry   @relation(fields: [industryId], references: [id], onDelete: Cascade)
+  datasetRecords          DatasetRecord[]
+
+  @@unique([industryId, key])
+  @@map("professions")
+}
+
+model InterviewCategory {
+  id           String   @id @default(uuid())
+  key          String   @unique
+  name         String
+  nameTh       String?  @map("name_th")
+  description  String?  @db.Text
+  subcategories Json    // string[] or { key, name, nameTh }[]
+  isCustom     Boolean  @default(false) @map("is_custom")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("interview_categories")
+}
+
+model SeniorityLevel {
+  id          String   @id @default(uuid())
+  category    String   // career, academic, healthcare_licensed
+  key         String   @unique
+  name        String
+  nameTh      String?  @map("name_th")
+  minYearsExp Float?   @map("min_years_exp")
+  maxYearsExp Float?   @map("max_years_exp")
+  isCustom    Boolean  @default(false) @map("is_custom")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("seniority_levels")
+}
+
+model SkillCategory {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  name      String
+  nameTh    String?  @map("name_th")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  skills    Skill[]
+
+  @@map("skill_categories")
+}
+
+model Skill {
+  id                String        @id @default(uuid())
+  categoryId        String        @map("category_id")
+  name              String
+  nameTh            String?       @map("name_th")
+  description       String?       @db.Text
+  proficiencyLevels Json?         @map("proficiency_levels")
+  isCustom          Boolean       @default(false) @map("is_custom")
+  createdAt         DateTime      @default(now()) @map("created_at")
+
+  category          SkillCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, name])
+  @@map("skills")
+}
+
+model DatasetRecord {
+  id                   String        @id @default(uuid())
+  jobId                String?       @map("job_id")
+  datasetType          String        @map("dataset_type") // profile, resume, interview_question, interview_answer, rubric_evaluation, feedback, scenario
+  industryId           String?       @map("industry_id")
+  professionId         String?       @map("profession_id")
+  interviewCategory    String?       @map("interview_category")
+  interviewSubcategory String?       @map("interview_subcategory")
+  seniorityLevel       String?       @map("seniority_level")
+  language             String        @default("en")
+  isSynthetic          Boolean       @default(true) @map("is_synthetic")
+  content              Json          @db.JsonB
+  qualityStatus        String        @default("VERIFIED") @map("quality_status") // VERIFIED, PENDING_REVIEW, NEEDS_REVISION, REJECTED
+  validationResult     Json?         @map("validation_result")
+  metadata             Json?         @db.JsonB
+  createdAt            DateTime      @default(now()) @map("created_at")
+  updatedAt            DateTime      @updatedAt @map("updated_at")
+
+  syntheticJob         SyntheticJob? @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  industry             Industry?     @relation(fields: [industryId], references: [id], onDelete: SetNull)
+  profession           Profession?   @relation(fields: [professionId], references: [id], onDelete: SetNull)
+
+  @@index([datasetType, industryId, professionId])
+  @@index([qualityStatus])
+  @@index([createdAt(sort: Desc)])
+  @@map("dataset_records")
 }

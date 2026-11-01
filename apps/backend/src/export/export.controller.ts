@@ -10,9 +10,16 @@ export class ExportController {
   constructor(private readonly exportService: ExportService) {}
 
   @Post('export')
-  @ApiOperation({ summary: 'สั่งส่งออกชุดข้อมูลสำหรับฝึกสอน LLM (Alpaca, ShareGPT, ChatML) พร้อม PII Gate และ MLflow Tracking' })
+  @ApiOperation({ summary: 'สั่งส่งออกชุดข้อมูลสำหรับฝึกสอน LLM / วิเคราะห์ข้อมูล (JSON, JSONL, CSV, XLSX, Alpaca, ShareGPT, ChatML)' })
   @ApiResponse({ status: 201, description: 'สร้างและส่งออก Dataset สำเร็จ' })
   createExport(@Body() dto: CreateExportDto, @Req() req: any) {
+    const userId = req.user?.id;
+    return this.exportService.createExport(dto, userId);
+  }
+
+  @Post('exports')
+  @ApiOperation({ summary: 'สั่งส่งออกชุดข้อมูล (Alias)' })
+  createExportAlias(@Body() dto: CreateExportDto, @Req() req: any) {
     const userId = req.user?.id;
     return this.exportService.createExport(dto, userId);
   }
@@ -25,21 +32,29 @@ export class ExportController {
   }
 
   @Get('exports/:id/download')
-  @ApiOperation({ summary: 'รับ Presigned Download URL สำหรับดาวน์โหลดไฟล์ .jsonl จาก MinIO' })
+  @ApiOperation({ summary: 'รับ Presigned Download URL สำหรับดาวน์โหลดไฟล์จาก MinIO' })
   @ApiResponse({ status: 200, description: 'รับ URL ดาวน์โหลดสำเร็จ' })
   getDownloadUrl(@Param('id') id: string) {
     return this.exportService.getDownloadUrl(id);
   }
 
   @Get('exports/:id/file')
-  @ApiOperation({ summary: 'ดาวน์โหลดไฟล์ .jsonl โดยตรงจาก Object Storage (Direct Streaming)' })
+  @ApiOperation({ summary: 'ดาวน์โหลดไฟล์ Dataset โดยตรงจาก Object Storage (Direct Streaming)' })
   async downloadFile(@Param('id') id: string, @Res() res: Response) {
     try {
+      const exp = await this.exportService.getExport(id);
       const { stream, exportName } = await this.exportService.getExportStream(id);
-      res.setHeader('Content-Type', 'application/jsonlines');
-      res.setHeader('Content-Disposition', `attachment; filename="${exportName}.jsonl"`);
+      const ext = exp.storagePath ? exp.storagePath.split('.').pop() || 'jsonl' : 'jsonl';
+      const contentTypeMap: Record<string, string> = {
+        json: 'application/json',
+        jsonl: 'application/jsonlines',
+        csv: 'text/csv; charset=utf-8',
+        xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      };
+      res.setHeader('Content-Type', contentTypeMap[ext] || 'application/octet-stream');
+      res.setHeader('Content-Disposition', `attachment; filename="${exportName}.${ext}"`);
       stream.pipe(res);
-    } catch (err) {
+    } catch (err: any) {
       return res.status(404).json({ success: false, message: 'ไม่พบไฟล์ Dataset Export ใน Object Storage' });
     }
   }

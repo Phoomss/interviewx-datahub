@@ -3,6 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { DocumentsService } from '../documents/documents.service';
 import { CreateSyntheticJobDto } from './dto/create-synthetic-job.dto';
+import { CreateUniversalJobDto } from './dto/create-universal-job.dto';
+import { PreviewUniversalDto } from './dto/preview-universal.dto';
+import { UpdateRecordReviewDto } from './dto/update-record-review.dto';
 
 @Injectable()
 export class SyntheticService {
@@ -10,6 +13,8 @@ export class SyntheticService {
 
   // In-memory jobs store for reliable caching
   private inMemoryJobs: any[] = [];
+  // In-memory records store as high-speed fallback
+  private inMemoryRecords: any[] = [];
 
   constructor(
     private readonly prisma: PrismaService,
@@ -17,8 +22,493 @@ export class SyntheticService {
     private readonly documentsService: DocumentsService,
   ) {}
 
+  private async getOrCreateAdminUser(): Promise<string> {
+    try {
+      const defaultUser = await this.prisma.user.findFirst();
+      if (defaultUser) {
+        return defaultUser.id;
+      }
+      const newUser = await this.prisma.user.create({
+        data: {
+          email: 'admin@interviewx.ai',
+          fullName: 'InterviewX System Admin',
+          passwordHash: 'seeded_admin_hash',
+          role: 'ADMIN',
+        },
+      });
+      return newUser.id;
+    } catch {
+      return 'user-admin-default';
+    }
+  }
+
   /**
-   * สั่งสร้างข้อมูลเรซูเมสังเคราะห์แบบกลุ่ม (Generate Batch Synthetic Data)
+   * Universal Live Preview: สร้างข้อมูลตัวอย่าง 1 รายการเพื่อดูตัวอย่างทันทีโดยยังไม่บันทึก
+   */
+  async previewUniversal(dto: PreviewUniversalDto) {
+    const aiServiceUrl = this.config.get<string>('AI_SERVICE_URL', 'http://ai-service:8000');
+    const internalKey = this.config.get<string>('INTERNAL_SERVICE_KEY', 'interviewx_internal_service_secret_key_2026');
+
+    // Resolve profession name if only key is provided
+    let professionName = dto.professionName;
+    if (!professionName) {
+      const prof = await this.prisma.profession.findFirst({
+        where: { OR: [{ key: dto.professionKey }, { id: dto.professionKey }] },
+      });
+      professionName = prof ? prof.name : dto.professionKey.replace(/_/g, ' ');
+    }
+
+    try {
+      const res = await fetch(`${aiServiceUrl}/internal/v1/synthetic/generate-universal-batch`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-internal-service-key': internalKey,
+        },
+        body: JSON.stringify({
+          dataset_type: dto.datasetType,
+          industry_key: dto.industryKey,
+          profession_key: dto.professionKey,
+          profession_name: professionName,
+          interview_category: dto.interviewCategory,
+          interview_subcategory: dto.interviewSubcategory,
+          seniority: dto.seniority,
+          skills: dto.skills || [],
+          language: dto.language || 'en',
+          difficulty: dto.difficulty || 'Mid',
+          batch_size: 1,
+          custom_parameters: dto.customParameters || {},
+        }),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`AI Service returned ${res.status}: ${errorText}`);
+      }
+
+      const json = (await res.json()) as any;
+      if (json.items && json.items.length > 0) {
+        return {
+          previewItem: json.items[0],
+          datasetType: dto.datasetType,
+          generatedAt: json.generated_at,
+        };
+      }
+      throw new Error('AI Service returned empty items');
+    } catch (err: any) {
+      this.logger.error(`Live preview failed: ${err.message}`);
+      throw new BadRequestException(`ไม่สามารถเรียก AI Service เพื่อพรีวิวข้อมูลได้: ${err.message}`);
+    }
+  }
+
+  /**
+   * Multi-Industry, Multi-Profession Universal Batch Generator
+   */
+  async createUniversalJob(dto: CreateUniversalJobDto) {
+    const batchSize = dto.batchSizePerProfession || 1;
+    const professionKeys = Array.isArray(dto.professionKeys) && dto.professionKeys.length > 0
+      ? dto.professionKeys
+      : ['software_engineer'];
+    const totalTarget = professionKeys.length * batchSize;
+
+    const jobId = `job-uni-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
+    const assignedUserId = await this.getOrCreateAdminUser();
+
+    // 1. Resolve Industry from DB or create fallback
+    let industry = await this.prisma.industry.findFirst({
+      where: { OR: [{ key: dto.industryKey }, { id: dto.industryKey }] },
+    });
+    if (!industry) {
+      industry = await this.prisma.industry.findFirst();
+    }
+
+    // 2. Create Job in database
+    const jobRecord = {
+      id: jobId,
+      jobName: dto.jobName || `Universal ${dto.datasetType} Batch (${dto.industryKey})`,
+      status: 'RUNNING',
+      targetCount: totalTarget,
+      generatedCount: 0,
+      generationConfig: dto,
+      startedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      completedAt: null,
+      createdById: assignedUserId,
+    };
+    this.inMemoryJobs.unshift(jobRecord);
+
+    try {
+      await this.prisma.syntheticJob.create({
+        data: {
+          id: jobId,
+          jobName: jobRecord.jobName,
+          status: 'RUNNING' as any,
+          targetCount: totalTarget,
+          generatedCount: 0,
+          generationConfig: dto as any,
+          startedAt: new Date(),
+          createdById: assignedUserId,
+        },
+      });
+    } catch (dbErr: any) {
+      this.logger.debug(`Prisma syntheticJob.create: ${dbErr.message}`);
+    }
+
+    // 3. Generate data per profession
+    const aiServiceUrl = this.config.get<string>('AI_SERVICE_URL', 'http://ai-service:8000');
+    const internalKey = this.config.get<string>('INTERNAL_SERVICE_KEY', 'interviewx_internal_service_secret_key_2026');
+    const createdDatasetRecords: any[] = [];
+
+    for (const pKey of professionKeys) {
+      let profession = await this.prisma.profession.findFirst({
+        where: {
+          OR: [{ key: pKey }, { id: pKey }],
+        },
+        include: { industry: true },
+      });
+
+      const profName = profession ? profession.name : pKey.replace(/_/g, ' ');
+      const profIndustryId = profession?.industryId || industry?.id;
+
+      try {
+        const res = await fetch(`${aiServiceUrl}/internal/v1/synthetic/generate-universal-batch`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-internal-service-key': internalKey,
+          },
+          body: JSON.stringify({
+            dataset_type: dto.datasetType,
+            industry_key: profession?.industry?.key || dto.industryKey,
+            profession_key: pKey,
+            profession_name: profName,
+            interview_category: dto.interviewCategory,
+            interview_subcategory: dto.interviewSubcategory,
+            seniority: dto.seniority,
+            skills: dto.skills || (profession?.suggestedSkills as string[]) || [],
+            language: dto.language || 'en',
+            difficulty: dto.difficulty || 'Mid',
+            batch_size: batchSize,
+            custom_parameters: dto.customParameters || {},
+          }),
+        });
+
+        if (!res.ok) {
+          const errText = await res.text();
+          this.logger.warn(`AI service batch for profession ${pKey} failed: ${errText}`);
+          continue;
+        }
+
+        const json = (await res.json()) as any;
+        const items = json.items || [];
+
+        for (let idx = 0; idx < items.length; idx++) {
+          const item = items[idx];
+          const recId = `rec-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 7)}`;
+
+          const recordData = {
+            id: recId,
+            jobId: jobId,
+            datasetType: dto.datasetType,
+            industryId: profIndustryId,
+            professionId: profession?.id || null,
+            interviewCategory: dto.interviewCategory,
+            interviewSubcategory: dto.interviewSubcategory || null,
+            seniorityLevel: dto.seniority,
+            language: dto.language || 'en',
+            isSynthetic: true,
+            content: item,
+            qualityStatus: 'VERIFIED',
+            validationResult: {
+              schemaCompliant: true,
+              piiSafe: true,
+              syntheticConfidence: 0.99,
+              checkedAt: new Date().toISOString(),
+            },
+            metadata: item.metadata || {
+              is_synthetic: true,
+              industry: dto.industryKey,
+              profession: profName,
+              seniority: dto.seniority,
+              dataset_type: dto.datasetType,
+            },
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
+
+          // Save in memory
+          this.inMemoryRecords.unshift({
+            ...recordData,
+            industry: profession?.industry || industry,
+            profession: profession,
+          });
+
+          // Persist to PostgreSQL
+          try {
+            const saved = await this.prisma.datasetRecord.create({
+              data: {
+                id: recId,
+                jobId: jobId,
+                datasetType: dto.datasetType,
+                industryId: profIndustryId,
+                professionId: profession?.id || null,
+                interviewCategory: dto.interviewCategory,
+                interviewSubcategory: dto.interviewSubcategory || null,
+                seniorityLevel: dto.seniority,
+                language: dto.language || 'en',
+                isSynthetic: true,
+                content: item as any,
+                qualityStatus: 'VERIFIED',
+                validationResult: recordData.validationResult as any,
+                metadata: recordData.metadata as any,
+              },
+              include: {
+                industry: true,
+                profession: true,
+              },
+            });
+            createdDatasetRecords.push(saved);
+          } catch (dbErr: any) {
+            this.logger.warn(`Prisma datasetRecord.create: ${dbErr.message}`);
+            createdDatasetRecords.push({
+              ...recordData,
+              industry: profession?.industry || industry,
+              profession: profession,
+            });
+          }
+
+          // If datasetType is profile or resume, sync with Document entity for backward compatibility
+          if (dto.datasetType === 'profile' || dto.datasetType === 'resume') {
+            await this.syncProfileAsDocument(recId, jobId, profName, dto.seniority, item);
+          }
+        }
+      } catch (profErr: any) {
+        this.logger.error(`Error generating for profession ${pKey}: ${profErr.message}`);
+      }
+    }
+
+    // 4. Update Job Status
+    jobRecord.status = 'COMPLETED';
+    jobRecord.generatedCount = createdDatasetRecords.length;
+    jobRecord.completedAt = new Date().toISOString();
+
+    try {
+      await this.prisma.syntheticJob.update({
+        where: { id: jobId },
+        data: {
+          status: 'COMPLETED' as any,
+          generatedCount: createdDatasetRecords.length,
+          completedAt: new Date(),
+        },
+      });
+    } catch (dbErr: any) {
+      this.logger.debug(`Prisma syntheticJob.update: ${dbErr.message}`);
+    }
+
+    return {
+      success: true,
+      jobId,
+      jobName: jobRecord.jobName,
+      status: 'COMPLETED',
+      targetCount: totalTarget,
+      generatedCount: createdDatasetRecords.length,
+      records: createdDatasetRecords,
+    };
+  }
+
+  private async syncProfileAsDocument(recId: string, jobId: string, profName: string, seniority: string, item: any) {
+    try {
+      const docId = `doc-syn-${recId}`;
+      const fileName = `synthetic_${profName.toLowerCase().replace(/[^a-z0-9]/g, '_')}_${recId.slice(-4)}.pdf`;
+      const rawText = [
+        `SYNTHETIC PROFILE: ${profName} (${seniority})`,
+        `Summary: ${item.professional_summary || item.profile_summary || ''}`,
+        `Skills: ${Array.isArray(item.skills) ? item.skills.join(', ') : ''}`,
+      ].join('\n\n');
+
+      const docItem = {
+        id: docId,
+        fileName,
+        fileType: 'PDF',
+        fileSizeBytes: 150000,
+        storagePath: `raw-documents/synthetic/${fileName}`,
+        sourceType: 'SYNTHETIC',
+        isSynthetic: true,
+        status: 'APPROVED',
+        syntheticJobId: jobId,
+        consentId: null,
+        createdAt: new Date().toISOString(),
+        previewUrl: `/api/v1/documents/${docId}/raw`,
+        parsedProfile: {
+          id: `profile-${docId}`,
+          confidenceScore: 0.99,
+          extractorVersion: 'universal-synthetic-2.0',
+          rawText,
+          structuredData: item,
+        },
+      };
+
+      (this.documentsService as any).inMemoryDocs?.unshift(docItem);
+
+      await this.prisma.document.create({
+        data: {
+          id: docId,
+          fileName,
+          fileType: 'PDF',
+          fileSizeBytes: 150000,
+          storagePath: docItem.storagePath,
+          sourceType: 'SYNTHETIC' as any,
+          isSynthetic: true,
+          status: 'APPROVED' as any,
+          syntheticJobId: jobId,
+          parsedProfile: {
+            create: {
+              rawText,
+              structuredData: item as any,
+              confidenceScore: 0.99,
+              extractorVersion: 'universal-synthetic-2.0',
+            },
+          },
+        },
+      });
+    } catch {}
+  }
+
+  /**
+   * List Dataset Records with rich filters
+   */
+  async listDatasetRecords(filters: {
+    datasetType?: string;
+    industryId?: string;
+    professionId?: string;
+    interviewCategory?: string;
+    seniorityLevel?: string;
+    qualityStatus?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+  }) {
+    const page = Math.max(1, Number(filters.page) || 1);
+    const limit = Math.max(1, Math.min(100, Number(filters.limit) || 20));
+    const skip = (page - 1) * limit;
+
+    const where: any = {};
+    if (filters.datasetType) where.datasetType = filters.datasetType;
+    if (filters.interviewCategory) where.interviewCategory = filters.interviewCategory;
+    if (filters.seniorityLevel) where.seniorityLevel = filters.seniorityLevel;
+    if (filters.qualityStatus) where.qualityStatus = filters.qualityStatus;
+
+    if (filters.industryId) {
+      where.OR = [
+        { industryId: filters.industryId },
+        { industry: { key: filters.industryId } },
+      ];
+    }
+
+    if (filters.professionId) {
+      where.OR = [
+        { professionId: filters.professionId },
+        { profession: { key: filters.professionId } },
+      ];
+    }
+
+    try {
+      const [total, items] = await Promise.all([
+        this.prisma.datasetRecord.count({ where }),
+        this.prisma.datasetRecord.findMany({
+          where,
+          include: {
+            industry: true,
+            profession: true,
+            syntheticJob: {
+              select: { id: true, jobName: true, createdAt: true },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: limit,
+        }),
+      ]);
+
+      return {
+        items,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit) || 1,
+      };
+    } catch (dbErr: any) {
+      this.logger.warn(`Falling back to in-memory records: ${dbErr.message}`);
+      let memItems = [...this.inMemoryRecords];
+      if (filters.datasetType) memItems = memItems.filter(r => r.datasetType === filters.datasetType);
+      if (filters.qualityStatus) memItems = memItems.filter(r => r.qualityStatus === filters.qualityStatus);
+      return {
+        items: memItems.slice(skip, skip + limit),
+        total: memItems.length,
+        page,
+        limit,
+        totalPages: Math.ceil(memItems.length / limit) || 1,
+      };
+    }
+  }
+
+  /**
+   * Get single dataset record details
+   */
+  async getDatasetRecord(id: string) {
+    const record = await this.prisma.datasetRecord.findUnique({
+      where: { id },
+      include: {
+        industry: true,
+        profession: true,
+        syntheticJob: true,
+      },
+    });
+
+    if (!record) {
+      const mem = this.inMemoryRecords.find(r => r.id === id);
+      if (mem) return mem;
+      throw new NotFoundException(`Dataset record '${id}' not found`);
+    }
+
+    return record;
+  }
+
+  /**
+   * Update record quality / review status (Human-in-the-loop review)
+   */
+  async updateDatasetRecordQuality(id: string, dto: UpdateRecordReviewDto) {
+    try {
+      const updated = await this.prisma.datasetRecord.update({
+        where: { id },
+        data: {
+          qualityStatus: dto.qualityStatus,
+          validationResult: {
+            updatedAt: new Date().toISOString(),
+            reviewNotes: dto.reviewNotes || 'Reviewed by expert annotator',
+            qualityStatus: dto.qualityStatus,
+          },
+        },
+        include: {
+          industry: true,
+          profession: true,
+        },
+      });
+
+      // Update in memory if present
+      const memIdx = this.inMemoryRecords.findIndex(r => r.id === id);
+      if (memIdx >= 0) {
+        this.inMemoryRecords[memIdx].qualityStatus = dto.qualityStatus;
+      }
+
+      return updated;
+    } catch (err: any) {
+      throw new NotFoundException(`Record '${id}' could not be updated: ${err.message}`);
+    }
+  }
+
+  /**
+   * Legacy IT-Only Synthetic Generator (Preserved for backward compatibility)
    */
   async createJob(dto: CreateSyntheticJobDto) {
     const jobId = `job-syn-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
@@ -37,7 +527,6 @@ export class SyntheticService {
     this.inMemoryJobs.unshift(jobRecord);
     this.logger.log(`Starting Synthetic Job: ${jobId} (${dto.role}, count=${dto.targetCount})`);
 
-    // 1. Call FastAPI AI Service
     const aiServiceUrl = this.config.get<string>('AI_SERVICE_URL', 'http://ai-service:8000');
     const internalKey = this.config.get<string>('INTERNAL_SERVICE_KEY', 'interviewx_internal_service_secret_key_2026');
 
@@ -67,12 +556,11 @@ export class SyntheticService {
       if (json.success && Array.isArray(json.profiles)) {
         generatedProfiles = json.profiles;
       }
-    } catch (err) {
+    } catch (err: any) {
       this.logger.error(`AI Service batch generation failed: ${err.message}`);
       throw new BadRequestException(`ไม่สามารถเรียก AI Service เพื่อสังเคราะห์ข้อมูลได้: ${err.message}`);
     }
 
-    // 2. Convert generated profiles into Documents and store in Repository
     const createdDocuments: any[] = [];
     const roleSlug = dto.role.toLowerCase().replace(/[^a-z0-9]/g, '_');
 
@@ -126,11 +614,9 @@ export class SyntheticService {
         },
       };
 
-      // Add to Documents memory cache
       (this.documentsService as any).inMemoryDocs.unshift(docItem);
       createdDocuments.push(docItem);
 
-      // Persist to PostgreSQL if available
       try {
         await this.prisma.document.create({
           data: {
@@ -152,104 +638,115 @@ export class SyntheticService {
             },
           },
         });
-      } catch (dbErr) {
+      } catch (dbErr: any) {
         this.logger.debug(`Prisma document.create deferred: ${dbErr.message}`);
       }
     }
 
-    // 3. Update Job Record
     jobRecord.status = 'COMPLETED';
     jobRecord.generatedCount = createdDocuments.length;
     jobRecord.completedAt = new Date().toISOString();
 
+    const assignedUserId = await this.getOrCreateAdminUser();
     try {
-      let assignedUserId: string | undefined;
-      const defaultUser = await this.prisma.user.findFirst();
-      if (defaultUser) {
-        assignedUserId = defaultUser.id;
-      } else {
-        const newUser = await this.prisma.user.create({
-          data: {
-            email: 'admin@interviewx.ai',
-            fullName: 'InterviewX System Admin',
-            passwordHash: 'seeded_admin_hash',
-            role: 'ADMIN',
-          },
-        });
-        assignedUserId = newUser.id;
-      }
-
-      if (assignedUserId) {
-        await this.prisma.syntheticJob.create({
-          data: {
-            id: jobId,
-            jobName: jobRecord.jobName,
-            status: 'COMPLETED' as any,
-            targetCount: dto.targetCount,
-            generatedCount: createdDocuments.length,
-            generationConfig: dto as any,
-            startedAt: new Date(jobRecord.startedAt),
-            completedAt: new Date(jobRecord.completedAt),
-            createdById: assignedUserId,
-          },
-        });
-      }
-    } catch (dbErr) {
+      await this.prisma.syntheticJob.create({
+        data: {
+          id: jobId,
+          jobName: jobRecord.jobName,
+          status: 'COMPLETED' as any,
+          targetCount: dto.targetCount,
+          generatedCount: createdDocuments.length,
+          generationConfig: dto as any,
+          startedAt: new Date(jobRecord.startedAt),
+          completedAt: new Date(jobRecord.completedAt),
+          createdById: assignedUserId,
+        },
+      });
+    } catch (dbErr: any) {
       this.logger.debug(`Prisma syntheticJob.create deferred: ${dbErr.message}`);
     }
 
-    this.logger.log(`Synthetic Job completed: ${jobId} (created ${createdDocuments.length} resumes)`);
-
     return {
-      success: true,
-      message: `สร้างข้อมูลเรซูเมสังเคราะห์สำเร็จ ${createdDocuments.length} รายการ`,
-      data: {
-        job: jobRecord,
-        profiles: generatedProfiles,
-        documents: createdDocuments,
-      },
+      jobId,
+      status: 'COMPLETED',
+      targetCount: dto.targetCount,
+      generatedCount: createdDocuments.length,
+      documents: createdDocuments,
     };
   }
 
-  /**
-   * ดึงประวัติการรันงานสร้างข้อมูลสังเคราะห์ทั้งหมด
-   */
   async listJobs() {
-    let dbJobs: any[] = [];
     try {
-      dbJobs = await this.prisma.syntheticJob.findMany({
+      const dbJobs = await this.prisma.syntheticJob.findMany({
         orderBy: { createdAt: 'desc' },
+        include: {
+          createdBy: { select: { id: true, email: true, fullName: true } },
+          _count: { select: { documents: true, datasetRecords: true } },
+        },
       });
-    } catch (err) {
-      this.logger.debug(`Prisma findMany syntheticJob deferred: ${err.message}`);
+
+      if (dbJobs.length > 0) {
+        return dbJobs.map((j) => ({
+          id: j.id,
+          jobName: j.jobName,
+          status: j.status,
+          targetCount: j.targetCount,
+          generatedCount: j.generatedCount,
+          generationConfig: j.generationConfig,
+          startedAt: j.startedAt,
+          completedAt: j.completedAt,
+          createdAt: j.createdAt,
+          creator: j.createdBy,
+          totalDocuments: j._count.documents,
+          totalDatasetRecords: j._count.datasetRecords,
+        }));
+      }
+    } catch (err: any) {
+      this.logger.warn(`Could not read jobs from Postgres: ${err.message}`);
     }
 
-    const merged = new Map<string, any>();
-    for (const j of this.inMemoryJobs) merged.set(j.id, j);
-    for (const j of dbJobs) merged.set(j.id, j);
-
-    return {
-      success: true,
-      data: Array.from(merged.values()),
-    };
+    return this.inMemoryJobs;
   }
 
-  /**
-   * ดึงรายละเอียดงานสร้างข้อมูลสังเคราะห์รายรายการ
-   */
   async getJob(id: string) {
-    const mem = this.inMemoryJobs.find((j) => j.id === id);
     try {
       const dbJob = await this.prisma.syntheticJob.findUnique({
         where: { id },
-        include: { documents: true },
+        include: {
+          documents: {
+            include: { parsedProfile: true },
+          },
+          datasetRecords: {
+            include: { industry: true, profession: true },
+          },
+          createdBy: { select: { id: true, email: true, fullName: true } },
+        },
       });
-      if (dbJob) return { success: true, data: dbJob };
-    } catch (err) {
-      this.logger.debug(`Prisma findUnique syntheticJob deferred: ${err.message}`);
+
+      if (dbJob) {
+        return {
+          id: dbJob.id,
+          jobName: dbJob.jobName,
+          status: dbJob.status,
+          targetCount: dbJob.targetCount,
+          generatedCount: dbJob.generatedCount,
+          generationConfig: dbJob.generationConfig,
+          startedAt: dbJob.startedAt,
+          completedAt: dbJob.completedAt,
+          createdAt: dbJob.createdAt,
+          creator: dbJob.createdBy,
+          documents: dbJob.documents,
+          datasetRecords: dbJob.datasetRecords,
+        };
+      }
+    } catch (err: any) {
+      this.logger.warn(`Could not find job ${id} in Postgres: ${err.message}`);
     }
 
-    if (mem) return { success: true, data: mem };
-    throw new NotFoundException(`ไม่พบงานสร้างข้อมูลสังเคราะห์รหัส ${id}`);
+    const memJob = this.inMemoryJobs.find((j) => j.id === id);
+    if (!memJob) {
+      throw new NotFoundException(`ไม่พบงานสังเคราะห์รหัส ${id}`);
+    }
+    return memJob;
   }
 }

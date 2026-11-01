@@ -1,5 +1,6 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import * as crypto from 'crypto';
+import * as XLSX from 'xlsx';
 import { PrismaService } from '../prisma/prisma.service';
 import { MinioService } from '../storage/minio.service';
 import { MlflowService } from './mlflow.service';
@@ -19,10 +20,10 @@ export class ExportService {
   /**
    * Pre-Export Safety Gate: ตัดและสแกน PII ออกจากเนื้อหาก่อนนำไปรวมใน Dataset
    */
-  private stripAndSanitizePII(profile: any): any {
-    const clean = JSON.parse(JSON.stringify(profile));
+  private stripAndSanitizePII(data: any): any {
+    if (!data) return data;
+    const clean = JSON.parse(JSON.stringify(data));
 
-    // Strip sensitive fields explicitly
     delete clean.full_name;
     delete clean.name;
     delete clean.email;
@@ -32,49 +33,65 @@ export class ExportService {
     delete clean.national_id;
     delete clean.date_of_birth;
 
-    // Deep sanitize regex for strings
     const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
     const phoneRegex = /(\+66|0)[0-9]{1,2}[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}/g;
 
-    const sanitizeText = (str: string) => {
-      if (!str || typeof str !== 'string') return str;
-      return str.replace(emailRegex, '[REDACTED_EMAIL]').replace(phoneRegex, '[REDACTED_PHONE]');
+    const sanitizeVal = (val: any): any => {
+      if (typeof val === 'string') {
+        return val.replace(emailRegex, '[REDACTED_EMAIL]').replace(phoneRegex, '[REDACTED_PHONE]');
+      }
+      if (Array.isArray(val)) {
+        return val.map(sanitizeVal);
+      }
+      if (val && typeof val === 'object') {
+        const res: any = {};
+        for (const k of Object.keys(val)) {
+          if (['full_name', 'name', 'email', 'phone', 'phone_number', 'national_id'].includes(k)) {
+            continue;
+          }
+          res[k] = sanitizeVal(val[k]);
+        }
+        return res;
+      }
+      return val;
     };
 
-    if (clean.professional_summary) {
-      clean.professional_summary = sanitizeText(clean.professional_summary);
-    }
+    return sanitizeVal(clean);
+  }
 
-    if (Array.isArray(clean.experiences)) {
-      clean.experiences = clean.experiences.map((exp: any) => ({
-        ...exp,
-        responsibilities: Array.isArray(exp.responsibilities)
-          ? exp.responsibilities.map(sanitizeText)
-          : sanitizeText(exp.responsibilities),
-      }));
-    }
-
-    return clean;
+  private formatRecord(profile: any, format: ExportDatasetFormat): string {
+    return this.formatRecordLLM(profile, format);
   }
 
   /**
    * แปลงข้อมูลเป็นฟอร์แมตมาตรฐานตามที่กำหนด (Alpaca, ShareGPT, ChatML)
    */
-  private formatRecord(profile: any, format: ExportDatasetFormat): string {
-    const skillsList = Array.isArray(profile.skills) ? profile.skills.join(', ') : '';
-    const experiencesSummary = Array.isArray(profile.experiences)
-      ? profile.experiences
-          .map((e: any) => `- ${e.role_title} at ${e.company_name} (${e.start_date} - ${e.end_date}): ${Array.isArray(e.responsibilities) ? e.responsibilities.join(' ') : e.responsibilities}`)
+  private formatRecordLLM(item: any, format: ExportDatasetFormat): string {
+    const isQuestionAnswer = item.question || item.intent_and_objective || item.answer_text;
+    const skillsList = Array.isArray(item.skills) ? item.skills.join(', ') : '';
+    const experiencesSummary = Array.isArray(item.experiences)
+      ? item.experiences
+          .map((e: any) => `- ${e.role_title} at ${e.company_name} (${e.start_date} - ${e.end_date})`)
           .join('\n')
       : '';
 
-    const inputData = `Summary: ${profile.professional_summary || ''}\nKey Skills: ${skillsList}\nExperience History:\n${experiencesSummary}`;
+    const instruction = isQuestionAnswer
+      ? `คุณคือผู้สัมภาษณ์และโค้ชของระบบ InterviewX วิเคราะห์คำถามและการตอบสัมภาษณ์`
+      : `วิเคราะห์ทักษะและประวัติการทำงานของผู้สมัครเพื่อประเมินความเหมาะสมในตำแหน่งงาน`;
+
+    const inputData = isQuestionAnswer
+      ? `Question: ${item.question || ''}\nIntent: ${item.intent_and_objective || ''}\nEvaluation Criteria: ${Array.isArray(item.key_points_to_look_for) ? item.key_points_to_look_for.join(', ') : ''}`
+      : `Summary: ${item.professional_summary || ''}\nKey Skills: ${skillsList}\nExperience History:\n${experiencesSummary}`;
+
+    const outputData = isQuestionAnswer
+      ? `Candidate Response / Analysis:\n${item.answer_text || item.problem_statement || item.overall_summary || JSON.stringify(item)}`
+      : `ผู้สมัครมีความเชี่ยวชาญด้าน ${skillsList} มีประสบการณ์ทำงานและทักษะที่ผ่านการรับรองสำหรับ InterviewX:\n${experiencesSummary}`;
 
     if (format === ExportDatasetFormat.ALPACA) {
       return JSON.stringify({
-        instruction: 'วิเคราะห์ทักษะและประวัติการทำงานของผู้สมัครเพื่อประเมินความเหมาะสมในตำแหน่งงาน',
+        instruction,
         input: inputData,
-        output: `ผู้สมัครมีความเชี่ยวชาญด้าน ${skillsList} มีประสบการณ์ทำงานสำคัญได้แก่:\n${experiencesSummary}`,
+        output: outputData,
       });
     }
 
@@ -83,130 +100,234 @@ export class ExportService {
         conversations: [
           {
             from: 'human',
-            value: `นี่คือประวัติการทำงานของผู้สมัคร:\n${inputData}\nช่วยวิเคราะห์จุดเด่นและตั้งคำถามสัมภาษณ์เชิงเทคนิค 3 ข้อ`,
+            value: `${instruction}\n\n${inputData}`,
           },
           {
             from: 'gpt',
-            value: `จุดเด่นของผู้สมัคร:\n1. ทักษะหลัก: ${skillsList}\n\nคำถามสัมภาษณ์เชิงเทคนิค:\n1. เล่าถึงความท้าทายในการออกแบบระบบที่ผ่านมา\n2. อธิบายการจัดการประสิทธิภาพและคอขวดในฐานข้อมูล\n3. ยกตัวอย่างกระบวนการทดสอบและรับรองคุณภาพของโค้ด`,
+            value: outputData,
           },
         ],
       });
     }
 
-    // Default: OpenAI ChatML format
+    // Default ChatML
     return JSON.stringify({
       messages: [
         {
           role: 'system',
-          content: 'คุณคือผู้เชี่ยวชาญด้านการประเมินทักษะทางเทคนิคและการสัมภาษณ์งานของระบบ InterviewX',
+          content: 'คุณคือผู้เชี่ยวชาญการสัมภาษณ์งานและประเมินทักษะของระบบ InterviewX',
         },
         {
           role: 'user',
-          content: `วิเคราะห์ข้อมูลประวัติผู้สมัครต่อไปนี้:\n${inputData}`,
+          content: `${instruction}\n\n${inputData}`,
         },
         {
           role: 'assistant',
-          content: `ผลการวิเคราะห์ผู้สมัคร:\n- ทักษะหลัก: ${skillsList}\n- ความเหมาะสม: ระดับ Senior มีผลงานเป็นรูปธรรม`,
+          content: outputData,
         },
       ],
     });
   }
 
+  private flattenForTabular(records: any[]): Record<string, any>[] {
+    return records.map((rec, i) => {
+      const content = rec.content || rec;
+      return {
+        id: rec.id || `row_${i + 1}`,
+        dataset_type: rec.datasetType || content?.metadata?.dataset_type || 'profile',
+        industry: rec.industry?.name || content?.metadata?.industry || '',
+        profession: rec.profession?.name || content?.metadata?.profession || '',
+        interview_category: rec.interviewCategory || content?.metadata?.interview_category || '',
+        seniority: rec.seniorityLevel || content?.metadata?.seniority_level || '',
+        language: rec.language || content?.metadata?.language || 'en',
+        headline_or_title: content.headline || content.scenario_title || content.question || '',
+        summary_or_question: content.professional_summary || content.profile_summary || content.question || content.problem_statement || '',
+        answer_or_response: content.answer_text || content.candidate_response_sample || '',
+        overall_score: content.total_score || content.readiness_score || '',
+        verdict: content.overall_verdict || content.interviewer_sentiment || '',
+        is_synthetic: true,
+      };
+    });
+  }
+
   /**
-   * สั่งรันกระบวนการส่งออก Dataset
+   * สั่งรันกระบวนการส่งออก Dataset (รองรับ JSON, JSONL, CSV, XLSX, ALPACA, SHAREGPT, CHATML)
    */
   async createExport(dto: CreateExportDto, userId?: string) {
     this.logger.log(`Starting Dataset Export: ${dto.exportName} [Format: ${dto.format}]`);
 
-    // 1. ดึงข้อมูลที่ผ่านการ Approve แล้วเท่านั้น (Rule 1)
-    let approvedProfiles: any[] = [];
+    // 1. ดึงข้อมูลจาก DatasetRecord (Universal 7 Types)
+    let recordsToExport: any[] = [];
     try {
-      const documents = await this.prisma.document.findMany({
-        where: {
-          status: 'APPROVED',
-          isSynthetic: dto.isSyntheticOnly !== false ? true : undefined,
-          deletedAt: null,
-        },
+      const whereRecord: any = {};
+      if (dto.datasetType) whereRecord.datasetType = dto.datasetType;
+      if (dto.interviewCategory) whereRecord.interviewCategory = dto.interviewCategory;
+      if (dto.seniority) whereRecord.seniorityLevel = dto.seniority;
+      if (dto.industryKey) {
+        whereRecord.OR = [
+          { industryId: dto.industryKey },
+          { industry: { key: dto.industryKey } },
+        ];
+      }
+      if (dto.roles && dto.roles.length > 0) {
+        whereRecord.profession = {
+          OR: dto.roles.map((r) => ({ key: r })),
+        };
+      }
+
+      const dbRecords = await this.prisma.datasetRecord.findMany({
+        where: whereRecord,
         include: {
-          parsedProfile: true,
+          industry: true,
+          profession: true,
         },
+        orderBy: { createdAt: 'desc' },
       });
 
-      approvedProfiles = documents
-        .filter((d) => d.parsedProfile && d.parsedProfile.structuredData)
-        .map((d) => d.parsedProfile.structuredData);
-    } catch (err) {
-      this.logger.warn(`Prisma query failed, using baseline demo approved records: ${err.message}`);
+      if (dbRecords.length > 0) {
+        recordsToExport = dbRecords.map((r) => ({
+          ...r,
+          sanitizedContent: this.stripAndSanitizePII(r.content),
+        }));
+      }
+    } catch (err: any) {
+      this.logger.warn(`Querying DatasetRecord failed: ${err.message}`);
     }
 
-    // Mock baseline records if database is empty to ensure immediate testability
-    if (approvedProfiles.length === 0) {
-      approvedProfiles = [
+    // 2. ถ้ายังไม่มี DatasetRecord ให้ดึงจาก Document (Approved Resumes)
+    if (recordsToExport.length === 0) {
+      try {
+        const documents = await this.prisma.document.findMany({
+          where: {
+            status: 'APPROVED',
+            isSynthetic: dto.isSyntheticOnly !== false ? true : undefined,
+            deletedAt: null,
+          },
+          include: { parsedProfile: true },
+        });
+
+        recordsToExport = documents
+          .filter((d) => d.parsedProfile && d.parsedProfile.structuredData)
+          .map((d) => ({
+            id: d.id,
+            datasetType: 'profile',
+            content: d.parsedProfile.structuredData,
+            sanitizedContent: this.stripAndSanitizePII(d.parsedProfile.structuredData),
+          }));
+      } catch (err: any) {
+        this.logger.warn(`Querying Document failed: ${err.message}`);
+      }
+    }
+
+    // 3. Fallback baseline if absolutely empty
+    if (recordsToExport.length === 0) {
+      recordsToExport = [
         {
-          professional_summary: 'Senior Backend Engineer with 7+ years of experience in distributed systems and NestJS.',
-          skills: ['NestJS', 'TypeScript', 'PostgreSQL', 'Redis', 'Docker'],
-          experiences: [
-            {
-              company_name: 'Tech Fin Solutions',
-              role_title: 'Senior Backend Engineer',
-              start_date: '2021-03',
-              end_date: 'Present',
-              responsibilities: ['Architected payment gateway microservices processing 50k transactions/sec.'],
-            },
-          ],
+          id: 'rec-demo-001',
+          datasetType: 'interview_question',
+          content: {
+            question: 'How do you approach critical architectural tradeoffs between throughput and consistency?',
+            intent_and_objective: 'Evaluates system design rigor and deep familiarity with distributed consensus.',
+            competencies_evaluated: ['System Design', 'Critical Analysis'],
+            metadata: { is_synthetic: true, industry: 'tech', profession: 'Software Architect' },
+          },
+          sanitizedContent: {
+            question: 'How do you approach critical architectural tradeoffs between throughput and consistency?',
+            intent_and_objective: 'Evaluates system design rigor and deep familiarity with distributed consensus.',
+            competencies_evaluated: ['System Design', 'Critical Analysis'],
+            metadata: { is_synthetic: true, industry: 'tech', profession: 'Software Architect' },
+          },
         },
         {
-          professional_summary: 'Data Engineer specialized in data lakehouse architectures, Spark, and Python pipelines.',
-          skills: ['Python', 'Apache Spark', 'Kafka', 'PostgreSQL', 'FastAPI'],
-          experiences: [
-            {
-              company_name: 'Big Data Enterprise',
-              role_title: 'Lead Data Engineer',
-              start_date: '2020-01',
-              end_date: 'Present',
-              responsibilities: ['Designed real-time event streaming pipelines handling 100M events per day.'],
-            },
-          ],
+          id: 'rec-demo-002',
+          datasetType: 'profile',
+          content: {
+            headline: 'Medical Doctor | Clinical Medicine Specialist',
+            professional_summary: 'Licensed Physician with expertise in emergency triage and multidisciplinary patient care.',
+            skills: ['Clinical Diagnosis', 'Patient Advocacy', 'Medical Ethics'],
+            metadata: { is_synthetic: true, industry: 'healthcare', profession: 'Medical Doctor' },
+          },
+          sanitizedContent: {
+            headline: 'Medical Doctor | Clinical Medicine Specialist',
+            professional_summary: 'Licensed Physician with expertise in emergency triage and multidisciplinary patient care.',
+            skills: ['Clinical Diagnosis', 'Patient Advocacy', 'Medical Ethics'],
+            metadata: { is_synthetic: true, industry: 'healthcare', profession: 'Medical Doctor' },
+          },
         },
       ];
     }
 
-    // 2. ผ่าน Pre-export Safety Gate (Rule 2: Zero PII Leakage)
-    const sanitizedProfiles = approvedProfiles.map((p) => this.stripAndSanitizePII(p));
+    // 4. Generate payload buffer and determine file extension + content type
+    let buffer: Buffer;
+    let fileExtension = 'jsonl';
+    let contentType = 'application/jsonlines';
 
-    // 3. จัดทำไฟล์ JSONL ตามฟอร์แมตที่เลือก
-    const jsonlLines = sanitizedProfiles.map((p) => this.formatRecord(p, dto.format));
-    const jsonlContent = jsonlLines.join('\n');
-    const buffer = Buffer.from(jsonlContent, 'utf-8');
+    if (dto.format === ExportDatasetFormat.JSON) {
+      fileExtension = 'json';
+      contentType = 'application/json';
+      const jsonOutput = recordsToExport.map((r) => r.sanitizedContent || r.content);
+      buffer = Buffer.from(JSON.stringify(jsonOutput, null, 2), 'utf-8');
+    } else if (dto.format === ExportDatasetFormat.CSV) {
+      fileExtension = 'csv';
+      contentType = 'text/csv';
+      const flatRows = this.flattenForTabular(recordsToExport);
+      const ws = XLSX.utils.json_to_sheet(flatRows);
+      const csvContent = XLSX.utils.sheet_to_csv(ws);
+      buffer = Buffer.from(csvContent, 'utf-8');
+    } else if (dto.format === ExportDatasetFormat.XLSX) {
+      fileExtension = 'xlsx';
+      contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      const flatRows = this.flattenForTabular(recordsToExport);
+      const ws = XLSX.utils.json_to_sheet(flatRows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'InterviewX_Dataset');
+      buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    } else if (
+      dto.format === ExportDatasetFormat.ALPACA ||
+      dto.format === ExportDatasetFormat.SHAREGPT ||
+      dto.format === ExportDatasetFormat.CHATML
+    ) {
+      fileExtension = 'jsonl';
+      contentType = 'application/jsonlines';
+      const lines = recordsToExport.map((r) => this.formatRecordLLM(r.sanitizedContent || r.content, dto.format));
+      buffer = Buffer.from(lines.join('\n'), 'utf-8');
+    } else {
+      // Default: Raw JSONL
+      fileExtension = 'jsonl';
+      contentType = 'application/jsonlines';
+      const lines = recordsToExport.map((r) => JSON.stringify(r.sanitizedContent || r.content));
+      buffer = Buffer.from(lines.join('\n'), 'utf-8');
+    }
 
-    // 4. คำนวณค่า SHA-256 Cryptographic Hash (DVC Lineage)
+    // 5. Compute SHA-256 Hash
     const dvcHash = crypto.createHash('sha256').update(buffer).digest('hex');
 
-    // 5. อัปโหลดขึ้น MinIO Object Storage
+    // 6. Upload to MinIO Object Storage
     const exportId = `exp-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
-    const storageKey = `${exportId}/${dto.exportName}.jsonl`;
-    const storagePath = await this.minio.uploadExportArtifact(storageKey, buffer, 'application/jsonlines');
+    const storageKey = `${exportId}/${dto.exportName}.${fileExtension}`;
+    const storagePath = await this.minio.uploadExportArtifact(storageKey, buffer, contentType);
 
-    // 6. บันทึก Run เข้าสู่ MLflow Tracking
+    // 7. Record run in MLflow Tracking
     const mlflowRunId = await this.mlflow.recordExportRun({
       exportName: dto.exportName,
       format: dto.format,
-      recordCount: sanitizedProfiles.length,
+      recordCount: recordsToExport.length,
       dvcHash,
       filterCriteria: {
         isSyntheticOnly: dto.isSyntheticOnly,
         roles: dto.roles,
-        trainRatio: dto.trainRatio,
+        industryKey: dto.industryKey,
+        datasetType: dto.datasetType,
       },
     });
 
-    // 7. บันทึกระเบียนลงหน่วยความจำและฐานข้อมูล PostgreSQL
+    // 8. Persist Record
     const exportRecord = {
       id: exportId,
       exportName: dto.exportName,
       exportFormat: dto.format,
       status: 'COMPLETED',
-      recordCount: sanitizedProfiles.length,
+      recordCount: recordsToExport.length,
       storagePath,
       filterCriteria: dto,
       dvcHash,
@@ -241,7 +362,7 @@ export class ExportService {
             exportName: dto.exportName,
             exportFormat: dto.format as any,
             status: 'COMPLETED' as any,
-            recordCount: sanitizedProfiles.length,
+            recordCount: recordsToExport.length,
             storagePath,
             filterCriteria: dto as any,
             dvcHash,
@@ -251,27 +372,24 @@ export class ExportService {
           },
         });
       }
-    } catch (err) {
+    } catch (err: any) {
       this.logger.warn(`Could not save export to PostgreSQL: ${err.message}`);
     }
 
     return {
       success: true,
-      message: 'สร้างและส่งออกชุดข้อมูลสำหรับฝึกสอน LLM สำเร็จ',
+      message: 'สร้างและส่งออกชุดข้อมูลสำหรับ InterviewX สำเร็จ',
       data: exportRecord,
     };
   }
 
-  /**
-   * ดึงรายการประวัติการ Export ทั้งหมด
-   */
   async listExports() {
     let dbExports: any[] = [];
     try {
       dbExports = await this.prisma.datasetExport.findMany({
         orderBy: { createdAt: 'desc' },
       });
-    } catch (err) {
+    } catch (err: any) {
       this.logger.warn('Prisma listExports fallback:', err.message);
     }
 
@@ -283,17 +401,16 @@ export class ExportService {
       return { success: true, data: Array.from(merged.values()) };
     }
 
-    // Default demo exports
     return {
       success: true,
       data: [
         {
           id: 'exp-demo-001',
-          exportName: 'interviewx-core-tuning-v1',
-          exportFormat: 'ALPACA',
+          exportName: 'interviewx-universal-seed-v1',
+          exportFormat: 'JSONL',
           status: 'COMPLETED',
           recordCount: 150,
-          storagePath: 'dataset-exports/exp-demo-001/interviewx-core-tuning-v1.jsonl',
+          storagePath: 'dataset-exports/exp-demo-001/interviewx-universal-seed-v1.jsonl',
           dvcHash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
           mlflowRunId: 'mlflow-run-abc1234',
           createdAt: new Date().toISOString(),
@@ -317,9 +434,6 @@ export class ExportService {
     return { stream, exportName: item.exportName || 'dataset' };
   }
 
-  /**
-   * ออก Presigned URL สำหรับดาวน์โหลด Dataset
-   */
   async getDownloadUrl(id: string) {
     const key = `${id}/dataset.jsonl`;
     const downloadUrl = await this.minio.getPresignedDownloadUrl(key);

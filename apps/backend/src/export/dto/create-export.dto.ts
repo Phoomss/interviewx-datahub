@@ -6,12 +6,16 @@ export enum ExportDatasetFormat {
   SHAREGPT = 'SHAREGPT',
   CHATML = 'CHATML',
   EMBEDDING = 'EMBEDDING',
+  JSON = 'JSON',
+  JSONL = 'JSONL',
+  CSV = 'CSV',
+  XLSX = 'XLSX',
 }
 
 export class CreateExportDto {
   @ApiProperty({
-    description: 'ชื่อชุดข้อมูลสำหรับอ้างอิงการเทรน',
-    example: 'interviewx-backend-qa-v1',
+    description: 'ชื่อชุดข้อมูลสำหรับอ้างอิงการเทรน / ส่งออก',
+    example: 'interviewx-universal-dataset-v1',
   })
   @IsString()
   @IsNotEmpty()
@@ -19,16 +23,32 @@ export class CreateExportDto {
 
   @ApiProperty({
     enum: ExportDatasetFormat,
-    description: 'รูปแบบไฟล์ Dataset สำหรับ LLM Fine-tuning',
-    example: ExportDatasetFormat.ALPACA,
+    description: 'รูปแบบไฟล์ Dataset สำหรับ LLM Fine-tuning หรือวิเคราะห์ข้อมูล',
+    example: ExportDatasetFormat.JSON,
   })
   @IsEnum(ExportDatasetFormat)
   @IsNotEmpty()
   format: ExportDatasetFormat;
 
   @ApiPropertyOptional({
+    description: 'ประเภทของชุดข้อมูล (profile, resume, interview_question, interview_answer, rubric_evaluation, feedback, scenario)',
+    example: 'interview_question',
+  })
+  @IsOptional()
+  @IsString()
+  datasetType?: string;
+
+  @ApiPropertyOptional({
+    description: 'รหัสกลุ่มอุตสาหกรรม (Industry Key or ID)',
+    example: 'healthcare',
+  })
+  @IsOptional()
+  @IsString()
+  industryKey?: string;
+
+  @ApiPropertyOptional({
     description: 'กรองเฉพาะตำแหน่งงานที่ต้องการ',
-    example: ['Backend Engineer', 'Data Engineer'],
+    example: ['medical_doctor', 'nurse'],
   })
   @IsOptional()
   @IsArray()
@@ -36,7 +56,23 @@ export class CreateExportDto {
   roles?: string[];
 
   @ApiPropertyOptional({
-    description: 'ส่งออกเฉพาะ Synthetic Data (แนะนำสำหรับระยะแรก)',
+    description: 'หมวดหมู่การสัมภาษณ์',
+    example: 'job',
+  })
+  @IsOptional()
+  @IsString()
+  interviewCategory?: string;
+
+  @ApiPropertyOptional({
+    description: 'ระดับประสบการณ์',
+    example: 'Senior',
+  })
+  @IsOptional()
+  @IsString()
+  seniority?: string;
+
+  @ApiPropertyOptional({
+    description: 'ส่งออกเฉพาะ Synthetic Data (แนะนำ)',
     default: true,
   })
   @IsOptional()
@@ -64,7 +100,7 @@ export class CreateExportDto {
   valRatio?: number = 0.1;
 
   @ApiPropertyOptional({
-    description: 'เกณฑ์ความมั่นใจขั้นต่ำของ AI Parser (0.0 - 1.0)',
+    description: 'เกณฑ์ความมั่นใจขั้นต่ำ (0.0 - 1.0)',
     default: 0.85,
   })
   @IsOptional()
