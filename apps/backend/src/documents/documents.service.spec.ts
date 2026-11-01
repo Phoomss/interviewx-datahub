@@ -1,5 +1,6 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { DocumentsService } from './documents.service';
+import { ReviewActionStatus } from './dto/submit-review.dto';
 
 describe('DocumentsService - Ingestion, Review & PDPA Compliance', () => {
   let service: DocumentsService;
@@ -50,16 +51,16 @@ describe('DocumentsService - Ingestion, Review & PDPA Compliance', () => {
   it('should update status and review corrections in memory and database', async () => {
     const docId = 'doc-001-demo';
     const reviewResult = await service.submitReview(docId, {
-      status: 'APPROVED',
+      status: ReviewActionStatus.APPROVED,
       corrections: { skills: ['Updated Skill'] },
       reviewNotes: 'Verified by reviewer',
     });
 
     expect(reviewResult.success).toBe(true);
-    expect(reviewResult.data.status).toBe('APPROVED');
+    expect(reviewResult.data.status).toBe(ReviewActionStatus.APPROVED);
 
     const updatedDoc = await service.findOne(docId);
-    expect(updatedDoc.data.status).toBe('APPROVED');
+    expect(updatedDoc.data.status).toBe(ReviewActionStatus.APPROVED);
   });
 
   it('should soft-delete document when remove() is called', async () => {
