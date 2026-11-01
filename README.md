@@ -3,7 +3,7 @@
 > **Universal Multi-Industry & Multi-Profession Interview Dataset Generator**  
 > แพลตฟอร์มบริหารจัดการ สังเคราะห์ ตรวจสอบคุณภาพ และเตรียมชุดข้อมูลสัมภาษณ์ระดับสากล สำหรับการพัฒนาและฝึกสอนโมเดลภาษาขนาดใหญ่ (InterviewX LLM)
 
-[![Hackathon Status](https://img.shields.io/badge/Hackathon%20Status-MVP%20Ready%20%E2%80%A2%20Production%20Grade-success?style=for-the-badge&logo=rocket)](https://github.com/Phoomss/interviewx-datahub)
+[![Pipeline Status](https://img.shields.io/badge/InterviewX%20LLM-Training%20Pipeline%20Ready-success?style=for-the-badge&logo=rocket)](https://github.com/Phoomss/interviewx-datahub)
 [![Platform Design](https://img.shields.io/badge/Platform%20Design-Decoupled%20Microservices-indigo?style=for-the-badge&logo=docker)](https://github.com/Phoomss/interviewx-datahub)
 [![Fintech & Industry](https://img.shields.io/badge/Fintech%20%26%20Industry-10%20Domains%20%E2%80%A2%2080%2B%20Professions-blue?style=for-the-badge&logo=cashapp)](https://github.com/Phoomss/interviewx-datahub)
 [![AI/NLP](https://img.shields.io/badge/AI%2FNLP-FastAPI%20%E2%80%A2%20Pydantic%20v2%20%E2%80%A2%20PyMuPDF-purple?style=for-the-badge&logo=fastapi)](https://github.com/Phoomss/interviewx-datahub)
@@ -12,7 +12,7 @@
 ---
 
 ## สารบัญ (Table of Contents)
-1. [🏆 Hackathon Status & Executive Summary](#1-hackathon-status--executive-summary)
+1. [🎯 ภาพรวมและเป้าหมายการฝึกสอนโมเดล (Executive Summary & LLM Training Goals)](#1-ภาพรวมและเป้าหมายการฝึกสอนโมเดล-executive-summary--llm-training-goals)
 2. [🏛️ Platform Design & System Architecture](#2-platform-design--system-architecture)
 3. [💳 Fintech & Multi-Industry Domains](#3-fintech--multi-industry-domains)
 4. [🧠 AI / NLP Intelligence & Parsing Engine](#4-ai--nlp-intelligence--parsing-engine)
@@ -25,16 +25,26 @@
 
 ---
 
-## 1. 🏆 Hackathon Status & Executive Summary
+## 1. 🎯 ภาพรวมและเป้าหมายการฝึกสอนโมเดล (Executive Summary & LLM Training Goals)
 
-- **Hackathon Track**: Generative AI, LLM Data Engineering & Enterprise NLP
-- **Project Stage**: **MVP Ready (Production-Grade Containerized Stack)**
-- **System Health**: ทุก Service รันจริงและเชื่อมต่อกันสมบูรณ์ 100% ผ่าน Docker Compose
-- **ปัญหาที่ระบบแก้ไข (Problem Statement)**:
-  1. **Data Scarcity for Multi-Domain LLM**: ขาดแคลนชุดข้อมูลสัมภาษณ์งานและวิชาการที่มีคุณภาพ โครงสร้างมาตรฐาน และความหลากหลายข้ามอุตสาหกรรม
-  2. **PII & Legal Risks (PDPA)**: การนำเรซูเมจริงมาใช้เทรนโมเดลมักติดปัญหาข้อมูลส่วนบุคคลรั่วไหล
-  3. **IT-Centric Bias**: ระบบสร้าง Synthetic Data ส่วนใหญ่จำกัดอยู่เพียงตำแหน่งไอที ไม่รองรับสายการแพทย์ การเงิน กฎหมาย หรือการศึกษา
-  4. **Data Verification Bottleneck**: ขาดระบบ Human-in-the-Loop สำหรับตรวจรับรองคุณภาพข้อมูล (QA Review) ก่อนส่งเข้ากระบวนการ Fine-tuning
+**InterviewX DataHub** เป็นระบบบริหารจัดการและจัดเตรียมชุดข้อมูลความเชี่ยวชาญสูง (High-Fidelity Interview & Career Dataset Pipeline) ซึ่งเป็นแกนกลางสำคัญในการพัฒนาและฝึกสอนโมเดลภาษาขนาดใหญ่ (LLM Fine-tuning & Alignment) สำหรับระบบ **InterviewX**
+
+### 1.1 วัตถุประสงค์ในการฝึกสอนโมเดล (InterviewX LLM Training Objectives)
+ชุดข้อมูลที่สังเคราะห์และจัดเตรียมผ่าน DataHub ถูกออกแบบมาเพื่อตอบโจทย์การเทรนโมเดล 4 มิติหลักของ InterviewX:
+1. **AI Technical & Behavioral Interviewer**: โมเดลผู้สัมภาษณ์งานอัจฉริยะที่สามารถตั้งคำถามเชิงลึกตามสายงาน (Domain-specific Questions), วิเคราะห์คำตอบตามกรอบ STAR Method และสร้างคำถามสถานการณ์จำลอง (Scenario-based Dilemmas)
+2. **Resume & Career Profile Intelligence**: โมเดลทำความเข้าใจ สกัดโครงสร้างประวัติการทำงาน วิเคราะห์ช่องว่างทางทักษะ (Skill Gap Analysis) และสรุปโปรไฟล์อย่างแม่นยำ
+3. **Rubric-based Evaluation & Fair Assessment**: โมเดลประเมินผลการสัมภาษณ์อย่างเป็นกลางตามเกณฑ์ประเมินหลายมิติ (Rubrics) พร้อมให้คะแนนและระบุเหตุผลประกอบ
+4. **Actionable Coaching & Feedback**: โมเดลโค้ชชิ่งและให้คำแนะนำเชิงพัฒนาการแก่ผู้สมัคร เพื่อเสริมสร้างทักษะและเตรียมความพร้อมในการสัมภาษณ์งานจริง
+
+### 1.2 ปัญหาสำคัญที่ระบบแก้ไข (Problem Statement & Solutions)
+1. **Data Scarcity for Multi-Domain LLM**: ขาดแคลนชุดข้อมูลสัมภาษณ์งานที่มีโครงสร้างมาตรฐานและความลึกเฉพาะทาง &rarr; แก้ไขด้วย **7-Dimension Universal Synthetic Engine** ที่ครอบคลุม 10 กลุ่มอุตสาหกรรม และ 80+ ตำแหน่งงาน
+2. **PII & Legal Risks (PDPA/GDPR Compliance)**: ความเสี่ยงข้อมูลส่วนบุคคลรั่วไหลสู่โมเดลฝึกสอน &rarr; สถาปัตยกรรม **PII Vault Separation** และ **Zero PII Leakage Gate** พร้อม Regex Redaction ก่อนการ Export ข้อมูล 100%
+3. **Eliminating Single-Domain Bias**: ระบบข้อมูลส่วนใหญ่มักจำกัดอยู่เพียงสาย IT &rarr; ขยายขอบเขตให้ครอบคลุมการเงิน (Fintech), การแพทย์และสาธารณสุข, วิศวกรรม, กฎหมาย, บริหารธุรกิจ และวิชาการ
+4. **Data Verification Bottleneck**: ขาดกลไกตรวจสอบคุณภาพข้อมูล &rarr; พื้นที่ทำงาน **Human-in-the-Loop Side-by-side QA Review** ให้ผู้เชี่ยวชาญตรวจสอบและอนุมัติข้อมูลก่อนป้อนเข้ากระบวนการ Training
+
+### 1.3 สถานะความพร้อมของระบบ (System Readiness)
+- **Production-Grade Containerized Stack**: ทุกไมโครเซอร์วิสรันจริงและเชื่อมต่อกันสมบูรณ์ 100% ผ่าน Docker Compose
+- **Data Lineage & Reproducibility**: มีระบบคำนวณ Cryptographic Hash (SHA-256) และบันทึกประวัติการ Export ทุกชุดข้อมูลลงใน **MLflow** เพื่อการติดตามการทดลองและฝึกสอนโมเดลอย่างเป็นระบบ
 
 ---
 
