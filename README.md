@@ -1,243 +1,246 @@
-# 🌊 Platform: Crisis Resilience & Universal Intelligence DataHub
+# InterviewX DataHub
 
-> ### **"เตือนภัยตรงจุด ➔ เดินทางปลอดภัย ➔ เสบียงหมุนเวียนด้วยเงินท้องถิ่น"**
-> **เปลี่ยนวิกฤตอุทกภัยให้เป็นโอกาสในการฟื้นฟูเศรษฐกิจชุมชน ผ่านระบบดิจิทัลวอลเล็ตแบบกระจายศูนย์และแบบจำลอง AI นำทางกู้ภัย**
+> **Universal Multi-Industry & Multi-Profession Interview Dataset Generator**  
+> แพลตฟอร์มบริหารจัดการ สังเคราะห์ ตรวจสอบคุณภาพ และเตรียมชุดข้อมูลสัมภาษณ์ระดับสากล สำหรับการพัฒนาและฝึกสอนโมเดลภาษาขนาดใหญ่ (InterviewX LLM)
 
-[![Hackathon Status](https://img.shields.io/badge/Hackathon%20Status-MVP%20Ready%20%E2%80%A2%20Fully%20Functional-success?style=for-the-badge&logo=rocket)](https://github.com/Phoomss/interviewx-datahub)
-[![Fintech](https://img.shields.io/badge/Fintech-Decentralized%20Community%20Wallet-blue?style=for-the-badge&logo=visa)](https://github.com/Phoomss/interviewx-datahub)
-[![AI/NLP](https://img.shields.io/badge/AI%2FNLP-FastAPI%20%E2%80%A2%20Pydantic%20v2%20%E2%80%A2%20LLM%20Engine-purple?style=for-the-badge&logo=fastapi)](https://github.com/Phoomss/interviewx-datahub)
+[![Hackathon Status](https://img.shields.io/badge/Hackathon%20Status-MVP%20Ready%20%E2%80%A2%20Production%20Grade-success?style=for-the-badge&logo=rocket)](https://github.com/Phoomss/interviewx-datahub)
+[![Platform Design](https://img.shields.io/badge/Platform%20Design-Decoupled%20Microservices-indigo?style=for-the-badge&logo=docker)](https://github.com/Phoomss/interviewx-datahub)
+[![Fintech & Industry](https://img.shields.io/badge/Fintech%20%26%20Industry-10%20Domains%20%E2%80%A2%2080%2B%20Professions-blue?style=for-the-badge&logo=cashapp)](https://github.com/Phoomss/interviewx-datahub)
+[![AI/NLP](https://img.shields.io/badge/AI%2FNLP-FastAPI%20%E2%80%A2%20Pydantic%20v2%20%E2%80%A2%20PyMuPDF-purple?style=for-the-badge&logo=fastapi)](https://github.com/Phoomss/interviewx-datahub)
 [![License](https://img.shields.io/badge/License-MIT-emerald?style=for-the-badge)](LICENSE)
 
 ---
 
 ## สารบัญ (Table of Contents)
-1. [🏆 Hackathon Status](#1-hackathon-status)
-2. [🏛️ Platform Design](#2-platform-design)
-3. [💳 Fintech: ระบบดิจิทัลวอลเล็ตและเศรษฐกิจเสบียงท้องถิ่น](#3-fintech-ระบบดิจิทัลวอลเล็ตและเศรษฐกิจเสบียงท้องถิ่น)
-4. [🧠 AI/NLP: แบบจำลองนำทางกู้ภัยและวิเคราะห์ข้อมูลสากล](#4-ainlp-แบบจำลองนำทางกู้ภัยและวิเคราะห์ข้อมูลสากล)
-5. [🔄 โมดูลข้อมูลสากล 10 อุตสาหกรรม & 7 มิติ](#5-โมดูลข้อมูลสากล-10-อุตสาหกรรม--7-มิติ)
+1. [🏆 Hackathon Status & Executive Summary](#1-hackathon-status--executive-summary)
+2. [🏛️ Platform Design & System Architecture](#2-platform-design--system-architecture)
+3. [💳 Fintech & Multi-Industry Domains](#3-fintech--multi-industry-domains)
+4. [🧠 AI / NLP Intelligence & Parsing Engine](#4-ai--nlp-intelligence--parsing-engine)
+5. [🔄 7 มิติชุดข้อมูลสังเคราะห์ (7 Dataset Dimensions)](#5-7-มิติชุดข้อมูลสังเคราะห์-7-dataset-dimensions)
 6. [🔒 การกำกับดูแลความปลอดภัยและ Zero PII Leakage Gate](#6-การกำกับดูแลความปลอดภัยและ-zero-pii-leakage-gate)
-7. [🛠️ สแต็กเทคโนโลยีและขอบเขตบริการ (Technology Stack)](#7-สแต็กเทคโนโลยีและขอบเขตบริการ)
-8. [🚀 คู่มือการติดตั้งและเปิดใช้งานระบบ (Deployment Guide)](#8-คู่มือการติดตั้งและเปิดใช้งานระบบ)
-9. [📡 ข้อมูลการเชื่อมต่อ API และพอร์ตบริการ (System Ports & APIs)](#9-ข้อมูลการเชื่อมต่อ-api-และพอร์ตบริการ)
+7. [🛠️ สแต็กเทคโนโลยี (Technology Stack)](#7-สแต็กเทคโนโลยี-technology-stack)
+8. [🚀 คู่มือการติดตั้งและเปิดใช้งานระบบ (Deployment Guide)](#8-คู่มือการติดตั้งและเปิดใช้งานระบบ-deployment-guide)
+9. [📡 ข้อมูลการเชื่อมต่อ API และพอร์ตบริการ (System Ports & APIs)](#9-ข้อมูลการเชื่อมต่อ-api-และพอร์ตบริการ-system-ports--apis)
 10. [📜 License](#10-license)
 
 ---
 
-## 1. 🏆 Hackathon Status
+## 1. 🏆 Hackathon Status & Executive Summary
 
-- **Hackathon Track**: FinTech for Social Impact, Crisis Recovery & AI/NLP Disaster Resilience
-- **Project Stage**: **MVP Working Prototype (ระดับ Production-Grade Containerized Stack)**
+- **Hackathon Track**: Generative AI, LLM Data Engineering & Enterprise NLP
+- **Project Stage**: **MVP Ready (Production-Grade Containerized Stack)**
 - **System Health**: ทุก Service รันจริงและเชื่อมต่อกันสมบูรณ์ 100% ผ่าน Docker Compose
-- **Core Value Proposition**:
-  1. **เตือนภัยตรงจุด (Precision Early Warning)**: ใช้ AI สกัดข้อมูลตำแหน่งและประเมินระดับความเร่งด่วนของผู้ประสบภัย
-  2. **เดินทางปลอดภัย (Safe Rescue Navigation)**: แบบจำลอง AI นำทางทีมกู้ภัย หลบเลี่ยงเส้นทางน้ำท่วมสูงและจุดตัดอันตราย
-  3. **เสบียงหมุนเวียนด้วยเงินท้องถิ่น (Local Economic Circulation)**: เปลี่ยนเงินบริจาค/เงินเยียวยาเป็นดิจิทัลวอลเล็ตชุมชนเพื่อซื้อสินค้าจากร้านค้าในพื้นที่ ฟื้นฟูเศรษฐกิจท้องถิ่นอย่างยั่งยืน
+- **ปัญหาที่ระบบแก้ไข (Problem Statement)**:
+  1. **Data Scarcity for Multi-Domain LLM**: ขาดแคลนชุดข้อมูลสัมภาษณ์งานและวิชาการที่มีคุณภาพ โครงสร้างมาตรฐาน และความหลากหลายข้ามอุตสาหกรรม
+  2. **PII & Legal Risks (PDPA)**: การนำเรซูเมจริงมาใช้เทรนโมเดลมักติดปัญหาข้อมูลส่วนบุคคลรั่วไหล
+  3. **IT-Centric Bias**: ระบบสร้าง Synthetic Data ส่วนใหญ่จำกัดอยู่เพียงตำแหน่งไอที ไม่รองรับสายการแพทย์ การเงิน กฎหมาย หรือการศึกษา
+  4. **Data Verification Bottleneck**: ขาดระบบ Human-in-the-Loop สำหรับตรวจรับรองคุณภาพข้อมูล (QA Review) ก่อนส่งเข้ากระบวนการ Fine-tuning
 
 ---
 
-## 2. 🏛️ Platform Design
+## 2. 🏛️ Platform Design & System Architecture
 
-ระบบได้รับการออกแบบตามหลัก **Decoupled Microservice Architecture** ที่มีความยืดหยุ่นสูง รองรับทั้งสถานการณ์ปกติและภาวะวิกฤต:
+ระบบได้รับการออกแบบตามหลัก **Decoupled Microservice Architecture** แบ่งแยกความรับผิดชอบอย่างชัดเจนระหว่าง Core Business Logic, AI Processing และ Data Storage:
 
 ```mermaid
 flowchart TD
-    subgraph ClientLayer["🖥️ Frontend Client (Port 3000)"]
-        UI["Next.js 14 App Router\nTypeScript • Tailwind CSS • shadcn/ui"]
-        Studio["Universal Studio & Annotation UI"]
-        WalletView["Community Wallet & Relief Dashboard"]
+    subgraph ClientLayer["🖥️ Frontend Client (Next.js 14 • Port 3000)"]
+        UI["Universal Synthetic Studio\nTaxonomy Manager • Resume QA Workspace\nDatasets Multi-Format Export"]
     end
 
-    subgraph APILayer["⚙️ Backend Core Gateway (Port 4000)"]
-        Nest["NestJS Core Service\nPrisma ORM • REST API • Swagger"]
+    subgraph APILayer["⚙️ Backend Core Gateway (NestJS 10 • Port 4000)"]
+        Nest["NestJS REST API Gateway\nPrisma ORM • Swagger • DTO Validation"]
         Audit["Audit Logger & PII Vault Controller"]
-        ExportEngine["Multi-Format Export (JSON/CSV/XLSX/Alpaca)"]
+        ExportEngine["Export Engine (JSON / CSV / XLSX / Alpaca)"]
     end
 
-    subgraph AIEngine["🧠 AI & NLP Service (Port 8000)"]
+    subgraph AIEngine["🧠 AI & NLP Service (FastAPI • Port 8000)"]
         FastAPI["FastAPI Python 3.11\nPydantic v2 Engine"]
         Parser["PyMuPDF & python-docx Parser"]
-        Extractor["Emergency NLP & Profile Extractor"]
-        UniversalGen["7-Dimension Universal Dataset Generator"]
+        Extractor["Intelligent Resume / Profile Extractor"]
+        UniversalGen["7-Dimension Universal Synthetic Generator"]
     end
 
-    subgraph DataStore["💾 Data & Ledger Storage"]
-        PG[("PostgreSQL 16\nStructured Records & Vault")]
-        Redis[("Redis 7\nQueue & Local Currency Cache")]
-        MinIO[("MinIO S3\nObject Storage & Artifacts")]
-        MLflow[("MLflow 2.17\nModel & Dataset Lineage")]
+    subgraph DataStore["💾 Data & Artifact Storage"]
+        PG[("PostgreSQL 16\nStructured Records, Taxonomy & Vault")]
+        Redis[("Redis 7\nQueue & Cache")]
+        MinIO[("MinIO S3\nRaw Documents & Export Artifacts")]
+        MLflow[("MLflow 2.17\nDataset Lineage & Run Tracking")]
     end
 
-    UI --> Nest
+    UI -->|HTTP / REST| Nest
     Nest --> PG
     Nest --> Redis
     Nest --> MinIO
-    Nest --> FastAPI
+    Nest -->|Internal API| FastAPI
     FastAPI --> MinIO
     Nest --> MLflow
 ```
 
-### แผนผังกระบวนการทำงาน (Rescue & Community Recovery Flow)
+### แผนผังกระบวนการเตรียมและตรวจสอบข้อมูล (Data Pipeline Sequence)
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as ผู้ประสบภัย / อาสาสมัคร
-    participant App as Next.js Web App
+    actor User as ผู้ใช้ / Annotator
+    participant Web as Next.js 14 Frontend
     participant Core as NestJS Gateway
-    participant AI as FastAPI NLP Engine
-    participant Wallet as Decentralized Wallet
-    participant Store as S3 & PostgreSQL
+    participant AI as FastAPI AI Engine
+    participant S3 as MinIO S3 Storage
+    participant DB as PostgreSQL 16
+    participant ML as MLflow Tracking
 
-    User->>App: แจ้งเหตุ / ขอเสบียง / ส่งเอกสาร
-    App->>Core: ส่งข้อมูลคำขอฉุกเฉิน
-    Core->>AI: สกัดข้อมูลพิกัดและความต้องการเร่งด่วน (NLP Parse)
-    AI-->>Core: พิกัดปลอดภัย + ระดับความเร่งด่วน (Verified)
-    Core->>Store: จัดเก็บหลักฐานใน MinIO & แยก PII Vault
-    Core->>Wallet: ออกสิทธิ์ดิจิทัลวอลเล็ต (Community Relief Credit)
-    Wallet-->>User: ได้รับเครดิตเสบียงหมุนเวียนในร้านค้าชุมชน
+    User->>Web: อัปโหลดเอกสาร PDF/DOCX หรือ สั่งสร้าง Synthetic Batch
+    Web->>Core: ส่งคำขอไปยัง API Gateway
+    alt Upload Real Document
+        Core->>S3: จัดเก็บไฟล์ต้นฉบับใน bucket `raw-documents`
+        Core->>AI: ส่งไฟล์ให้ถอดข้อความ (PyMuPDF / docx)
+        AI-->>Core: ข้อมูลโครงสร้าง Profile + PII Offsets
+        Core->>DB: แยกเก็บ PII ลง `pii_vault` และ Profile ลง `parsed_profiles`
+    else Universal Synthetic Generation
+        Core->>AI: สั่งผลิตข้อมูลสังเคราะห์ 7 มิติตาม Taxonomy
+        AI-->>Core: ข้อมูลสังเคราะห์พร้อม SyntheticMetadata v2.0
+        Core->>DB: บันทึกลงตาราง `dataset_records`
+    end
+    User->>Web: ตรวจสอบและอนุมัติแบบ Side-by-side Review
+    Web->>Core: ยืนยันการรับรอง (Approve / Reject)
+    User->>Web: สั่งส่งออก Dataset (JSON, CSV, XLSX, Alpaca)
+    Core->>Core: ตรวจสอบผ่าน Zero PII Leakage Gate
+    Core->>S3: จัดเก็บไฟล์ Dataset ใน `dataset-exports`
+    Core->>ML: บันทึก SHA-256 Hash และ Lineage Run
+    Core-->>Web: ดาวน์โหลดไฟล์ Dataset พร้อมใช้งาน
 ```
 
 ---
 
-## 3. 💳 Fintech: ระบบดิจิทัลวอลเล็ตและเศรษฐกิจเสบียงท้องถิ่น
+## 3. 💳 Fintech & Multi-Industry Domains
 
-### 3.1 ปัญหาของระบบแจกเสบียงแบบเดิม
-- การส่งของแจกจากภายนอกเข้ามาทับถมทำให้ **ร้านค้าโชห่วยและตลาดในชุมชนล้มละลาย** ขาดรายได้หลังน้ำลด
-- การกระจายเงินสดมีความเสี่ยงต่อการสูญหาย ถูกหักหัวคิว และตรวจสอบเส้นทางการเงินได้ยาก
+ระบบรองรับกลุ่มอุตสาหกรรมและตำแหน่งงานอย่างครอบคลุม **10 กลุ่มอุตสาหกรรม** และ **80+ ตำแหน่งงาน** สามารถเพิ่มขยายตำแหน่งงานใหม่ได้แบบ Dynamic ผ่าน REST API และหน้าเว็บ `/taxonomy`:
 
-### 3.2 นวัตกรรมดิจิทัลวอลเล็ตแบบกระจายศูนย์ (Decentralized Community Relief Wallet)
-- **Tokenized Relief Vouchers**: เงินช่วยเหลือหรือเงินบริจาคจะถูกแปลงเป็นเครดิตดิจิทัลที่ระบุเงื่อนไขการใช้จ่าย (Smart Voucher) สำหรับซื้อ **ข้าวสาร อาหารแห้ง น้ำดื่ม ยา และอุปกรณ์ซ่อมแซมบ้าน**
-- **Local Merchant Empowerment**: เครดิตสามารถใช้ได้เฉพาะกับร้านค้าและผู้ประกอบการท้องถิ่นในรัศมีพื้นที่ประสบภัย ช่วยให้เงินหมุนเวียนในเศรษฐกิจชุมชนหลายรอบ
-- **Transparent & Traceable Ledger**: ทุกธุรกรรมมี Audit Trail เข้ารหัสบันทึกลงใน PostgreSQL และ Redis สามารถตรวจสอบยอดคงเหลือและประวัติการใช้จ่ายได้แบบเรียลไทม์ ปราศจากการทุจริต
-- **Offline-Resilient Transactions**: สถาปัตยกรรมรองรับการบันทึกธุรกรรมแบบ Local Cache และ Sync ข้อมูลเมื่อเครือข่ายสัญญาณกลับมาออนไลน์
-
----
-
-## 4. 🧠 AI/NLP: แบบจำลองนำทางกู้ภัยและวิเคราะห์ข้อมูลสากล
-
-### 4.1 แบบจำลอง AI นำทางกู้ภัย (Safe Route & Rescue Navigation)
-- ประมวลผลจุดตัดระดับน้ำและรายงานสิ่งกีดขวางแบบเรียลไทม์ เพื่อคำนวณเส้นทางเดินเรือและรถยกสูงที่ปลอดภัยที่สุดสำหรับทีมกู้ภัย
-- จัดลำดับความเร่งด่วนของผู้ประสบภัย (Triage AI): เด็ก, ผู้ป่วยติดเตียง, ผู้สูงอายุ และผู้ขาดแคลนเสบียงวิกฤต
-
-### 4.2 Emergency NLP & Extraction Engine
-- **FastAPI + PyMuPDF + python-docx**: ถอดข้อความจากเอกสาร, ข้อความแจ้งเหตุ, หรือเรซูเมผู้เชี่ยวชาญอาสาสมัคร
-- **Pydantic v2 Schema Enforcement**: ตรวจสอบความถูกต้องของข้อมูลทุกรายการก่อนส่งเข้าสู่ฐานข้อมูล ป้องกันข้อมูลผิดพลาด (Hallucination)
-- **Regex PII Shield**: สแกนและ Redact เลขบัตรประชาชน, เบอร์โทรศัพท์ และข้อมูลระบุตัวตนส่วนบุคคลทันที เพื่อความปลอดภัยตามมาตรฐาน PDPA
+1. **Finance & Accounting (Fintech, การเงินและการบัญชี)**:
+   - Financial Analyst (Corporate Fintech)
+   - Financial Controller & Treasury Specialist
+   - Auditor (ผู้ตรวจสอบบัญชีและระบบความเสี่ยง)
+   - Investment Analyst (ตราสารทุนและการบริหารพอร์ต)
+   - Banking Officer (สินเชื่อและวาณิชธนกิจ)
+   - Financial Advisor (ที่ปรึกษาการเงินและ Wealth Management)
+   - Risk Analyst (Basel III, Credit Scoring, VaR)
+   - Tax Consultant (ภาษีองค์กรและ Transfer Pricing)
+2. **Technology & IT**: Software Engineer, Frontend, Backend, Full-stack, Mobile, AI/ML Engineer, Data Scientist, Data Engineer, Cybersecurity, Cloud, DevOps, System Administrator, UI/UX Designer, Product Manager, Software Architect
+3. **Healthcare & Medical**: แพทย์เวชปฏิบัติ/เฉพาะทาง, พยาบาลวิชาชีพ, เภสัชกร, นักกายภาพบำบัด, นักเทคนิคการแพทย์, นักวิชาการสาธารณสุข, ผู้บริหารโรงพยาบาล, นักวิจัยการแพทย์
+4. **Engineering & Industrial**: วิศวกรเครื่องกล, ไฟฟ้า, โยธา, อุตสาหการ, เคมี, ออโตเมชัน, QA/QC, ฝ่ายผลิต, วิศวกรโครงการ
+5. **Business & Management**: นักวิเคราะห์ธุรกิจ, พัฒนาธุรกิจ (BD), ผู้จัดการฝ่ายการตลาด, การตลาดดิจิทัล, ฝ่ายขาย, HR Business Partner, ผู้จัดการฝ่ายปฏิบัติการ, ที่ปรึกษาธุรกิจ
+6. **Education & Academic**: อาจารย์มหาวิทยาลัย, นักวิจัยวิชาการ, ครูผู้สอน, ผู้ช่วยวิจัย, ผู้บริหารสถานศึกษา, ผู้ช่วยสอน
+7. **Legal & Government**: ทนายความว่าความ, นิติกรองค์กร, เจ้าหน้าที่กำกับกฎเกณฑ์ (Compliance), นักวิเคราะห์นโยบายและแผน, ข้าราชการ, นักการทูต
+8. **Design, Media & Communication**: นักออกแบบกราฟิก, UX/UI, คอนเทนต์ครีเอเตอร์, นักเขียน, นักตัดต่อวิดีโอ, ช่างภาพ, นักข่าว, ประชาสัมพันธ์ (PR), ครีเอทีฟไดเรกเตอร์
+9. **Hospitality & Service**: ผู้จัดการโรงแรม, พนักงานต้อนรับส่วนหน้า, พนักงานบริการลูกค้า, พนักงานต้อนรับบนเครื่องบิน, ผู้ประสานงานอีเวนต์, ผู้จัดการร้านอาหาร
+10. **Specialized Professions**: นักวิทยาศาสตร์วิจัย, สถาปนิก, ผู้เชี่ยวชาญสิ่งแวดล้อม, ผู้เชี่ยวชาญโลจิสติกส์, ผู้จัดการซัพพลายเชน, นักวิชาการเกษตร, นักสังคมสงเคราะห์
 
 ---
 
-## 5. 🔄 โมดูลข้อมูลสากล 10 อุตสาหกรรม & 7 มิติ
+## 4. 🧠 AI / NLP Intelligence & Parsing Engine
 
-ระบบไม่ได้จำกัดเฉพาะงานกู้ภัยเท่านั้น แต่ยังทำหน้าที่เป็น **Universal Multi-Industry Synthetic Dataset Generator** เพื่อเตรียมข้อมูลสำหรับการพัฒนา LLM ทุกสาขาวิชาชีพ:
+### 4.1 PyMuPDF & python-docx Extraction
+- ถอดข้อความจากเอกสารจริงทั้งไฟล์ PDF และ DOCX ผ่าน FastAPI AI Service
+- สกัดโครงสร้าง: ข้อมูลสรุป (Summary), ทักษะ (Skills), ประวัติการทำงาน (Experience), ประวัติการศึกษา (Education), ประกาศนียบัตร (Certifications) และข้อมูลติดต่อ
 
-### 10 กลุ่มอุตสาหกรรม (Industries) และ 80+ ตำแหน่งงาน (Professions)
-1. **Healthcare & Medical (การแพทย์และสาธารณสุข)**: แพทย์, พยาบาลวิชาชีพ, เภสัชกร, นักกายภาพบำบัด ฯลฯ
-2. **Business & Management (ธุรกิจและการจัดการ)**: ผู้จัดการโครงการ, นักวิเคราะห์ธุรกิจ, การตลาด ฯลฯ
-3. **Finance & Accounting (การเงินและการบัญชี)**: ผู้ตรวจสอบบัญชี, นักวิเคราะห์การเงิน, ที่ปรึกษาภาษี ฯลฯ
-4. **Engineering & Industrial (วิศวกรรมและอุตสาหกรรม)**: วิศวกรเครื่องกล, ไฟฟ้า, โยธา, อุตสาหการ ฯลฯ
-5. **Technology & IT (เทคโนโลยีและสารสนเทศ)**: วิศวกรซอฟต์แวร์, AI Engineer, Data Engineer, Cloud/DevOps ฯลฯ
-6. **Education & Academic (การศึกษาและวิชาการ)**: อาจารย์มหาวิทยาลัย, นักวิจัย, ครูผู้สอน ฯลฯ
-7. **Legal & Government (กฎหมายและภาครัฐ)**: ทนายความ, นิติกร, เจ้าหน้าที่กำกับกฎเกณฑ์ ฯลฯ
-8. **Design & Media (การออกแบบและสื่อ)**: กราฟิกดีไซเนอร์, คอนเทนต์ครีเอเตอร์, นักตัดต่อ ฯลฯ
-9. **Hospitality & Service (การบริการและการท่องเที่ยว)**: ผู้จัดการโรงแรม, พนักงานต้อนรับบนเครื่องบิน ฯลฯ
-10. **Specialized Professions (วิชาชีพเฉพาะทาง)**: นักวิทยาศาสตร์วิจัย, สถาปนิก, นักสิ่งแวดล้อม ฯลฯ
+### 4.2 Universal Pydantic v2 Schema Enforcement
+- กำกับโครงสร้างข้อมูลสังเคราะห์ด้วย Pydantic v2 เพื่อป้องกันความผิดพลาดและควบคุม Provenance
+- บรรจุ `SyntheticMetadata`: `is_synthetic: true`, `generation_version: "2.0.0"`, `industry`, `profession`, `interview_category`, `seniority_level`
 
-### 7 มิติชุดข้อมูลสังเคราะห์ (7 Dataset Dimensions)
-1. **Professional Profile**: ข้อมูลประวัติ ทักษะ ผลงาน (ประสบการณ์งานเป็น Optional รองรับนักเรียน/ผู้ขอทุน)
-2. **Resume / CV**: เรซูเมโครงสร้างสมบูรณ์จำแนก 4 หมวดทักษะ
-3. **Interview Question**: คำถามสัมภาษณ์พร้อมวัตถุประสงค์ เกณฑ์ตรวจ และ Red Flags
-4. **Interview Answer**: คำตอบ 6 ระดับคุณภาพ (*Excellent, Good, Average, Poor, Incomplete, Irrelevant*)
-5. **Rubric Evaluation**: มิติคะแนนพร้อมเหตุผลประกอบและคำตัดสิน (Pass/Fail)
-6. **Feedback & Coaching**: จุดแข็ง จุดปรับปรุง และคำแนะนำพัฒนาตนเอง
-7. **Scenario-based Dilemma**: สถานการณ์จำลอง ข้อจำกัด และโจทย์จริยธรรม
+### 4.3 Human-in-the-Loop Side-by-side Review
+- พื้นที่ทำงานเปรียบเทียบเอกสารต้นฉบับกับข้อมูลที่ AI สกัดแบบสองฝั่งคู่ขนาน
+- รองรับการไฮไลต์ข้อความต้นฉบับ (Provenance), การแก้ไขข้อมูลแบบ Interactive และคีย์ลัด (*Cmd+Enter เพื่ออนุมัติ, Cmd+J เพื่อปฏิเสธ*)
+
+---
+
+## 5. 🔄 7 มิติชุดข้อมูลสังเคราะห์ (7 Dataset Dimensions)
+
+| มิติชุดข้อมูล (Dimension) | รายละเอียดข้อมูล | ประโยชน์สำหรับการฝึกสอน LLM |
+| :--- | :--- | :--- |
+| **1. Professional Profile** | ข้อมูลประวัติการทำงาน การศึกษา ทักษะ (*ประสบการณ์ทำงานเป็น Optional รองรับนักศึกษา/ผู้ขอรับทุน*) | เทรนโมเดลจับคู่โปรไฟล์ผู้สมัครงาน |
+| **2. Resume / CV** | โครงสร้างเรซูเมฉบับเต็ม จำแนกทักษะ 4 มิติ และผลงานเด่น | เทรนโมเดลสกัดและวิเคราะห์เรซูเม |
+| **3. Interview Question** | คำถามสัมภาษณ์เฉพาะด้าน พร้อมวัตถุประสงค์, เกณฑ์วัดผล และ Red Flags | เทรนโมเดลเป็นผู้สัมภาษณ์อัจฉริยะ (AI Interviewer) |
+| **4. Interview Answer** | คำตอบจำลอง 6 ระดับคุณภาพ (*Excellent (STAR), Good, Average, Poor, Incomplete, Irrelevant*) | เทรนโมเดลให้เข้าใจความแตกต่างของคำตอบ |
+| **5. Rubric Evaluation** | เกณฑ์การให้คะแนนหลายมิติ คะแนนที่ได้ พร้อมเหตุผลประกอบและคำตัดสิน | เทรนโมเดลการประเมินผลอย่างเป็นธรรม |
+| **6. Feedback & Coaching** | รายงานสรุปจุดเด่น จุดที่ต้องพัฒนา และคำแนะนำเชิงปฏิบัติการ (Actionable Tips) | เทรนโมเดลให้คำแนะนำและโค้ชชิ่งผู้สมัคร |
+| **7. Scenario-based Dilemma** | สถานการณ์จำลอง ข้อจำกัดขัดแย้ง และโจทย์จริยธรรมวิชาชีพ | เทรนโมเดลจำลองสถานการณ์วัดไหวพริบ |
 
 ---
 
 ## 6. 🔒 การกำกับดูแลความปลอดภัยและ Zero PII Leakage Gate
 
 - **PII Vault Architecture**: แยกตารางข้อมูลส่วนบุคคล (`pii_vault`) ออกจากตารางข้อมูลฝึกสอน (`parsed_profiles` และ `dataset_records`) อย่างเด็ดขาด
-- **Pre-Export Safety Gate**: ก่อนการส่งออกไฟล์ข้อมูล ระบบจะตัดฟิลด์ชื่อ อีเมล เบอร์โทรศัพท์ และรัน Regex Redaction อัตโนมัติ 100%
+- **Pre-Export Safety Gate**: ก่อนการส่งออกไฟล์ข้อมูล ระบบจะตัดฟิลด์ชื่อ อีเมล เบอร์โทรศัพท์ และรัน Regex Redaction กรองข้อความส่วนบุคคลทิ้ง 100%
 - **Cryptographic Hash (DVC Lineage)**: ทุกไฟล์ที่ส่งออกจะถูกคำนวณค่า SHA-256 Hash เพื่อยืนยันความถูกต้องและป้องกันการดัดแปลงข้อมูล
 - **MLflow Tracking**: บันทึก Metadata, พารามิเตอร์ และประวัติการ Export ทุกครั้งลงใน MLflow 2.17
 
 ---
 
-## 7. 🛠️ สแต็กเทคโนโลยีและขอบเขตบริการ
+## 7. 🛠️ สแต็กเทคโนโลยี (Technology Stack)
 
-| บริการ (Service) | เทคโนโลยีหลัก (Core Stack) | หน้าที่รับผิดชอบ |
+| บริการ (Service) | เทคโนโลยีหลัก | บทบาทและหน้าที่ |
 | :--- | :--- | :--- |
-| **Frontend Web** | Next.js 14, TypeScript, Tailwind CSS, TanStack Query | ส่วนต่อประสานผู้ใช้, แดชบอร์ดวอลเล็ต, สตูดิโอสังเคราะห์ |
-| **Backend Gateway** | NestJS 10, Prisma ORM, Swagger, BullMQ | ตรรกะทางธุรกิจ, การยืนยันสิทธิ์, วอลเล็ตเลดเจอร์, REST APIs |
-| **AI & NLP Engine** | FastAPI, Python 3.11, Pydantic v2, PyMuPDF | ถอดความข้อความฉุกเฉิน, สกัดเรซูเม, สังเคราะห์ข้อมูล 7 มิติ |
-| **Relational Database** | PostgreSQL 16 (Alpine) | เก็บข้อมูลเชิงโครงสร้าง, เลดเจอร์วอลเล็ต, PII Vault |
-| **Cache & Queue** | Redis 7 (Alpine) | แคชธุรกรรม, คิวงานประมวลผลพื้นหลัง |
-| **Object Storage** | MinIO (SeaweedFS S3-Compatible) | จัดเก็บไฟล์ PDF, DOCX และไฟล์ส่งออก Dataset |
+| **Frontend Web App** | Next.js 14, TypeScript, Tailwind CSS, TanStack Query | ส่วนต่อประสานผู้ใช้, Universal Studio, คลังเอกสาร, ตัวจัดการ Taxonomy |
+| **Backend API Gateway** | NestJS 10, Prisma ORM, Swagger, BullMQ | ตรรกะทางธุรกิจ, REST API, ระบบจัดการ Taxonomy, ส่งออก Dataset |
+| **AI & NLP Engine** | FastAPI, Python 3.11, Pydantic v2, PyMuPDF | ถอดความ PDF/Word, สกัดเรซูเม, สังเคราะห์ข้อมูล 7 มิติ |
+| **Relational Database** | PostgreSQL 16 (Alpine) | เก็บข้อมูลโครงสร้าง, Taxonomy, PII Vault, Dataset Records |
+| **Cache & Queue** | Redis 7 (Alpine) | แคชข้อมูล, คิวงานประมวลผลพื้นหลัง |
+| **Object Storage** | MinIO (SeaweedFS S3-Compatible) | จัดเก็บไฟล์ต้นฉบับ PDF/DOCX และไฟล์ส่งออก Dataset |
 | **Experiment Tracking** | MLflow 2.17.0 | ติดตามประวัติชุดข้อมูลและเวอร์ชันโมเดล |
+| **Package Manager** | Bun 1.1+ (TypeScript) / Pip (Python) | รันสคริปต์และบริหารจัดการ Dependencies รวดเร็วสูง |
 
 ---
 
-## 8. 🚀 คู่มือการติดตั้งและเปิดใช้งานระบบ
+## 8. 🚀 คู่มือการติดตั้งและเปิดใช้งานระบบ (Deployment Guide)
 
-### 8.1 ข้อกำหนดเบื้องต้น (Prerequisites)
-- Docker Desktop และ Docker Compose v2
-- Bun runtime (เวอร์ชัน 1.1 ขึ้นไป)
-- Git
-
-### 8.2 การเริ่มรันระบบผ่าน Docker Compose (คำสั่งเดียว)
+### 8.1 การเริ่มรันระบบผ่าน Docker Compose (คำสั่งเดียว)
 ```bash
 docker compose up -d --build
 ```
 
-ตรวจสอบสถานะ Containers:
+### 8.2 ตรวจสอบสถานะ Containers
 ```bash
 docker compose ps
 ```
+ทุกบริการจะต้องมีสถานะ `Up` หรือ `healthy`
 
-ทุก Containers จะต้องมีสถานะ `Up` หรือ `healthy`:
-- `interviewx-frontend` (Port 3000)
-- `interviewx-backend` (Port 4000)
-- `interviewx-ai-service` (Port 8000)
-- `interviewx-postgres` (Port 5433 host -> 5432 container)
-- `interviewx-minio` (Port 9000 / 9001)
-- `interviewx-redis` (Port 6379)
-- `interviewx-mlflow` (Port 5001)
-
-### 8.3 การทดสอบชุดการทำงาน (Running Tests)
+### 8.3 การทดสอบชุดการทำงานอัตโนมัติ (Automated Tests)
 ```bash
-# ทดสอบ AI Service (Python pytest)
+# ทดสอบ AI Service Universal Generator (Python pytest - 11 tests)
 docker exec interviewx-ai-service python -m pytest tests/
 
-# ทดสอบ Backend Core (Bun test)
+# ทดสอบ Backend Core, Taxonomy & Zero PII Gate (Bun test - 13 tests)
 docker exec interviewx-backend bun test src/
 ```
 
 ---
 
-## 9. 📡 ข้อมูลการเชื่อมต่อ API และพอร์ตบริการ
+## 9. 📡 ข้อมูลการเชื่อมต่อ API และพอร์ตบริการ (System Ports & APIs)
 
-| บริการ (Service) | พอร์ต (Port) | URL จุดเชื่อมต่อ |
+| บริการ (Service) | พอร์ต (Port) | หน้าต่างใช้งาน / URL |
 | :--- | :---: | :--- |
 | **Frontend Web App** | `3000` | [http://localhost:3000](http://localhost:3000) |
-| **Synthetic Studio (7 มิติ)** | `3000` | [http://localhost:3000/synthetic](http://localhost:3000/synthetic) |
-| **Taxonomy Management (10 กลุ่ม)** | `3000` | [http://localhost:3000/taxonomy](http://localhost:3000/taxonomy) |
+| **Universal Synthetic Studio** | `3000` | [http://localhost:3000/synthetic](http://localhost:3000/synthetic) |
+| **Taxonomy Manager (10 อุตสาหกรรม)** | `3000` | [http://localhost:3000/taxonomy](http://localhost:3000/taxonomy) |
+| **Resume Repository & QA** | `3000` | [http://localhost:3000/resumes](http://localhost:3000/resumes) |
 | **Dataset Export Hub (JSON/CSV/XLSX)** | `3000` | [http://localhost:3000/datasets](http://localhost:3000/datasets) |
 | **Backend REST API** | `4000` | [http://localhost:4000/api/v1](http://localhost:4000/api/v1) |
-| **Backend Swagger Docs** | `4000` | [http://localhost:4000/docs](http://localhost:4000/docs) |
-| **FastAPI AI Service Docs** | `8000` | [http://localhost:8000/docs](http://localhost:8000/docs) |
-| **MinIO S3 Console** | `9001` | [http://localhost:9001](http://localhost:9001) *(User: `minioadmin` / Pass: `minioadmin`)* |
+| **Backend Swagger API Docs** | `4000` | [http://localhost:4000/docs](http://localhost:4000/docs) |
+| **FastAPI AI Service OpenAPI Docs** | `8000` | [http://localhost:8000/docs](http://localhost:8000/docs) |
+| **MinIO Web Console** | `9001` | [http://localhost:9001](http://localhost:9001) *(User: `minioadmin` / Pass: `minioadmin`)* |
 | **MLflow Tracking Dashboard** | `5001` | [http://localhost:5001](http://localhost:5001) |
 
 ---
 
 ## 10. 📜 License
 
-โปรเจกต์นี้เผยแพร่ภายใต้สัญญาอนุญาต **MIT License** สามารถนำไปประยุกต์ใช้เพื่อสาธารณประโยชน์ ชุมชน และการพัฒนาเทคโนโลยีต่อยอดได้อย่างเสรี
+โปรเจกต์นี้เผยแพร่ภายใต้สัญญาอนุญาต **MIT License** สามารถนำไปประยุกต์ใช้และพัฒนาต่อยอดได้อย่างเสรี
 
 ```text
 MIT License
 
-Copyright (c) 2026 Crisis Resilience & Universal Intelligence Team
+Copyright (c) 2026 InterviewX DataHub Team
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
