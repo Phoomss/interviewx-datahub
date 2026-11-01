@@ -86,13 +86,24 @@ export class MinioService implements OnModuleInit {
     return await this.client.getObject(this.bucketRawDocs, cleanKey);
   }
 
+  async getExportArtifactStream(key: string): Promise<any> {
+    if (!this.client) throw new Error('Object storage is not ready');
+    const cleanKey = key.startsWith(`${this.bucketExports}/`)
+      ? key.substring(this.bucketExports.length + 1)
+      : key;
+    return await this.client.getObject(this.bucketExports, cleanKey);
+  }
+
   async getRawDocumentPresignedUrl(key: string, expirySeconds: number = 3600): Promise<string> {
     try {
       if (this.client) {
         const cleanKey = key.startsWith(`${this.bucketRawDocs}/`)
           ? key.substring(this.bucketRawDocs.length + 1)
           : key;
-        return await this.client.presignedGetObject(this.bucketRawDocs, cleanKey, expirySeconds);
+        let url = await this.client.presignedGetObject(this.bucketRawDocs, cleanKey, expirySeconds);
+        const publicEndpoint = this.config.get<string>('MINIO_PUBLIC_ENDPOINT', 'http://localhost:9000');
+        url = url.replace(/http:\/\/minio:8333/g, publicEndpoint);
+        return url;
       }
     } catch (err) {
       this.logger.warn(`MinIO raw doc presigned URL fallback: ${err.message}`);
@@ -103,7 +114,10 @@ export class MinioService implements OnModuleInit {
   async getPresignedDownloadUrl(key: string, expirySeconds: number = 3600): Promise<string> {
     try {
       if (this.client) {
-        return await this.client.presignedGetObject(this.bucketExports, key, expirySeconds);
+        let url = await this.client.presignedGetObject(this.bucketExports, key, expirySeconds);
+        const publicEndpoint = this.config.get<string>('MINIO_PUBLIC_ENDPOINT', 'http://localhost:9000');
+        url = url.replace(/http:\/\/minio:8333/g, publicEndpoint);
+        return url;
       }
     } catch (err) {
       this.logger.warn(`MinIO presigned URL fallback: ${err.message}`);

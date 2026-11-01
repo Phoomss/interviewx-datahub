@@ -8,6 +8,7 @@ import { CreateExportDto, ExportDatasetFormat } from './dto/create-export.dto';
 @Injectable()
 export class ExportService {
   private readonly logger = new Logger(ExportService.name);
+  private inMemoryExports: any[] = [];
 
   constructor(
     private readonly prisma: PrismaService,
@@ -199,17 +200,42 @@ export class ExportService {
       },
     });
 
-    // 7. บันทึกระเบียนลงฐานข้อมูล PostgreSQL (ตาราง DatasetExport)
-    let savedExport: any = null;
+    // 7. บันทึกระเบียนลงหน่วยความจำและฐานข้อมูล PostgreSQL
+    const exportRecord = {
+      id: exportId,
+      exportName: dto.exportName,
+      exportFormat: dto.format,
+      status: 'COMPLETED',
+      recordCount: sanitizedProfiles.length,
+      storagePath,
+      filterCriteria: dto,
+      dvcHash,
+      mlflowRunId,
+      createdAt: new Date().toISOString(),
+      completedAt: new Date().toISOString(),
+    };
+
+    this.inMemoryExports.unshift(exportRecord);
+
     try {
       let createdById = userId;
       if (!createdById) {
-        const adminUser = await this.prisma.user.findFirst();
+        let adminUser = await this.prisma.user.findFirst();
+        if (!adminUser) {
+          adminUser = await this.prisma.user.create({
+            data: {
+              email: 'admin@interviewx.ai',
+              fullName: 'InterviewX System Admin',
+              passwordHash: 'seeded_admin_hash',
+              role: 'ADMIN',
+            },
+          });
+        }
         createdById = adminUser?.id;
       }
 
       if (createdById) {
-        savedExport = await this.prisma.datasetExport.create({
+        await this.prisma.datasetExport.create({
           data: {
             id: exportId,
             exportName: dto.exportName,
@@ -232,16 +258,7 @@ export class ExportService {
     return {
       success: true,
       message: 'สร้างและส่งออกชุดข้อมูลสำหรับฝึกสอน LLM สำเร็จ',
-      data: savedExport || {
-        id: exportId,
-        exportName: dto.exportName,
-        format: dto.format,
-        recordCount: sanitizedProfiles.length,
-        storagePath,
-        dvcHash,
-        mlflowRunId,
-        createdAt: new Date().toISOString(),
-      },
+      data: exportRecord,
     };
   }
 
@@ -249,16 +266,21 @@ export class ExportService {
    * ดึงรายการประวัติการ Export ทั้งหมด
    */
   async listExports() {
+    let dbExports: any[] = [];
     try {
-      const exports = await this.prisma.datasetExport.findMany({
+      dbExports = await this.prisma.datasetExport.findMany({
         orderBy: { createdAt: 'desc' },
       });
-
-      if (exports.length > 0) {
-        return { success: true, data: exports };
-      }
     } catch (err) {
       this.logger.warn('Prisma listExports fallback:', err.message);
+    }
+
+    const merged = new Map<string, any>();
+    for (const exp of this.inMemoryExports) merged.set(exp.id, exp);
+    for (const exp of dbExports) merged.set(exp.id, exp);
+
+    if (merged.size > 0) {
+      return { success: true, data: Array.from(merged.values()) };
     }
 
     // Default demo exports
@@ -278,6 +300,21 @@ export class ExportService {
         },
       ],
     };
+  }
+
+  async getExport(id: string) {
+    const list = await this.listExports();
+    const item = list.data.find((e: any) => e.id === id);
+    if (!item) {
+      throw new BadRequestException(`ไม่พบประวัติการส่งออกรหัส ${id}`);
+    }
+    return item;
+  }
+
+  async getExportStream(id: string): Promise<{ stream: any; exportName: string }> {
+    const item = await this.getExport(id);
+    const stream = await this.minio.getExportArtifactStream(item.storagePath || `${id}/dataset.jsonl`);
+    return { stream, exportName: item.exportName || 'dataset' };
   }
 
   /**

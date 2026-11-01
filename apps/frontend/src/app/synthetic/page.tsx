@@ -21,115 +21,51 @@ export default function SyntheticStudioPage() {
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     setGenerating(true);
-    let generatedProfiles: any[] = [];
 
     try {
       const skillsArray = techStack.split(",").map((s) => s.trim()).filter(Boolean);
-      
-      const res = await fetch("http://localhost:8000/internal/v1/synthetic/generate-batch", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
+
+      const res = await fetch(`${apiUrl}/synthetic/jobs`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-internal-service-key": "interviewx_internal_service_secret_key_2026",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          batch_size: Number(batchSize),
+          jobName: `Synthetic ${seniority} ${role} Batch`,
           role,
           seniority,
-          tech_stack: skillsArray,
+          targetCount: Number(batchSize),
+          techStack: skillsArray,
           language: "en",
         }),
       });
 
       const json = await res.json();
-      if (json.success && json.profiles) {
-        generatedProfiles = json.profiles;
+      if (!res.ok || !json.success || !json.data) {
+        throw new Error(json.message || "Synthetic generation failed");
       }
-    } catch (err) {
-      console.warn("AI Service offline, generating client-side synthetic resumes:", err);
+
+      const generatedProfiles = json.data.profiles || [];
+      const newDocs = json.data.documents || [];
+      setResults(generatedProfiles);
+
+      // Save to localStorage for client caching
+      try {
+        const existing = localStorage.getItem("interviewx_resumes_cache");
+        let allDocs = newDocs;
+        if (existing) {
+          const parsed = JSON.parse(existing);
+          allDocs = [...newDocs, ...parsed.filter((d: any) => !newDocs.some((nd: any) => nd.id === d.id))];
+        }
+        localStorage.setItem("interviewx_resumes_cache", JSON.stringify(allDocs));
+      } catch (e) {}
+
+      showToast(`สร้างเรซูเมสังเคราะห์ ${generatedProfiles.length} รายการ และบันทึกเข้าสู่คลังเอกสารสำเร็จ!`);
+    } catch (err: any) {
+      console.error("Synthetic generation error:", err);
+      showToast(err.message || "เกิดข้อผิดพลาดในการสร้างข้อมูลสังเคราะห์");
+    } finally {
+      setGenerating(false);
     }
-
-    // Fallback if AI Service wasn't reachable
-    if (generatedProfiles.length === 0) {
-      generatedProfiles = Array.from({ length: batchSize }).map((_, idx) => ({
-        professional_summary: `Synthetic ${seniority} ${role} with robust expertise in distributed architectures.`,
-        skills: techStack.split(",").map((s) => s.trim()),
-        experiences: [
-          {
-            company_name: `Cloud Innovators Corp #${idx + 1}`,
-            role_title: `${seniority} ${role}`,
-            start_date: "2021-01",
-            end_date: "Present",
-            responsibilities: [
-              "Designed microservices processing 50k transactions/sec.",
-              "Optimized database indexing and p95 latency by 35%."
-            ],
-            technologies_used: techStack.split(",").slice(0, 3).map((s) => s.trim()),
-          },
-        ],
-        educations: [
-          {
-            institution: "Leading University of Science & Tech",
-            degree: "B.Sc. in Computer Science",
-            graduation_year: 2020,
-          },
-        ],
-      }));
-    }
-
-    setResults(generatedProfiles);
-
-    // PERSIST TO RESUME REPOSITORY (Cache & Backend)
-    const newDocs = generatedProfiles.map((p, idx) => {
-      const docId = `doc-syn-${Date.now().toString(36)}-${idx}`;
-      return {
-        id: docId,
-        fileName: `synthetic_${role.toLowerCase().replace(/\s+/g, "_")}_${idx + 1}.pdf`,
-        fileType: "PDF",
-        fileSizeBytes: 215000,
-        sourceType: "SYNTHETIC",
-        isSynthetic: true,
-        status: "PARSED",
-        createdAt: new Date().toISOString(),
-        parsedProfile: {
-          id: `profile-${docId}`,
-          confidenceScore: 0.98,
-          extractorVersion: "synthetic-generator-v1.0",
-          rawText: `SYNTHETIC RESUME\n${role.toUpperCase()} (${seniority})\n\nSUMMARY\n${p.professional_summary}\n\nSKILLS\n${p.skills.join(", ")}`,
-          structuredData: p,
-        },
-      };
-    });
-
-    // Save to localStorage so it instantly appears in /resumes
-    try {
-      const existing = localStorage.getItem("interviewx_resumes_cache");
-      let allDocs = newDocs;
-      if (existing) {
-        const parsed = JSON.parse(existing);
-        allDocs = [...newDocs, ...parsed];
-      }
-      localStorage.setItem("interviewx_resumes_cache", JSON.stringify(allDocs));
-    } catch (e) {}
-
-    // Send to Backend API
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
-      for (const d of newDocs) {
-        fetch(`${apiUrl}/documents/upload`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            fileName: d.fileName,
-            sourceType: "SYNTHETIC",
-            fileSizeBytes: d.fileSizeBytes,
-          }),
-        }).catch(() => {});
-      }
-    } catch (e) {}
-
-    showToast(`สร้างเรซูเมสังเคราะห์ ${generatedProfiles.length} รายการ และบันทึกเข้าสู่คลังเอกสารสำเร็จ!`);
-    setGenerating(false);
   };
 
   return (

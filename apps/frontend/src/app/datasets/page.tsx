@@ -246,7 +246,7 @@ export default function DatasetsExportPage() {
                   </td>
                   <td className="py-3.5 px-4 text-right">
                     <a
-                      href={`http://localhost:4000/api/v1/datasets/exports/${item.id}/download`}
+                      href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1"}/datasets/exports/${item.id}/file`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 px-3 py-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium rounded-md transition shadow-2xs"

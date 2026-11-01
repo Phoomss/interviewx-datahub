@@ -6,6 +6,7 @@ import { DocumentsModule } from './documents/documents.module';
 import { ExportModule } from './export/export.module';
 import { ConsentModule } from './consent/consent.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { SyntheticModule } from './synthetic/synthetic.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -21,6 +22,7 @@ import { AppService } from './app.service';
     ExportModule,
     ConsentModule,
     AnalyticsModule,
+    SyntheticModule,
   ],
   controllers: [AppController],
   providers: [AppService],

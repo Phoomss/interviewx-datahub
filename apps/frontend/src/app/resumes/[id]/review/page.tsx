@@ -133,6 +133,8 @@ export default function ResumeReviewPage() {
           activeSection={activeSection}
           fileType={document?.fileType || "PDF"}
           fileName={document?.fileName || "candidate_resume.pdf"}
+          documentId={document?.id || id}
+          previewUrl={document?.previewUrl}
         />
 
         {/* Right Side: Interactive Structured Profile Editor */}

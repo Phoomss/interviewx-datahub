@@ -179,6 +179,27 @@ export class DocumentsService {
     return await this.storage.getRawDocumentStream(storageKey);
   }
 
+  async remove(id: string) {
+    const idx = this.inMemoryDocs.findIndex((d) => d.id === id);
+    if (idx !== -1) {
+      this.inMemoryDocs.splice(idx, 1);
+    }
+
+    try {
+      await this.prisma.document.update({
+        where: { id },
+        data: { deletedAt: new Date() },
+      });
+    } catch (err) {
+      this.logger.debug(`Prisma remove deferred: ${err.message}`);
+    }
+
+    return {
+      success: true,
+      message: `ลบเอกสารรหัส ${id} เรียบร้อยแล้ว`,
+    };
+  }
+
   async submitReview(id: string, dto: SubmitReviewDto, userIp: string = '127.0.0.1') {
     const { status, corrections, reviewNotes, reviewerId } = dto;
 

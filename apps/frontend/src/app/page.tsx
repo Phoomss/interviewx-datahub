@@ -50,6 +50,13 @@ export default function Home() {
             <Database className="w-4 h-4" />
             <span>ส่งออกชุดข้อมูล LLM</span>
           </Link>
+          <Link
+            href="/analytics"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg shadow-sm transition"
+          >
+            <Brain className="w-4 h-4" />
+            <span>แดชบอร์ด Data Bias & ธรรมาภิบาล</span>
+          </Link>
         </div>
       </header>
 

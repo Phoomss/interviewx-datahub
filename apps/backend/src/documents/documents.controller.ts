@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, Req, Res, UploadedFile, UseInterceptors, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param, Query, Req, Res, UploadedFile, UseInterceptors, BadRequestException } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Response } from 'express';
@@ -23,6 +23,13 @@ export class DocumentsController {
   @ApiResponse({ status: 200, description: 'รายละเอียดเอกสารสำเร็จ' })
   findOne(@Param('id') id: string) {
     return this.documentsService.findOne(id);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'ลบเอกสารเรซูเมออกจากระบบ (Soft Delete)' })
+  @ApiResponse({ status: 200, description: 'ลบเอกสารสำเร็จ' })
+  remove(@Param('id') id: string) {
+    return this.documentsService.remove(id);
   }
 
   @Get(':id/raw')

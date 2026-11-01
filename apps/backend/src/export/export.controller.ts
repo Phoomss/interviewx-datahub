@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Body, Param, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Req, Res } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Response } from 'express';
 import { ExportService } from './export.service';
 import { CreateExportDto } from './dto/create-export.dto';
 
@@ -28,5 +29,18 @@ export class ExportController {
   @ApiResponse({ status: 200, description: 'รับ URL ดาวน์โหลดสำเร็จ' })
   getDownloadUrl(@Param('id') id: string) {
     return this.exportService.getDownloadUrl(id);
+  }
+
+  @Get('exports/:id/file')
+  @ApiOperation({ summary: 'ดาวน์โหลดไฟล์ .jsonl โดยตรงจาก Object Storage (Direct Streaming)' })
+  async downloadFile(@Param('id') id: string, @Res() res: Response) {
+    try {
+      const { stream, exportName } = await this.exportService.getExportStream(id);
+      res.setHeader('Content-Type', 'application/jsonlines');
+      res.setHeader('Content-Disposition', `attachment; filename="${exportName}.jsonl"`);
+      stream.pipe(res);
+    } catch (err) {
+      return res.status(404).json({ success: false, message: 'ไม่พบไฟล์ Dataset Export ใน Object Storage' });
+    }
   }
 }
