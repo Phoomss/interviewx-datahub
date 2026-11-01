@@ -1,12 +1,13 @@
 import React from "react";
-import { Database, FileText, Brain, Sparkles, ShieldCheck, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
+import { Database, FileText, Brain, Sparkles, ShieldCheck, CheckCircle2, ArrowRight } from "lucide-react";
 
 export default function Home() {
   return (
     <main className="max-w-6xl mx-auto px-4 py-12">
       <header className="mb-10 text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 border border-indigo-200 rounded-full text-indigo-700 text-sm font-medium mb-4">
-          <Sparkles className="w-4 h-4" /> InterviewX DataHub • Phase 1 Bootstrap
+          <Sparkles className="w-4 h-4" /> InterviewX DataHub • Phase 2 Annotation Workspace
         </div>
         <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
           Dataset Management & Annotation Platform
@@ -14,6 +15,21 @@ export default function Home() {
         <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
           แพลตฟอร์มบริหารจัดการและเตรียมข้อมูลเรซูเมสำหรับการฝึกสอน LLM ของ InterviewX
         </p>
+        <div className="mt-6 flex items-center justify-center gap-4">
+          <Link
+            href="/resumes/doc-001-demo/review"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-lg shadow-sm transition"
+          >
+            <span>ทดลองใช้งาน Side-by-side Review</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+          <Link
+            href="/resumes"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium text-sm rounded-lg shadow-2xs transition"
+          >
+            <span>ดูคลังเอกสาร (Repository)</span>
+          </Link>
+        </div>
       </header>
 
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
