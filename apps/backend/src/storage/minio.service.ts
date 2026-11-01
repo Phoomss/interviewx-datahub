@@ -67,6 +67,39 @@ export class MinioService implements OnModuleInit {
     return `simulated://${this.bucketExports}/${key}`;
   }
 
+  async uploadRawDocument(key: string, buffer: Buffer, contentType: string): Promise<void> {
+    if (!this.client) throw new Error('Object storage is not ready');
+
+    const exists = await this.client.bucketExists(this.bucketRawDocs);
+    if (!exists) await this.client.makeBucket(this.bucketRawDocs);
+    await this.client.putObject(this.bucketRawDocs, key, buffer, buffer.length, {
+      'Content-Type': contentType,
+    });
+  }
+
+  async getRawDocumentStream(key: string): Promise<any> {
+    if (!this.client) throw new Error('Object storage is not ready');
+    // Strip bucket prefix if passed
+    const cleanKey = key.startsWith(`${this.bucketRawDocs}/`)
+      ? key.substring(this.bucketRawDocs.length + 1)
+      : key;
+    return await this.client.getObject(this.bucketRawDocs, cleanKey);
+  }
+
+  async getRawDocumentPresignedUrl(key: string, expirySeconds: number = 3600): Promise<string> {
+    try {
+      if (this.client) {
+        const cleanKey = key.startsWith(`${this.bucketRawDocs}/`)
+          ? key.substring(this.bucketRawDocs.length + 1)
+          : key;
+        return await this.client.presignedGetObject(this.bucketRawDocs, cleanKey, expirySeconds);
+      }
+    } catch (err) {
+      this.logger.warn(`MinIO raw doc presigned URL fallback: ${err.message}`);
+    }
+    return `/api/v1/documents/${key}/raw`;
+  }
+
   async getPresignedDownloadUrl(key: string, expirySeconds: number = 3600): Promise<string> {
     try {
       if (this.client) {

@@ -1,17 +1,37 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Logger } from '@nestjs/common';
+import { Injectable, OnModuleInit, NotFoundException, BadRequestException, ForbiddenException, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { MinioService } from '../storage/minio.service';
 import { CreateConsentDto } from './dto/create-consent.dto';
 import { UploadRealDocumentDto } from './dto/upload-real-document.dto';
 
 @Injectable()
-export class ConsentService {
+export class ConsentService implements OnModuleInit {
   private readonly logger = new Logger(ConsentService.name);
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly minio: MinioService,
   ) {}
+
+  async onModuleInit() {
+    try {
+      await this.prisma.consentRecord.upsert({
+        where: { id: 'consent-demo-9841' },
+        update: {},
+        create: {
+          id: 'consent-demo-9841',
+          subjectIdentifier: 'SUBJ-2026-9841',
+          consentType: 'LLM_TRAINING_AND_EVALUATION',
+          agreementDocumentUrl: 'https://minio.internal/consent-agreements/signed-9841.pdf',
+          isActive: true,
+          grantedAt: new Date(),
+        },
+      });
+      this.logger.log('Default Consent Record seeded: consent-demo-9841');
+    } catch (err) {
+      this.logger.debug(`Consent record auto-seed deferred: ${err.message}`);
+    }
+  }
 
   /**
    * บันทึกหนังสือยินยอมฉบับใหม่ (Create Consent Record)

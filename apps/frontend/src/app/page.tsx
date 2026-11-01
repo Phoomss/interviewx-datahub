@@ -17,37 +17,38 @@ export default function Home() {
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
           <Link
-            href="/resumes/doc-001-demo/review"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-lg shadow-sm transition"
+            href="/synthetic"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium text-sm rounded-lg shadow-sm transition"
           >
-            <span>ทดลองใช้งาน Side-by-side Review</span>
-            <ArrowRight className="w-4 h-4" />
+            <Sparkles className="w-4 h-4" />
+            <span>สร้างข้อมูลสังเคราะห์ (Synthetic Studio)</span>
           </Link>
           <Link
             href="/resumes"
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium text-sm rounded-lg shadow-2xs transition"
           >
-            <span>ดูคลังเอกสาร (Repository)</span>
+            <span>ดูคลังเอกสาร & อัปโหลด (Repository)</span>
           </Link>
           <Link
-            href="/datasets"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm rounded-lg shadow-sm transition"
+            href="/resumes/doc-001-demo/review"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-lg shadow-sm transition"
           >
-            <span>ส่งออกชุดข้อมูล LLM (Phase 3)</span>
+            <span>ตรวจข้อมูล (Side-by-side Review)</span>
+            <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
             href="/consent"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-medium text-sm rounded-lg shadow-sm transition"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm rounded-lg shadow-sm transition"
           >
             <ShieldCheck className="w-4 h-4" />
-            <span>จัดการ Consent & PII Vault (Phase 4)</span>
+            <span>นำเข้าข้อมูลจริง & PDPA Consent</span>
           </Link>
           <Link
-            href="/analytics"
+            href="/datasets"
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-medium text-sm rounded-lg shadow-sm transition"
           >
             <Database className="w-4 h-4" />
-            <span>แดชบอร์ด Data Bias & Governance (Phase 5)</span>
+            <span>ส่งออกชุดข้อมูล LLM</span>
           </Link>
         </div>
       </header>

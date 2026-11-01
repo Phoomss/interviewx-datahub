@@ -108,6 +108,7 @@ After implementation:
 
 ## Context Index
 
+- Master System Manual: [SYSTEM.md](file:///Users/mac/Desktop/interviewx-datahub/SYSTEM.md)
 - Project overview: [00-PROJECT-CONTEXT.md](file:///Users/mac/Desktop/interviewx-datahub/context/00-PROJECT-CONTEXT.md)
 - Requirements: [01-REQUIREMENTS.md](file:///Users/mac/Desktop/interviewx-datahub/context/01-REQUIREMENTS.md)
 - Architecture: [02-ARCHITECTURE.md](file:///Users/mac/Desktop/interviewx-datahub/context/02-ARCHITECTURE.md)
