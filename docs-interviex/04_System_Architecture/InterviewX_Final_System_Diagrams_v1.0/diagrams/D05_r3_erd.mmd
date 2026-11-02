@@ -1,0 +1,39 @@
+erDiagram
+ PACKAGES ||--o{ PACKAGE_ENTITLEMENTS : defines
+ PACKAGES ||--o{ SUBSCRIPTIONS : offers
+ SUBSCRIPTIONS ||--o{ TRANSACTIONS : billed
+ TRANSACTIONS ||--o{ REFUND_REQUESTS : refund
+ DATASETS ||--o{ AGGREGATE_ROWS : includes
+ DATASETS ||--o{ ACCESS_LOG : records
+ PACKAGES { uuid id PK
+   text tier
+   int version
+   bigint price_minor }
+ PACKAGE_ENTITLEMENTS { uuid package_id PK,FK
+   text feature_key PK
+   bigint quota_limit }
+ SUBSCRIPTIONS { uuid id PK
+   uuid user_id "external Core ID"
+   uuid package_id FK }
+ USAGE_LEDGER { uuid id PK
+   uuid user_id "external Core ID"
+   text request_key UK }
+ TRANSACTIONS { uuid id PK
+   uuid subscription_id FK
+   bigint amount_minor }
+ PAYMENT_EVENTS { uuid id PK
+   text provider
+   text external_event_id UK }
+ REFUND_REQUESTS { uuid id PK
+   uuid transaction_id FK
+   uuid user_id }
+ DATASETS { uuid id PK
+   text purpose_key
+   text state }
+ AGGREGATE_ROWS { uuid id PK
+   uuid dataset_id FK
+   int distinct_users
+   boolean suppressed }
+ ACCESS_LOG { uuid id PK
+   uuid dataset_id FK
+   text decision }

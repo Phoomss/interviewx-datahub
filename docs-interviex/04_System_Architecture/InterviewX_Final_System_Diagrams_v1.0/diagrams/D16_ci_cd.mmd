@@ -1,0 +1,15 @@
+flowchart TB
+ Commit[Git SHA] --> CI[GitHub Actions: lint / unit / contract / security]
+ CI --> Test[Integration / migrations / AI eval / image scanning]
+ Test --> Build[Build images once + SBOM + sign]
+ Build --> Registry[(OCI registry: immutable digest)]
+ Registry --> Staging[Managed staging]
+ Staging --> Gate{QA / approval gate}
+ Gate -->|Approved| Prod[Managed production uses same digest]
+ Gate -->|Rejected| Stop[Fix + new commit]
+ Registry --> GitOpsPR[Showcase GitOps PR pinned to same digest]
+ GitOpsPR --> Argo[Argo CD sync]
+ Argo --> Demo[Kubernetes synthetic showcase]
+ Prod --> Real[(Real personal production data)]
+ Demo --> Fake[(Synthetic data only)]
+ Real -. never copied .-> Fake

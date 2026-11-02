@@ -1,0 +1,58 @@
+openapi: 3.1.0
+info:
+  title: InterviewX Internal AI Evaluation Contract
+  version: 1.0.0-draft
+servers:
+  - url: http://ai-service.internal:8000
+security: [{serviceToken: []}]
+paths:
+  /internal/v1/evaluate:
+    post:
+      operationId: evaluateAnswer
+      description: Worker-only call, mTLS/service token, no end-user authentication passthrough. No DB access in AI service.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/EvaluationRequest'}
+      responses:
+        '200': {description: Validated evaluation outcome, content: {application/json: {schema: {$ref: '#/components/schemas/EvaluationResult'}}}}
+        '422': {description: Contract validation failed}
+        '503': {description: Model provider unavailable - retry later}
+components:
+  securitySchemes:
+    serviceToken: {type: http, scheme: bearer}
+  schemas:
+    EvaluationRequest:
+      type: object
+      additionalProperties: false
+      required: [jobId, answerId, question, answer, locale, rubric, aiConfig]
+      properties:
+        jobId: {type: string, format: uuid}
+        answerId: {type: string, format: uuid}
+        question: {type: string}
+        answer: {type: string}
+        locale: {type: string, enum: [th, en]}
+        rubric:
+          type: object
+          required: [id, criteria]
+          properties: {id: {type: string, format: uuid}, criteria: {type: object, additionalProperties: true}}
+        aiConfig:
+          type: object
+          required: [id, modelIdentifier, promptHash]
+          properties: {id: {type: string, format: uuid}, modelIdentifier: {type: string}, promptHash: {type: string}}
+    EvaluationResult:
+      oneOf:
+        - type: object
+          required: [status, score, dimensionScores, evidence, modelIdentifier]
+          properties:
+            status: {type: string, const: completed}
+            score: {type: number, minimum: 0, maximum: 100}
+            dimensionScores: {type: object, additionalProperties: {type: number, minimum: 0, maximum: 100}}
+            evidence: {type: array, items: {type: object, required: [quote, recommendation], properties: {quote: {type: string}, recommendation: {type: string}}}}
+            modelIdentifier: {type: string}
+        - type: object
+          required: [status, reasonCode]
+          properties:
+            status: {type: string, const: needs_review}
+            reasonCode: {type: string}

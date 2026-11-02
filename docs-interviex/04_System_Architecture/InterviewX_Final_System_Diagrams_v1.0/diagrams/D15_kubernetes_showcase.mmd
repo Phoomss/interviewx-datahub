@@ -1,0 +1,20 @@
+flowchart TB
+ Demo[Synthetic demo users / load] --> Ingress[Ingress + TLS]
+ subgraph Cluster[Kubernetes SHOWCASE sandbox - NO production data]
+  Ingress --> Web[Web Deployment]
+  Ingress --> API[Core API Deployment]
+  API --> PG[(Synthetic PostgreSQL)]
+  API --> Redis[(Sandbox Redis)]
+  Redis --> Worker[Worker Deployment]
+  Worker --> PG
+  Worker --> AI[FastAPI Deployment]
+  AI --> Stub[LLM stub / sandbox provider]
+  HPA[HPA CPU / queue metric when installed] -. scale .-> API & Worker
+  OTel[OpenTelemetry Collector] --> Metrics[Grafana + metrics/traces]
+  API --> OTel
+  Worker --> OTel
+  AI --> OTel
+ end
+ GitOps[Argo CD - app resources] -. reconciles .-> Cluster
+ IaC[Terraform - cluster/network/infra] -. provisions .-> Cluster
+ Source[(Production accounts / secrets / backups)] -. X NEVER CONNECT .-> Cluster

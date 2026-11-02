@@ -1,0 +1,25 @@
+flowchart TB
+ Internet[Users] --> WAF[CDN + WAF + TLS]
+ WAF --> WEB[Managed Next.js hosting]
+ WEB --> API[Managed NestJS Core API]
+ subgraph Private[Private production network]
+  PG[(Managed Core PostgreSQL)]
+  Redis[(Managed Redis)]
+  Worker[Managed evaluation worker]
+  AI[Private FastAPI inference]
+  Buck[(Private object storage R2)]
+ end
+ API --> PG & Redis
+ API -. R2 .-> Buck
+ Redis --> Worker
+ Worker --> PG & AI
+ AI --> Provider[LLM provider]
+ API --> Otel[Logs / metrics / traces]
+ Worker --> Otel
+ AI --> Otel
+ Secrets[Production secret manager] -. restricted credentials .-> API & Worker & AI
+ Backup[Backup + restore policy] --> PG
+ API -. R3 authenticated call .-> Billing[Billing deployable + separate DB]
+ API -. R3 authenticated call .-> Research[Research deployable + separate DB]
+ classDef future stroke-dasharray:5 5
+ class Buck,Billing,Research future

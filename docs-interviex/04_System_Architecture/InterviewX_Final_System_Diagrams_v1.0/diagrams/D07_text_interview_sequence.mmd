@@ -1,0 +1,32 @@
+sequenceDiagram
+ autonumber
+ actor U as User
+ participant W as Web
+ participant A as NestJS Interview API
+ participant D as Core PostgreSQL
+ participant O as Outbox dispatcher
+ participant Q as Redis/BullMQ
+ participant K as Evaluation Worker
+ participant F as FastAPI AI
+ participant L as LLM Provider
+ U->>W: Submit text answer
+ W->>A: POST /v1/interviews/{id}/answers
+Idempotency-Key
+ A->>A: Auth + ownership + state + content checks
+ A->>D: BEGIN; insert answer, job, outbox, idempotency
+ D-->>A: COMMIT
+ A-->>W: 202 Accepted: jobId
+ O->>D: Read undispatched outbox
+ O->>Q: Enqueue stable event ID
+ Q-->>O: Accepted
+ O->>D: Mark dispatched
+ Q->>K: Deliver at least once
+ K->>K: Inbox/job-state deduplication
+ K->>F: POST /internal/v1/evaluate with versions
+ F->>L: Restricted provider call
+ L-->>F: Untrusted candidate
+ F->>F: Validate rubric, schema and evidence
+ F-->>K: Validated feedback / needs-review
+ K->>D: Atomic job transition + feedback result
+ W->>A: GET /v1/evaluations/{jobId}
+ A-->>W: pending / completed / failed / needs-review

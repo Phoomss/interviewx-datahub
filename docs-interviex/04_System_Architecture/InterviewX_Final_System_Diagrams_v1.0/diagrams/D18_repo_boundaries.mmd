@@ -1,0 +1,26 @@
+flowchart TB
+ subgraph Apps[apps]
+  Web[web Next.js]
+  API[api NestJS modular monolith]
+  Worker[evaluation-worker]
+  AI[ai-service FastAPI]
+  Billing[billing-service R3]
+  Research[research-service R3]
+ end
+ subgraph Packages[packages]
+  Contracts[contracts OpenAPI / events / generated]
+  CoreDB[db-core Prisma + migrations]
+  BillingDB[db-billing R3]
+  ResearchDB[db-research R3]
+  Obs[observability]
+  UI[ui]
+ end
+ Web --> Contracts & UI
+ API --> Contracts & CoreDB & Obs
+ Worker --> Contracts & CoreDB & Obs
+ AI --> Contracts
+ Billing --> Contracts & BillingDB
+ Research --> Contracts & ResearchDB
+ Infra[infra Terraform / managed / k8s / Argo] --> Apps
+ Tests[tests architecture / contract / integration / security / AI eval] --> Contracts
+ Rule["NO: cross-owner Prisma imports or AI direct DB access"] -. enforce .-> Tests

@@ -1,0 +1,19 @@
+flowchart TB
+ Notice[Versioned processing notice + lawful basis] --> Core[service_core processing R1]
+ Notice --> Choices[Optional per-purpose consent event]
+ Choices --> Analysis[research_analysis R3]
+ Choices --> Contact[research_contact R3]
+ Choices --> Voice[voice_retention R2]
+ Choices --> Marketing[marketing future]
+ Analysis --> Release[Eligible data release approval pipeline]
+ Contact --> ContactService[Approved contact API]
+ Voice --> AudioPolicy[Audio lifecycle + storage expiry]
+ User[User] --> Request[Data-rights request R1]
+ Request --> Verify[Verify identity / scope / exceptions]
+ Verify --> Export[Export eligible personal data]
+ Verify --> Erase[Delete active records + scheduled backup expiry]
+ Erase --> Audit[Masked immutable audit event]
+ Request --> Audit
+ Choices --> Audit
+ classDef future stroke-dasharray:5 5
+ class Analysis,Contact,Voice,Marketing,Release,ContactService,AudioPolicy future

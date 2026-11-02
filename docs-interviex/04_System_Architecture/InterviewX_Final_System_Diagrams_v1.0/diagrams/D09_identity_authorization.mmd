@@ -1,0 +1,18 @@
+flowchart TD
+ Request[Incoming request] --> Auth{Authenticated?}
+ Auth -->|No| Public{Public endpoint?}
+ Public -->|Yes| Allow[Allow public action]
+ Public -->|No| Deny[401 / deny]
+ Auth -->|Yes| Active{Account active and token valid?}
+ Active -->|No| Deny
+ Active -->|Yes| Role{Has permission?}
+ Role -->|No| Forbidden[403 / deny]
+ Role -->|Yes| Own{Ownership or scoped admin grant?}
+ Own -->|No| Forbidden
+ Own -->|Yes| Scope{Purpose and lawful basis / consent required?}
+ Scope -->|Missing| Forbidden
+ Scope -->|Satisfied or not applicable| Quota{Entitlement / quota required?}
+ Quota -->|Exceeded| QuotaReject[Reject server side]
+ Quota -->|Satisfied or not applicable| DB[Apply DB/storage defense-in-depth policy]
+ DB --> Final[Execute + audit critical change]
+ note["Free / Basic / Pro = package tiers, not RBAC roles"] -. rule .-> Role

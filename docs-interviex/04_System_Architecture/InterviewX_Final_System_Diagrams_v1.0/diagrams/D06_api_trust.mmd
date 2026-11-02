@@ -1,0 +1,28 @@
+flowchart LR
+ subgraph Untrusted[Public / Untrusted]
+  Web[Next.js browser client]
+  Mobile[Mobile future optional]
+ end
+ subgraph Edge[Public edge]
+  WAF[CDN / WAF / TLS]
+  API[Core NestJS REST /v1]
+ end
+ subgraph Internal[Private network]
+  Redis[Redis / BullMQ]
+  Worker[Eval Worker]
+  AI[FastAPI /internal/v1/evaluate]
+  PG[(Core Postgres)]
+ end
+ Web --> WAF
+ Mobile -. R2/R3 .-> WAF
+ WAF --> API
+ API --> PG
+ API --> Redis
+ Redis --> Worker
+ Worker --> PG
+ Worker -->|authenticated + timeouts| AI
+ AI -->|provider adapter| LLM[External LLM]
+ API -. R3 only /v1/billing .-> Billing[Billing service]
+ API -. R3 only /v1/research .-> Research[Research service]
+ classDef future stroke-dasharray:5 5
+ class Mobile,Billing,Research future

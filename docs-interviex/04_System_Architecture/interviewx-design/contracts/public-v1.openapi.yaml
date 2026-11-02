@@ -1,0 +1,355 @@
+openapi: 3.1.0
+info:
+  title: InterviewX Public API
+  version: 1.0.0-draft
+  description: Proposed contract; R1 routes active, R2/R3 routes gated by release flags.
+servers:
+  - url: https://api.example.invalid/v1
+    description: Placeholder; replace per environment
+security:
+  - bearerAuth: []
+tags:
+  - name: Identity
+  - name: Interview
+  - name: Evaluation
+  - name: Privacy
+  - name: Admin
+  - name: Voice-R2
+  - name: Billing-R3
+  - name: Research-R3
+paths:
+  /auth/register:
+    post:
+      tags: [Identity]
+      security: []
+      operationId: register
+      x-release: R1
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/RegisterRequest'}}}}
+      responses:
+        '201': {description: Registered, content: {application/json: {schema: {$ref: '#/components/schemas/TokenPair'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+  /auth/login:
+    post:
+      tags: [Identity]
+      security: []
+      operationId: login
+      x-release: R1
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/LoginRequest'}}}}
+      responses:
+        '200': {description: Logged in, content: {application/json: {schema: {$ref: '#/components/schemas/TokenPair'}}}}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /auth/refresh:
+    post:
+      tags: [Identity]
+      security: []
+      operationId: refreshSession
+      x-release: R1
+      requestBody: {required: true, content: {application/json: {schema: {type: object, required: [refreshToken], properties: {refreshToken: {type: string}}}}}}
+      responses:
+        '200': {description: Rotated, content: {application/json: {schema: {$ref: '#/components/schemas/TokenPair'}}}}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+  /auth/logout:
+    post:
+      tags: [Identity]
+      operationId: logout
+      x-release: R1
+      responses:
+        '204': {description: Session revoked}
+  /me:
+    get:
+      tags: [Identity]
+      operationId: getMe
+      x-release: R1
+      responses:
+        '200': {description: Current profile, content: {application/json: {schema: {$ref: '#/components/schemas/UserProfile'}}}}
+    patch:
+      tags: [Identity]
+      operationId: updateMe
+      x-release: R1
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/UpdateProfile'}}}}
+      responses:
+        '200': {description: Updated profile, content: {application/json: {schema: {$ref: '#/components/schemas/UserProfile'}}}}
+  /interviews:
+    post:
+      tags: [Interview]
+      operationId: createInterview
+      x-release: R1
+      parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CreateInterview'}}}}
+      responses:
+        '201': {description: Started, content: {application/json: {schema: {$ref: '#/components/schemas/Interview'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+    get:
+      tags: [Interview]
+      operationId: listInterviews
+      x-release: R1
+      parameters:
+        - {name: cursor, in: query, schema: {type: string}}
+        - {name: limit, in: query, schema: {type: integer, minimum: 1, maximum: 100, default: 20}}
+      responses:
+        '200': {description: Own interviews only, content: {application/json: {schema: {$ref: '#/components/schemas/InterviewList'}}}}
+  /interviews/{interviewId}:
+    parameters: [{$ref: '#/components/parameters/InterviewId'}]
+    get:
+      tags: [Interview]
+      operationId: getInterview
+      x-release: R1
+      responses:
+        '200': {description: Own interview, content: {application/json: {schema: {$ref: '#/components/schemas/Interview'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+    delete:
+      tags: [Interview]
+      operationId: deleteInterview
+      x-release: R1
+      responses:
+        '202': {description: Deletion scheduled}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /interviews/{interviewId}/answers:
+    parameters: [{$ref: '#/components/parameters/InterviewId'}]
+    post:
+      tags: [Interview]
+      operationId: submitTextAnswer
+      x-release: R1
+      description: Persists answer, job and outbox in one database transaction; never makes synchronous model call.
+      parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/SubmitAnswer'}}}}
+      responses:
+        '202': {description: Evaluation queued, content: {application/json: {schema: {$ref: '#/components/schemas/AcceptedEvaluation'}}}}
+        '409': {$ref: '#/components/responses/Conflict'}
+        '422': {$ref: '#/components/responses/ValidationError'}
+  /interviews/{interviewId}/complete:
+    parameters: [{$ref: '#/components/parameters/InterviewId'}]
+    post:
+      tags: [Interview]
+      operationId: completeInterview
+      x-release: R1
+      responses:
+        '200': {description: Completed, content: {application/json: {schema: {$ref: '#/components/schemas/Interview'}}}}
+  /evaluations/{jobId}:
+    parameters: [{$ref: '#/components/parameters/JobId'}]
+    get:
+      tags: [Evaluation]
+      operationId: getEvaluation
+      x-release: R1
+      responses:
+        '200': {description: Status and optional feedback, content: {application/json: {schema: {$ref: '#/components/schemas/EvaluationStatus'}}}}
+        '404': {$ref: '#/components/responses/NotFound'}
+  /feedback/{feedbackId}/appeals:
+    parameters: [{$ref: '#/components/parameters/FeedbackId'}]
+    post:
+      tags: [Evaluation]
+      operationId: appealFeedback
+      x-release: R1
+      requestBody: {required: true, content: {application/json: {schema: {type: object, required: [reason], properties: {reason: {type: string, minLength: 10, maxLength: 2000}}}}}}
+      responses:
+        '201': {description: Appeal recorded, content: {application/json: {schema: {$ref: '#/components/schemas/IdStatus'}}}}
+  /privacy/notices:
+    get:
+      tags: [Privacy]
+      operationId: listPrivacyNotices
+      x-release: R1
+      responses:
+        '200': {description: Purpose and notice versions, content: {application/json: {schema: {type: array, items: {type: object, additionalProperties: true}}}}}
+  /privacy/consents:
+    get:
+      tags: [Privacy]
+      operationId: listConsents
+      x-release: R1
+      responses:
+        '200': {description: Latest purpose-specific decisions, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/ConsentDecision'}}}}}
+    post:
+      tags: [Privacy]
+      operationId: recordConsent
+      x-release: R1
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ConsentInput'}}}}
+      responses:
+        '201': {description: Append-only event recorded, content: {application/json: {schema: {$ref: '#/components/schemas/ConsentDecision'}}}}
+  /privacy/data-requests:
+    post:
+      tags: [Privacy]
+      operationId: createDataRightsRequest
+      x-release: R1
+      requestBody: {required: true, content: {application/json: {schema: {type: object, required: [requestType], properties: {requestType: {type: string, enum: [access, export, delete]}}}}}}
+      responses:
+        '202': {description: Request accepted, content: {application/json: {schema: {$ref: '#/components/schemas/IdStatus'}}}}
+    get:
+      tags: [Privacy]
+      operationId: listDataRightsRequests
+      x-release: R1
+      responses:
+        '200': {description: Own requests, content: {application/json: {schema: {type: array, items: {$ref: '#/components/schemas/IdStatus'}}}}}
+  /admin/content/questions:
+    post:
+      tags: [Admin]
+      operationId: createQuestionVersion
+      x-permission: question:manage
+      x-release: R1
+      requestBody: {required: true, content: {application/json: {schema: {type: object, required: [stableKey, category, locale, questionText], properties: {stableKey: {type: string}, category: {type: string}, locale: {type: string}, questionText: {type: string}}}}}}
+      responses:
+        '201': {description: Draft created, content: {application/json: {schema: {$ref: '#/components/schemas/IdStatus'}}}}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /admin/content/rubrics/{rubricId}/publish:
+    parameters: [{$ref: '#/components/parameters/RubricId'}]
+    post:
+      tags: [Admin]
+      operationId: publishRubric
+      x-permission: rubric:publish
+      x-release: R1
+      responses:
+        '200': {description: Published, content: {application/json: {schema: {$ref: '#/components/schemas/IdStatus'}}}}
+        '403': {$ref: '#/components/responses/Forbidden'}
+  /voice/uploads:
+    post:
+      tags: [Voice-R2]
+      operationId: createVoiceUpload
+      x-release: R2
+      description: Permission and purpose checked; returns limited-duration signed upload URL.
+      responses:
+        '201': {description: Upload instruction, content: {application/json: {schema: {type: object, required: [objectId, uploadUrl, expiresAt], properties: {objectId: {type: string, format: uuid}, uploadUrl: {type: string, format: uri}, expiresAt: {type: string, format: date-time}}}}}}
+  /billing/packages:
+    get:
+      tags: [Billing-R3]
+      security: []
+      operationId: listPackages
+      x-release: R3
+      responses:
+        '200': {description: Published package snapshots, content: {application/json: {schema: {type: array, items: {type: object, additionalProperties: true}}}}}
+  /billing/checkout:
+    post:
+      tags: [Billing-R3]
+      operationId: createCheckout
+      x-release: R3
+      parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {type: object, required: [packageId], properties: {packageId: {type: string, format: uuid}}}}}}
+      responses:
+        '202': {description: Hosted checkout initiated, content: {application/json: {schema: {type: object, properties: {checkoutUrl: {type: string, format: uri}, transactionId: {type: string, format: uuid}}}}}}
+  /billing/refunds:
+    post:
+      tags: [Billing-R3]
+      operationId: requestRefund
+      x-release: R3
+      requestBody: {required: true, content: {application/json: {schema: {type: object, required: [transactionId], properties: {transactionId: {type: string, format: uuid}, reason: {type: string}}}}}}
+      responses:
+        '202': {description: Refund review requested, content: {application/json: {schema: {$ref: '#/components/schemas/IdStatus'}}}}
+  /research/datasets:
+    get:
+      tags: [Research-R3]
+      operationId: listApprovedDatasets
+      x-permission: research:aggregate:read
+      x-release: R3
+      responses:
+        '200': {description: Approved scoped aggregate releases only, content: {application/json: {schema: {type: array, items: {type: object, additionalProperties: true}}}}}
+components:
+  securitySchemes:
+    bearerAuth: {type: http, scheme: bearer, bearerFormat: JWT}
+  parameters:
+    IdempotencyKey: {name: Idempotency-Key, in: header, required: true, schema: {type: string, minLength: 8, maxLength: 128}}
+    InterviewId: {name: interviewId, in: path, required: true, schema: {type: string, format: uuid}}
+    JobId: {name: jobId, in: path, required: true, schema: {type: string, format: uuid}}
+    FeedbackId: {name: feedbackId, in: path, required: true, schema: {type: string, format: uuid}}
+    RubricId: {name: rubricId, in: path, required: true, schema: {type: string, format: uuid}}
+  responses:
+    Unauthorized: {description: Authentication required, content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}}
+    Forbidden: {description: Insufficient permission, content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}}
+    NotFound: {description: Missing or not owned, content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}}
+    Conflict: {description: Conflict or idempotency mismatch, content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}}
+    ValidationError: {description: Invalid input, content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}}
+  schemas:
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: {type: string, format: uri-reference}
+        title: {type: string}
+        status: {type: integer}
+        detail: {type: string}
+        requestId: {type: string}
+    RegisterRequest:
+      type: object
+      additionalProperties: false
+      required: [email, password]
+      properties: {email: {type: string, format: email}, password: {type: string, minLength: 8, maxLength: 128}}
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties: {email: {type: string, format: email}, password: {type: string}}
+    TokenPair:
+      type: object
+      required: [accessToken, refreshToken, expiresIn]
+      properties: {accessToken: {type: string}, refreshToken: {type: string}, expiresIn: {type: integer}}
+    UserProfile:
+      type: object
+      required: [id, email]
+      properties: {id: {type: string, format: uuid}, email: {type: string, format: email}, displayName: {type: [string, 'null']}, currentStatus: {type: [string, 'null']}}
+    UpdateProfile:
+      type: object
+      additionalProperties: false
+      properties: {displayName: {type: [string, 'null']}, currentStatus: {type: [string, 'null']}}
+    CreateInterview:
+      type: object
+      required: [interviewType]
+      additionalProperties: false
+      properties: {interviewType: {type: string, enum: [job]}, locale: {type: string, enum: [th, en], default: th}}
+    Interview:
+      type: object
+      required: [id, interviewType, status, startedAt]
+      properties:
+        id: {type: string, format: uuid}
+        interviewType: {type: string}
+        status: {type: string, enum: [active, completed, cancelled, deleting]}
+        startedAt: {type: string, format: date-time}
+        questions: {type: array, items: {$ref: '#/components/schemas/Question'}}
+    Question:
+      type: object
+      required: [id, sequenceNo, questionText]
+      properties: {id: {type: string, format: uuid}, sequenceNo: {type: integer}, questionText: {type: string}}
+    InterviewList:
+      type: object
+      required: [items]
+      properties: {items: {type: array, items: {$ref: '#/components/schemas/Interview'}}, nextCursor: {type: [string, 'null']}}
+    SubmitAnswer:
+      type: object
+      required: [questionId, answerText]
+      additionalProperties: false
+      properties: {questionId: {type: string, format: uuid}, answerText: {type: string, minLength: 1, maxLength: 20000}}
+    AcceptedEvaluation:
+      type: object
+      required: [answerId, jobId, status]
+      properties: {answerId: {type: string, format: uuid}, jobId: {type: string, format: uuid}, status: {type: string, enum: [pending]}}
+    EvaluationStatus:
+      type: object
+      required: [jobId, status]
+      properties:
+        jobId: {type: string, format: uuid}
+        status: {type: string, enum: [pending, running, completed, failed, needs_review]}
+        feedback: {anyOf: [{$ref: '#/components/schemas/Feedback'}, {type: 'null'}]}
+        retryable: {type: boolean}
+    Feedback:
+      type: object
+      required: [id, score, dimensionScores, evidence, rubricVersionId, aiConfigVersionId]
+      properties:
+        id: {type: string, format: uuid}
+        score: {type: number, minimum: 0, maximum: 100}
+        dimensionScores: {type: object, additionalProperties: {type: number, minimum: 0, maximum: 100}}
+        evidence: {type: array, items: {type: object, properties: {quote: {type: string}, recommendation: {type: string}}}}
+        rubricVersionId: {type: string, format: uuid}
+        aiConfigVersionId: {type: string, format: uuid}
+    IdStatus:
+      type: object
+      required: [id, status]
+      properties: {id: {type: string, format: uuid}, status: {type: string}}
+    ConsentInput:
+      type: object
+      required: [purposeKey, action, noticeVersion]
+      properties:
+        purposeKey: {type: string, enum: [research_analysis, research_contact, voice_retention, marketing]}
+        action: {type: string, enum: [grant, withdraw]}
+        noticeVersion: {type: string}
+    ConsentDecision:
+      type: object
+      required: [id, purposeKey, action, occurredAt]
+      properties:
+        id: {type: string, format: uuid}
+        purposeKey: {type: string}
+        action: {type: string}
+        occurredAt: {type: string, format: date-time}
