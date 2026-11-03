@@ -1,19 +1,36 @@
-import { Controller, Get, Post, Body, Param, Req, Query, Headers } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Req,
+  Headers,
+  Query,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiHeader, ApiQuery } from '@nestjs/swagger';
 import { ConsentService } from './consent.service';
+import { AuthorizationDecisionService } from './authorization-decision.service';
+import { PiiVaultService } from './pii-vault.service';
 import { CreateConsentDto } from './dto/create-consent.dto';
 import { UploadRealDocumentDto } from './dto/upload-real-document.dto';
+import { CheckAuthorizationDto } from './dto/check-authorization.dto';
 
-@ApiTags('Consent & PII Vault (PDPA)')
-@Controller('consent')
+@ApiTags('Consent & PII Vault (PDPA & Data Governance)')
+@Controller(['consent', 'consents'])
 export class ConsentController {
-  constructor(private readonly consentService: ConsentService) {}
+  constructor(
+    private readonly consentService: ConsentService,
+    private readonly authDecisionService: AuthorizationDecisionService,
+    private readonly piiVaultService: PiiVaultService,
+  ) {}
 
   @Post()
-  @ApiOperation({ summary: 'บันทึกหนังสือแสดงความยินยอมการใช้ข้อมูล (Create Consent Agreement)' })
+  @ApiOperation({ summary: 'บันทึกหนังสือแสดงความยินยอมฉบับใหม่ (Create Consent Agreement)' })
   @ApiResponse({ status: 201, description: 'บันทึกหนังสือยินยอมสำเร็จ' })
-  createConsent(@Body() dto: CreateConsentDto) {
-    return this.consentService.createConsent(dto);
+  createConsent(@Body() dto: CreateConsentDto, @Req() req: any) {
+    const userIp = req.ip || req.connection?.remoteAddress || '127.0.0.1';
+    return this.consentService.createConsent(dto, req.user?.id, userIp);
   }
 
   @Get()
@@ -21,6 +38,35 @@ export class ConsentController {
   @ApiResponse({ status: 200, description: 'รายการหนังสือยินยอมสำเร็จ' })
   listConsents() {
     return this.consentService.listConsents();
+  }
+
+  @Get('authorization/logs')
+  @ApiOperation({ summary: 'ดึงรายการประวัติการตรวจสอบสิทธิ์การประมวลผล (Authorization Decision Logs)' })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  getAuthorizationLogs(@Query('limit') limit?: number) {
+    return this.authDecisionService.getAuthorizationLogs(limit ? Number(limit) : 50);
+  }
+
+  @Post('authorization/check')
+  @ApiOperation({ summary: 'ตรวจสอบสิทธิ์การประมวลผลตามวัตถุประสงค์ (Purpose Limitation Check)' })
+  @ApiResponse({ status: 200, description: 'ผลการตรวจสอบสิทธิ์' })
+  checkAuthorization(@Body() dto: CheckAuthorizationDto, @Req() req: any) {
+    const userIp = req.ip || req.connection?.remoteAddress || '127.0.0.1';
+    return this.authDecisionService.evaluateAuthorization(dto, req.user?.id, userIp);
+  }
+
+  @Get('pii-vault/access-logs')
+  @ApiOperation({ summary: 'ดึงประวัติการเข้าถึง PII Vault (Access Audit Trail)' })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  getPiiAccessLogs(@Query('limit') limit?: number) {
+    return this.piiVaultService.getAccessLogs(limit ? Number(limit) : 50);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'ดึงรายละเอียดหนังสือยินยอมรายฉบับ พร้อมประวัติการเปลี่ยนแปลง' })
+  @ApiResponse({ status: 200, description: 'รายละเอียดหนังสือยินยอม' })
+  getConsent(@Param('id') id: string) {
+    return this.consentService.getConsent(id);
   }
 
   @Post('onboard-real-cv')
@@ -40,7 +86,7 @@ export class ConsentController {
     @Req() req: any,
   ) {
     const userIp = req.ip || req.connection?.remoteAddress || '127.0.0.1';
-    return this.consentService.revokeConsent(id, reason, userIp);
+    return this.consentService.revokeConsent(id, reason, req.user?.id, userIp);
   }
 
   @Get('pii-vault/:documentId')
@@ -49,7 +95,9 @@ export class ConsentController {
   getPiiVault(
     @Param('documentId') documentId: string,
     @Headers('x-user-role') userRole: string = 'ANNOTATOR',
+    @Req() req?: any,
   ) {
-    return this.consentService.getPiiVault(documentId, userRole);
+    const userIp = req?.ip || req?.connection?.remoteAddress || '127.0.0.1';
+    return this.consentService.getPiiVault(documentId, userRole, req?.user?.id, userIp);
   }
 }

@@ -13,6 +13,16 @@ export class FilterDocumentsDto {
   @IsString()
   status?: string;
 
+  @ApiPropertyOptional({ description: 'กรองตามหมวดหมู่เอกสาร เช่น RESUME, TRANSCRIPT, CERTIFICATE, ACADEMIC_CV' })
+  @IsOptional()
+  @IsString()
+  classification?: string;
+
+  @ApiPropertyOptional({ description: 'กรองตามสถานะ Training Eligibility เช่น APPROVED_FOR_TRAINING, AWAITING_REVIEW' })
+  @IsOptional()
+  @IsString()
+  trainingEligibilityStatus?: string;
+
   @ApiPropertyOptional({ description: 'กรองเฉพาะ Synthetic Data หรือ Real Data' })
   @IsOptional()
   @Transform(({ value }) => value === 'true' || value === true)

@@ -14,6 +14,69 @@ enum UserRole {
   VIEWER
 }
 
+enum DocumentClassification {
+  RESUME
+  CV
+  ACADEMIC_CV
+  PORTFOLIO
+  TRANSCRIPT
+  CERTIFICATE
+  RECOMMENDATION_LETTER
+  RESEARCH_PAPER
+  PROJECT_REPORT
+  EMPLOYMENT_DOCUMENT
+  SCHOLARSHIP_DOCUMENT
+  TRAINING_RECORD
+  OTHER
+}
+
+enum TrainingEligibilityStatus {
+  EXTRACTION_PENDING
+  EXTRACTION_COMPLETED
+  AWAITING_REVIEW
+  REVIEWED
+  APPROVED_FOR_PROFILE_MANAGEMENT
+  APPROVED_FOR_DATASET_PREPARATION
+  APPROVED_FOR_TRAINING
+  RESTRICTED
+  CONSENT_WITHDRAWN
+  REJECTED
+  DELETION_PENDING
+  DELETED
+}
+
+enum ConsentStatus {
+  ACTIVE
+  WITHDRAWN
+  EXPIRED
+  SUSPENDED
+}
+
+enum LegalBasis {
+  CONSENT
+  CONTRACT
+  LEGAL_OBLIGATION
+  VITAL_INTERESTS
+  PUBLIC_TASK
+  LEGITIMATE_INTERESTS
+}
+
+enum VerificationStatus {
+  PENDING_REVIEW
+  HUMAN_VERIFIED
+  AI_INFERRED
+  CORRECTED
+  REJECTED
+}
+
+enum MalwareScanStatus {
+  CLEAN
+  INFECTED
+  SUSPICIOUS
+  PENDING
+  SKIPPED
+}
+
 enum DocumentStatus {
   UPLOADED
   PARSING
@@ -69,66 +132,247 @@ model User {
 }
 
 model ConsentRecord {
-  id                   String     @id @default(uuid())
-  subjectIdentifier    String     @map("subject_identifier")
-  consentType          String     @map("consent_type")
-  agreementDocumentUrl String?    @map("agreement_document_url")
-  isActive             Boolean    @default(true) @map("is_active")
-  grantedAt            DateTime   @default(now()) @map("granted_at")
-  revokedAt            DateTime?  @map("revoked_at")
-  createdAt            DateTime   @default(now()) @map("created_at")
+  id                            String                       @id @default(uuid())
+  subjectIdentifier             String                       @map("subject_identifier")
+  consentVersion                String                       @default("1.0") @map("consent_version")
+  consentType                   String                       @map("consent_type")
+  legalBasis                    LegalBasis                   @default(CONSENT) @map("legal_basis")
+  status                        ConsentStatus                @default(ACTIVE)
+  permittedPurposes             Json?                        @map("permitted_purposes") // string[] of authorized purposes
+  permittedDataCategories       Json?                        @map("permitted_data_categories") // string[] of document classifications
+  permittedProcessingActivities  Json?                        @map("permitted_processing_activities") // string[] of processing operations
+  agreementDocumentUrl          String?                      @map("agreement_document_url")
+  evidenceReference             String?                      @map("evidence_reference")
+  collectionMethod              String?                      @map("collection_method")
+  isActive                      Boolean                      @default(true) @map("is_active")
+  grantedAt                     DateTime                     @default(now()) @map("granted_at")
+  expiresAt                     DateTime?                    @map("expires_at")
+  revokedAt                     DateTime?                    @map("revoked_at")
+  withdrawnAt                   DateTime?                    @map("withdrawn_at")
+  createdAt                     DateTime                     @default(now()) @map("created_at")
+  updatedAt                     DateTime                     @updatedAt @default(now()) @map("updated_at")
 
-  documents            Document[]
+  documents                     Document[]
+  consentHistories              ConsentHistory[]
+  authorizationLogs             ProcessingAuthorizationLog[]
 
+  @@index([subjectIdentifier])
+  @@index([status, isActive])
   @@map("consent_records")
 }
 
+model ConsentHistory {
+  id            String        @id @default(uuid())
+  consentId     String        @map("consent_id")
+  action        String        // GRANTED, UPDATED, WITHDRAWN, EXPIRED, SUSPENDED
+  previousState Json?         @map("previous_state")
+  newState      Json?         @map("new_state")
+  reason        String?       @db.Text
+  actorId       String?       @map("actor_id")
+  actorIp       String?       @map("actor_ip")
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  consent       ConsentRecord @relation(fields: [consentId], references: [id], onDelete: Cascade)
+
+  @@index([consentId, createdAt(sort: Desc)])
+  @@map("consent_history")
+}
+
+model ProcessingAuthorizationLog {
+  id             String         @id @default(uuid())
+  consentId      String?        @map("consent_id")
+  documentId     String?        @map("document_id")
+  subjectId      String?        @map("subject_id")
+  purpose        String
+  activity       String
+  dataCategory   String?        @map("data_category")
+  isAuthorized   Boolean        @map("is_authorized")
+  decisionCode   String         @map("decision_code") // PERMITTED, PURPOSE_NOT_GRANTED, CONSENT_EXPIRED, CONSENT_WITHDRAWN, CATEGORY_RESTRICTED, SUBJECT_UNKNOWN
+  decisionReason String         @map("decision_reason") @db.Text
+  evaluatedAt    DateTime       @default(now()) @map("evaluated_at")
+  ipAddress      String?        @map("ip_address")
+  actorId        String?        @map("actor_id")
+
+  consent        ConsentRecord? @relation(fields: [consentId], references: [id], onDelete: SetNull)
+  document       Document?      @relation(fields: [documentId], references: [id], onDelete: SetNull)
+
+  @@index([consentId])
+  @@index([documentId])
+  @@index([evaluatedAt(sort: Desc)])
+  @@map("processing_authorization_logs")
+}
+
 model Document {
-  id             String          @id @default(uuid())
-  fileName       String          @map("file_name")
-  fileType       String          @map("file_type") // PDF or DOCX
-  fileSizeBytes  Int             @map("file_size_bytes")
-  storagePath    String          @map("storage_path") // MinIO object key
-  sourceType     SourceType      @default(SYNTHETIC) @map("source_type")
-  isSynthetic    Boolean         @default(true) @map("is_synthetic")
-  status         DocumentStatus  @default(UPLOADED)
+  id                         String                    @id @default(uuid())
+  fileName                   String                    @map("file_name")
+  originalFilename           String?                   @map("original_filename")
+  fileType                   String                    @map("file_type") // PDF, DOCX, PNG, JPG, XLSX, PPTX
+  detectedMimeType           String?                   @map("detected_mime_type")
+  fileExtension              String?                   @map("file_extension")
+  fileSizeBytes              Int                       @map("file_size_bytes")
+  checksumSha256             String?                   @map("checksum_sha256")
+  storagePath                String                    @map("storage_path") // MinIO object key
+  sourceType                 SourceType                @default(SYNTHETIC) @map("source_type")
+  isSynthetic                Boolean                   @default(true) @map("is_synthetic")
+  status                     DocumentStatus            @default(UPLOADED)
+  classification             DocumentClassification    @default(RESUME)
+  classificationConfidence   Float?                    @map("classification_confidence")
+  language                   String?                   @default("en")
+  pageCount                  Int?                      @default(1) @map("page_count")
+  malwareScanStatus          MalwareScanStatus         @default(CLEAN) @map("malware_scan_status")
+  trainingEligibilityStatus  TrainingEligibilityStatus @default(EXTRACTION_PENDING) @map("training_eligibility_status")
+  trainingEligibilityReason  String?                   @map("training_eligibility_reason") @db.Text
+  subjectId                  String?                   @map("subject_id") // pseudonymous subject ID (e.g. SUBJ-XXXX)
 
-  consentId      String?         @map("consent_id")
-  uploadedById   String?         @map("uploaded_by_id")
-  syntheticJobId String?         @map("synthetic_job_id")
+  consentId                  String?                   @map("consent_id")
+  uploadedById               String?                   @map("uploaded_by_id")
+  syntheticJobId             String?                   @map("synthetic_job_id")
 
-  createdAt      DateTime        @default(now()) @map("created_at")
-  updatedAt      DateTime        @updatedAt @map("updated_at")
-  deletedAt      DateTime?       @map("deleted_at")
+  createdAt                  DateTime                  @default(now()) @map("created_at")
+  updatedAt                  DateTime                  @updatedAt @map("updated_at")
+  deletedAt                  DateTime?                 @map("deleted_at")
 
-  consent        ConsentRecord?  @relation(fields: [consentId], references: [id], onDelete: SetNull)
-  uploadedBy     User?           @relation("UserDocuments", fields: [uploadedById], references: [id], onDelete: SetNull)
-  syntheticJob   SyntheticJob?   @relation(fields: [syntheticJobId], references: [id], onDelete: SetNull)
+  consent                    ConsentRecord?            @relation(fields: [consentId], references: [id], onDelete: SetNull)
+  uploadedBy                 User?                     @relation("UserDocuments", fields: [uploadedById], references: [id], onDelete: SetNull)
+  syntheticJob               SyntheticJob?             @relation(fields: [syntheticJobId], references: [id], onDelete: SetNull)
 
-  parsedProfile  ParsedProfile?
-  piiVault       PiiVault?
-  reviews        AnnotationReview[]
+  parsedProfile              ParsedProfile?
+  piiVault                   PiiVault?
+  reviews                    AnnotationReview[]
+  pages                      DocumentPage[]
+  sections                   DocumentSection[]
+  provenances                FieldProvenanceRecord[]
+  qualityValidation          DocumentQualityValidation?
+  authorizationLogs          ProcessingAuthorizationLog[]
 
   @@index([status, isSynthetic])
+  @@index([classification])
+  @@index([trainingEligibilityStatus])
+  @@index([subjectId])
   @@index([createdAt(sort: Desc)])
   @@map("documents")
 }
 
 model PiiVault {
-  id           String    @id @default(uuid())
-  documentId   String    @unique @map("document_id")
-  fullName     String?   @map("full_name")
-  email        String?
-  phoneNumber  String?   @map("phone_number")
-  address      String?
-  nationalId   String?   @map("national_id")
-  dateOfBirth  DateTime? @map("date_of_birth")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  id               String        @id @default(uuid())
+  documentId       String        @unique @map("document_id")
+  subjectId        String?       @map("subject_id")
+  fullName         String?       @map("full_name")
+  email            String?
+  phoneNumber      String?       @map("phone_number")
+  address          String?
+  nationalId       String?       @map("national_id")
+  dateOfBirth      DateTime?     @map("date_of_birth")
+  passportNumber   String?       @map("passport_number")
+  sensitiveData    Json?         @map("sensitive_data") // other sensitive fields classification
+  encryptedPayload String?       @map("encrypted_payload") @db.Text // AES-256-GCM ciphertext
+  encryptionKeyId  String?       @default("vault-master-k1") @map("encryption_key_id")
+  isPurged         Boolean       @default(false) @map("is_purged")
+  retentionUntil   DateTime?     @map("retention_until")
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
 
-  document     Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  document         Document      @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  accessLogs       PiiAccessLog[]
 
+  @@index([subjectId])
   @@map("pii_vault")
+}
+
+model PiiAccessLog {
+  id              String   @id @default(uuid())
+  vaultId         String   @map("vault_id")
+  documentId      String   @map("document_id")
+  actorId         String?  @map("actor_id")
+  actorRole       String   @map("actor_role")
+  purpose         String
+  fieldsRequested Json     @map("fields_requested")
+  accessDecision  String   @map("access_decision") // GRANTED, DENIED_ROLE, DENIED_CONSENT
+  ipAddress       String?  @map("ip_address")
+  accessedAt      DateTime @default(now()) @map("accessed_at")
+
+  vault           PiiVault @relation(fields: [vaultId], references: [id], onDelete: Cascade)
+
+  @@index([vaultId, accessedAt(sort: Desc)])
+  @@index([documentId])
+  @@map("pii_access_logs")
+}
+
+model DocumentPage {
+  id            String   @id @default(uuid())
+  documentId    String   @map("document_id")
+  pageNumber    Int      @map("page_number")
+  pageText      String   @map("page_text") @db.Text
+  ocrApplied    Boolean  @default(false) @map("ocr_applied")
+  ocrConfidence Float?   @map("ocr_confidence")
+  tablesJson    Json?    @map("tables_json")
+  metadata      Json?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  document      Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, pageNumber])
+  @@index([documentId])
+  @@map("document_pages")
+}
+
+model DocumentSection {
+  id          String   @id @default(uuid())
+  documentId  String   @map("document_id")
+  sectionName String   @map("section_name")
+  rawContent  String   @map("raw_content") @db.Text
+  startPage   Int      @default(1) @map("start_page")
+  endPage     Int      @default(1) @map("end_page")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@map("document_sections")
+}
+
+model FieldProvenanceRecord {
+  id                 String             @id @default(uuid())
+  documentId         String             @map("document_id")
+  fieldPath          String             @map("field_path")
+  extractedValue     String             @map("extracted_value") @db.Text
+  normalizedValue    String?            @map("normalized_value") @db.Text
+  pageNumber         Int?               @map("page_number")
+  sectionName        String?            @map("section_name")
+  paragraphRef       String?            @map("paragraph_ref")
+  textStartOffset    Int?               @map("text_start_offset")
+  textEndOffset      Int?               @map("text_end_offset")
+  sourceText         String?            @map("source_text") @db.Text
+  extractionMethod   String             @default("text_segmentation") @map("extraction_method")
+  confidenceScore    Float              @default(0.9) @map("confidence_score")
+  verificationStatus VerificationStatus @default(PENDING_REVIEW) @map("verification_status")
+  isAiInferred       Boolean            @default(false) @map("is_ai_inferred")
+  isIncomplete       Boolean            @default(false) @map("is_incomplete")
+  reviewerId         String?            @map("reviewer_id")
+  reviewedAt         DateTime?          @map("reviewed_at")
+  createdAt          DateTime           @default(now()) @map("created_at")
+
+  document           Document           @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId, fieldPath])
+  @@map("field_provenances")
+}
+
+model DocumentQualityValidation {
+  id                        String   @id @default(uuid())
+  documentId                String   @unique @map("document_id")
+  overallScore              Float    @default(0.0) @map("overall_score")
+  fileIntegrityValid        Boolean  @default(true) @map("file_integrity_valid")
+  extractionCompleteness    Float    @default(0.0) @map("extraction_completeness")
+  ocrConfidenceAvg          Float    @default(1.0) @map("ocr_confidence_avg")
+  timelineConsistency       Boolean  @default(true) @map("timeline_consistency")
+  crossDocumentConsistency  Boolean  @default(true) @map("cross_document_consistency")
+  validationIssues          Json?    @map("validation_issues")
+  validatedAt               DateTime @default(now()) @map("validated_at")
+
+  document                  Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@map("document_quality_validations")
 }
 
 model ParsedProfile {

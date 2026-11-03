@@ -38,6 +38,8 @@ export default function ResumesListPage() {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState("ALL");
   const [filterSource, setFilterSource] = useState("ALL");
+  const [filterClassification, setFilterClassification] = useState("ALL");
+  const [filterEligibility, setFilterEligibility] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
 
@@ -202,16 +204,24 @@ export default function ResumesListPage() {
       filterSource === "ALL" ||
       (filterSource === "SYNTHETIC" && doc.isSynthetic) ||
       (filterSource === "REAL" && !doc.isSynthetic);
+    const matchClassification =
+      filterClassification === "ALL" ||
+      doc.classification === filterClassification ||
+      (doc.classification && doc.classification.toUpperCase() === filterClassification.toUpperCase());
+    const matchEligibility =
+      filterEligibility === "ALL" ||
+      doc.trainingEligibilityStatus === filterEligibility;
 
     const q = searchTerm.toLowerCase();
     const matchSearch =
       doc.fileName?.toLowerCase().includes(q) ||
       doc.id?.toLowerCase().includes(q) ||
+      doc.classification?.toLowerCase().includes(q) ||
       doc.parsedProfile?.structuredData?.professional_summary?.toLowerCase().includes(q) ||
       (Array.isArray(doc.parsedProfile?.structuredData?.skills) &&
         doc.parsedProfile.structuredData.skills.some((s: string) => s.toLowerCase().includes(q)));
 
-    return matchStatus && matchSource && matchSearch;
+    return matchStatus && matchSource && matchClassification && matchEligibility && matchSearch;
   });
 
   // KPI Calculations
@@ -449,6 +459,42 @@ export default function ResumesListPage() {
               <option value="REAL">ข้อมูลจริง (Real Authorized)</option>
             </select>
 
+            {/* Classification Filter (13 Types) */}
+            <select
+              value={filterClassification}
+              onChange={(e) => setFilterClassification(e.target.value)}
+              className="text-xs px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white font-medium text-slate-700"
+            >
+              <option value="ALL">ทุกหมวดหมู่เอกสาร (13 Types)</option>
+              <option value="RESUME">Resume</option>
+              <option value="CV">CV</option>
+              <option value="ACADEMIC_CV">Academic CV</option>
+              <option value="PORTFOLIO">Portfolio</option>
+              <option value="TRANSCRIPT">Transcript</option>
+              <option value="CERTIFICATE">Certificate</option>
+              <option value="RECOMMENDATION_LETTER">Recommendation Letter</option>
+              <option value="RESEARCH_PAPER">Research Paper</option>
+              <option value="PROJECT_REPORT">Project Report</option>
+              <option value="EMPLOYMENT_DOCUMENT">Employment Document</option>
+              <option value="SCHOLARSHIP_DOCUMENT">Scholarship Document</option>
+              <option value="TRAINING_RECORD">Training Record</option>
+            </select>
+
+            {/* Training Eligibility Filter */}
+            <select
+              value={filterEligibility}
+              onChange={(e) => setFilterEligibility(e.target.value)}
+              className="text-xs px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white font-medium text-slate-700"
+            >
+              <option value="ALL">ทุกสถานะ Training Gate</option>
+              <option value="APPROVED_FOR_TRAINING">Approved for Training</option>
+              <option value="APPROVED_FOR_PROFILE_MANAGEMENT">Profile Management Only</option>
+              <option value="AWAITING_REVIEW">Awaiting Review</option>
+              <option value="EXTRACTION_COMPLETED">Extraction Completed</option>
+              <option value="RESTRICTED">Restricted</option>
+              <option value="CONSENT_WITHDRAWN">Consent Withdrawn</option>
+            </select>
+
             {/* View Mode Toggle */}
             <div className="flex items-center border border-slate-200 rounded-xl p-0.5 bg-white">
               <button
@@ -498,10 +544,10 @@ export default function ResumesListPage() {
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
                     <th className="py-3 px-4">ชื่อเอกสาร & สรุปโปรไฟล์</th>
+                    <th className="py-3 px-4">หมวดหมู่เอกสาร</th>
                     <th className="py-3 px-4">แหล่งข้อมูล</th>
-                    <th className="py-3 px-4">สถานะการตรวจ</th>
+                    <th className="py-3 px-4">Training Eligibility Gate</th>
                     <th className="py-3 px-4">AI Confidence</th>
-                    <th className="py-3 px-4">ทักษะสำคัญ (Skills)</th>
                     <th className="py-3 px-4 text-right">การจัดการ</th>
                   </tr>
                 </thead>
@@ -536,6 +582,12 @@ export default function ResumesListPage() {
                         </td>
 
                         <td className="py-3.5 px-4">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                            {doc.classification || "RESUME"}
+                          </span>
+                        </td>
+
+                        <td className="py-3.5 px-4">
                           {doc.isSynthetic ? (
                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200">
                               <Sparkles className="w-3 h-3" /> Synthetic
@@ -549,16 +601,18 @@ export default function ResumesListPage() {
 
                         <td className="py-3.5 px-4">
                           <span
-                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold ${
-                              doc.status === "APPROVED"
+                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                              (doc.trainingEligibilityStatus === "APPROVED_FOR_TRAINING" || doc.isSynthetic)
                                 ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                                : doc.status === "REJECTED"
-                                ? "bg-rose-100 text-rose-800 border border-rose-200"
+                                : doc.trainingEligibilityStatus === "APPROVED_FOR_PROFILE_MANAGEMENT"
+                                ? "bg-blue-100 text-blue-800 border border-blue-200"
+                                : doc.trainingEligibilityStatus === "CONSENT_WITHDRAWN"
+                                ? "bg-slate-200 text-slate-700 line-through"
                                 : "bg-amber-100 text-amber-800 border border-amber-200"
                             }`}
                           >
-                            {doc.status === "APPROVED" && <Check className="w-3 h-3" />}
-                            {doc.status}
+                            {(doc.trainingEligibilityStatus === "APPROVED_FOR_TRAINING" || doc.isSynthetic) && <Check className="w-3 h-3" />}
+                            {doc.trainingEligibilityStatus || (doc.isSynthetic ? "APPROVED_FOR_TRAINING" : "AWAITING_REVIEW")}
                           </span>
                         </td>
 
@@ -815,7 +869,7 @@ export default function ResumesListPage() {
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileChange}
-                accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                accept=".pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.presentationml.presentation,image/png,image/jpeg"
                 className="hidden"
               />
 
@@ -840,7 +894,7 @@ export default function ResumesListPage() {
                     คลิกเพื่อเลือกไฟล์ หรือลากไฟล์มาวางที่นี่
                   </div>
                   <div className="text-[11px] text-slate-500 mt-1">
-                    รองรับเอกสารนามสกุล <span className="font-semibold text-slate-700">.PDF</span> และ <span className="font-semibold text-slate-700">.DOCX</span> (ขนาดไม่เกิน 25MB)
+                    รองรับเอกสาร <span className="font-semibold text-slate-700">PDF, DOCX, XLSX, PPTX, PNG, JPG</span> (ขนาดไม่เกิน 25MB)
                   </div>
                 </div>
               ) : (

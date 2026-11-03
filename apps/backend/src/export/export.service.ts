@@ -272,16 +272,35 @@ export class ExportService {
       this.logger.warn(`Querying DatasetRecord failed: ${err.message}`);
     }
 
-    // 2. ถ้ายังไม่มี DatasetRecord ให้ดึงจาก Document (Approved Resumes)
+    // 2. ถ้ายังไม่มี DatasetRecord ให้ดึงจาก Document (Approved Resumes with Training Eligibility Gate)
     if (recordsToExport.length === 0) {
       try {
+        const whereDoc: any = {
+          deletedAt: null,
+        };
+
+        if (dto.isSyntheticOnly !== false) {
+          whereDoc.isSynthetic = true;
+          whereDoc.status = 'APPROVED';
+        } else {
+          // If exporting real data or mixed: apply strict Training Eligibility Gate
+          whereDoc.OR = [
+            { isSynthetic: true, status: 'APPROVED' },
+            {
+              isSynthetic: false,
+              trainingEligibilityStatus: 'APPROVED_FOR_TRAINING',
+              consent: {
+                status: 'ACTIVE',
+                isActive: true,
+                withdrawnAt: null,
+              },
+            },
+          ];
+        }
+
         const documents = await this.prisma.document.findMany({
-          where: {
-            status: 'APPROVED',
-            isSynthetic: dto.isSyntheticOnly !== false ? true : undefined,
-            deletedAt: null,
-          },
-          include: { parsedProfile: true },
+          where: whereDoc,
+          include: { parsedProfile: true, consent: true },
         });
 
         recordsToExport = documents

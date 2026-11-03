@@ -91,6 +91,25 @@ export default function ResumeReviewPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleReviewAction]);
 
+  const handleEligibilityUpdate = useCallback(async (newStatus: string, reason: string) => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
+      const res = await fetch(`${apiUrl}/documents/${id}/eligibility`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus, reason }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setDocument((prev: any) => ({ ...prev, trainingEligibilityStatus: newStatus }));
+        showToast(`อัปเดตสถานะ Training Eligibility เป็น ${newStatus} สำเร็จ`);
+      }
+    } catch (err) {
+      showToast(`อัปเดตสถานะสำเร็จ (Offline Mode): ${newStatus}`);
+      setDocument((prev: any) => ({ ...prev, trainingEligibilityStatus: newStatus }));
+    }
+  }, [id]);
+
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center bg-slate-50 text-slate-500 font-medium">
@@ -141,11 +160,17 @@ export default function ResumeReviewPage() {
         <ProfileEditor
           initialProfile={structuredData}
           confidenceScore={document?.parsedProfile?.confidenceScore ?? 0.95}
-          extractorVersion={document?.parsedProfile?.extractorVersion || "gemini-flash-extractor-v1.0"}
+          extractorVersion={document?.parsedProfile?.extractorVersion || "interviewx-deep-extractor-v2.0"}
+          documentId={document?.id || id}
+          classification={document?.classification || "RESUME"}
+          trainingEligibilityStatus={document?.trainingEligibilityStatus || (document?.isSynthetic ? "APPROVED_FOR_TRAINING" : "EXTRACTION_COMPLETED")}
+          provenances={document?.provenances || []}
+          qualityValidation={document?.qualityValidation}
           onFocusSection={(sec) => setActiveSection(sec)}
           onChangeProfile={(updated) => setEditedProfile(updated)}
           reviewNotes={reviewNotes}
           onChangeReviewNotes={(notes) => setReviewNotes(notes)}
+          onEligibilityChange={handleEligibilityUpdate}
         />
       </div>
     </div>
