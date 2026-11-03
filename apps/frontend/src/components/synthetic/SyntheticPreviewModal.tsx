@@ -82,10 +82,47 @@ export function SyntheticPreviewModal({
   const displayIndustry = formatDisplayName(industryName) || "Industry";
   const displayProfession = formatDisplayName(professionName) || "Profession";
 
-  const jsonString = useMemo(() => {
-    if (!previewData) return "";
-    return JSON.stringify(previewData, null, 2);
+  // Normalize previewData: safely parse stringified JSON and unwrap nested response structures
+  const normalizedData = useMemo(() => {
+    if (!previewData) return null;
+    let data = previewData;
+    if (typeof data === "string") {
+      try {
+        data = JSON.parse(data);
+      } catch {
+        return { rawString: data };
+      }
+    }
+    if (data && typeof data === "object") {
+      if (data.previewItem && typeof data.previewItem === "object") {
+        data = data.previewItem;
+      } else if (data.structuredData && typeof data.structuredData === "object") {
+        data = data.structuredData;
+      } else if (
+        data.content &&
+        typeof data.content === "object" &&
+        !data.personal_info &&
+        !data.question &&
+        !data.project_title
+      ) {
+        data = data.content;
+      } else if (
+        data.data &&
+        typeof data.data === "object" &&
+        !data.personal_info &&
+        !data.question &&
+        !data.project_title
+      ) {
+        data = data.data;
+      }
+    }
+    return data;
   }, [previewData]);
+
+  const jsonString = useMemo(() => {
+    if (!normalizedData) return "";
+    return JSON.stringify(normalizedData, null, 2);
+  }, [normalizedData]);
 
   if (!isOpen) return null;
 
@@ -134,16 +171,20 @@ export function SyntheticPreviewModal({
     }
   };
 
-  // Helper for initials
+  // Helper for candidate initials (supports Thai & English)
   const getInitials = (name: any) => {
     const s = safeStr(name);
-    if (!s) return "SYN";
-    return s
-      .split(" ")
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((w) => w[0]?.toUpperCase())
-      .join("");
+    if (!s || s === "Candidate Name" || s === "SYN") return "CV";
+    // Check Thai characters first
+    const thaiMatches = s.match(/[\u0E01-\u0E2E]/g);
+    if (thaiMatches && thaiMatches.length >= 2) {
+      return thaiMatches[0] + thaiMatches[1];
+    }
+    const parts = s.split(/[\s()]+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return s.slice(0, 2).toUpperCase();
   };
 
   return (
@@ -248,10 +289,33 @@ export function SyntheticPreviewModal({
                 </p>
               </div>
             </div>
-          ) : !previewData ? (
+          ) : !normalizedData ? (
             <div className="py-16 text-center text-slate-400 space-y-2">
               <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto" />
               <p className="text-sm font-medium">ไม่พบข้อมูลตัวอย่าง</p>
+            </div>
+          ) : normalizedData.error ? (
+            <div className="py-12 px-6 text-center space-y-4 max-w-md mx-auto">
+              <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-200 shadow-xs">
+                <AlertTriangle className="w-7 h-7 text-rose-500" />
+              </div>
+              <div className="space-y-1.5">
+                <h4 className="text-base font-bold text-slate-900">ไม่สามารถสังเคราะห์ข้อมูลตัวอย่างได้</h4>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  {safeStr(normalizedData.message) || "เกิดข้อผิดพลาดในการติดต่อ AI Service หรือโครงสร้างข้อมูลไม่สมบูรณ์"}
+                </p>
+              </div>
+              {onRegenerate && (
+                <button
+                  type="button"
+                  onClick={onRegenerate}
+                  disabled={loading}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl transition shadow-xs"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+                  <span>ลองสุ่มสร้างใหม่อีกครั้ง</span>
+                </button>
+              )}
             </div>
           ) : viewMode === "json" ? (
             /* RAW JSON VIEW */
@@ -283,108 +347,115 @@ export function SyntheticPreviewModal({
               {(datasetType === "profile" || datasetType === "resume" || datasetType === "academic_cv") && (() => {
                 const candidateName =
                   safeStr(
-                    previewData.personal_info?.candidate_name ||
-                    previewData.personal_info?.full_name ||
-                    previewData.personal_info?.name ||
-                    previewData.candidate_name ||
-                    previewData.full_name ||
-                    previewData.name
-                  ) || "Candidate Name";
+                    normalizedData.personal_info?.candidate_name ||
+                    normalizedData.personal_info?.full_name ||
+                    normalizedData.personal_info?.name ||
+                    normalizedData.candidate_name ||
+                    normalizedData.full_name ||
+                    normalizedData.name
+                  ) || `${displayProfession} Candidate`;
 
                 const headline =
                   safeStr(
-                    previewData.headline ||
-                    previewData.academic_title ||
-                    previewData.personal_info?.position ||
-                    previewData.personal_info?.headline
-                  ) || `${displayProfession} (${safeStr(previewData.metadata?.seniority_level || previewData.seniority_level) || "Professional"})`;
+                    normalizedData.headline ||
+                    normalizedData.academic_title ||
+                    normalizedData.personal_info?.position ||
+                    normalizedData.personal_info?.headline ||
+                    normalizedData.position
+                  ) || `${displayProfession} (${safeStr(normalizedData.metadata?.seniority_level || normalizedData.seniority_level) || "Professional"})`;
 
                 const email = safeStr(
-                  previewData.personal_info?.email ||
-                  previewData.contact_info?.email
+                  normalizedData.personal_info?.email ||
+                  normalizedData.contact_info?.email ||
+                  normalizedData.email
                 );
 
                 const phone = safeStr(
-                  previewData.personal_info?.phone ||
-                  previewData.contact_info?.phone
+                  normalizedData.personal_info?.phone ||
+                  normalizedData.contact_info?.phone ||
+                  normalizedData.phone
                 );
 
                 const location = safeStr(
-                  previewData.personal_info?.city ||
-                  previewData.personal_info?.location ||
-                  previewData.contact_info?.location
+                  normalizedData.personal_info?.city ||
+                  normalizedData.personal_info?.location ||
+                  normalizedData.contact_info?.location ||
+                  normalizedData.location ||
+                  normalizedData.city
                 );
 
                 const nationalityOrOrigin = safeStr(
-                  previewData.personal_info?.cultural_background ||
-                  previewData.nationality ||
-                  previewData.personal_info?.nationality
+                  normalizedData.personal_info?.cultural_background ||
+                  normalizedData.nationality ||
+                  normalizedData.personal_info?.nationality ||
+                  normalizedData.cultural_background
                 );
 
                 const ageRange = safeStr(
-                  previewData.age_range ||
-                  previewData.personal_info?.age_range
+                  normalizedData.age_range ||
+                  normalizedData.personal_info?.age_range
                 );
 
                 const experienceYears = safeStr(
-                  previewData.experience_years ||
-                  previewData.personal_info?.experience_years
+                  normalizedData.experience_years ||
+                  normalizedData.personal_info?.experience_years
                 );
 
                 const summary = safeStr(
-                  previewData.profile_summary ||
-                  previewData.professional_summary ||
-                  previewData.academic_profile ||
-                  previewData.summary
+                  normalizedData.profile_summary ||
+                  normalizedData.professional_summary ||
+                  normalizedData.academic_profile ||
+                  normalizedData.summary ||
+                  normalizedData.bio
                 );
 
-                const workExperience = Array.isArray(previewData.work_history)
-                  ? previewData.work_history
-                  : Array.isArray(previewData.work_experience)
-                  ? previewData.work_experience
-                  : Array.isArray(previewData.research_experience)
-                  ? previewData.research_experience
+                const workExperience = Array.isArray(normalizedData.work_history)
+                  ? normalizedData.work_history
+                  : Array.isArray(normalizedData.work_experience)
+                  ? normalizedData.work_experience
+                  : Array.isArray(normalizedData.research_experience)
+                  ? normalizedData.research_experience
                   : [];
 
-                const educationList = Array.isArray(previewData.education_history)
-                  ? previewData.education_history
-                  : Array.isArray(previewData.education)
-                  ? previewData.education
+                const educationList = Array.isArray(normalizedData.education_history)
+                  ? normalizedData.education_history
+                  : Array.isArray(normalizedData.education)
+                  ? normalizedData.education
                   : [];
 
-                const projectsList = Array.isArray(previewData.projects_or_initiatives)
-                  ? previewData.projects_or_initiatives
-                  : Array.isArray(previewData.projects)
-                  ? previewData.projects
+                const projectsList = Array.isArray(normalizedData.projects_or_initiatives)
+                  ? normalizedData.projects_or_initiatives
+                  : Array.isArray(normalizedData.projects)
+                  ? normalizedData.projects
                   : [];
 
-                const certsList = Array.isArray(previewData.certifications_and_licenses)
-                  ? previewData.certifications_and_licenses
-                  : Array.isArray(previewData.certifications)
-                  ? previewData.certifications
+                const certsList = Array.isArray(normalizedData.certifications_and_licenses)
+                  ? normalizedData.certifications_and_licenses
+                  : Array.isArray(normalizedData.certifications)
+                  ? normalizedData.certifications
                   : [];
 
-                const pubList = Array.isArray(previewData.peer_reviewed_publications)
-                  ? previewData.peer_reviewed_publications
-                  : Array.isArray(previewData.publications_and_patents)
-                  ? previewData.publications_and_patents
-                  : Array.isArray(previewData.publications_or_research)
-                  ? previewData.publications_or_research
+                const pubList = Array.isArray(normalizedData.peer_reviewed_publications)
+                  ? normalizedData.peer_reviewed_publications
+                  : Array.isArray(normalizedData.publications_and_patents)
+                  ? normalizedData.publications_and_patents
+                  : Array.isArray(normalizedData.publications_or_research)
+                  ? normalizedData.publications_or_research
                   : [];
 
-                const awardsList = Array.isArray(previewData.honors_awards)
-                  ? previewData.honors_awards
-                  : Array.isArray(previewData.awards)
-                  ? previewData.awards
-                  : Array.isArray(previewData.academic_honors_and_awards)
-                  ? previewData.academic_honors_and_awards
+                const awardsList = Array.isArray(normalizedData.honors_awards)
+                  ? normalizedData.honors_awards
+                  : Array.isArray(normalizedData.awards)
+                  ? normalizedData.awards
+                  : Array.isArray(normalizedData.academic_honors_and_awards)
+                  ? normalizedData.academic_honors_and_awards
                   : [];
 
-                const skillsBreakdown = previewData.skills_breakdown;
-                const flatSkills = Array.isArray(previewData.skills)
-                  ? previewData.skills
-                  : Array.isArray(previewData.technical_and_research_skills)
-                  ? previewData.technical_and_research_skills
+                const skillsBreakdown = normalizedData.skills_breakdown;
+                const flatSkills = Array.isArray(normalizedData.skills)
+                  ? normalizedData.skills
+                  : Array.isArray(normalizedData.technical_and_research_skills)
+                  ? normalizedData.technical_and_research_skills
                   : [];
 
                 return (
@@ -453,14 +524,14 @@ export function SyntheticPreviewModal({
                     </div>
 
                     {/* Research Interests (for Academic CV) */}
-                    {Array.isArray(previewData.research_interests) && previewData.research_interests.length > 0 && (
+                    {Array.isArray(normalizedData.research_interests) && normalizedData.research_interests.length > 0 && (
                       <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-2.5">
                         <div className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
                           <Compass className="w-3.5 h-3.5 text-indigo-600" />
                           หัวข้อและความสนใจการวิจัย (Research Interests)
                         </div>
                         <div className="flex flex-wrap gap-1.5">
-                          {previewData.research_interests.map((ri: any, idx: number) => (
+                          {normalizedData.research_interests.map((ri: any, idx: number) => (
                             <span
                               key={idx}
                               className="px-3 py-1 rounded-xl text-xs font-semibold bg-indigo-50 text-indigo-800 border border-indigo-200"
@@ -527,7 +598,7 @@ export function SyntheticPreviewModal({
                     )}
 
                     {/* Work Experience / History */}
-                    {workExperience.length > 0 && (
+                    {workExperience.length > 0 ? (
                       <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-4">
                         <div className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
                           <Briefcase className="w-3.5 h-3.5 text-indigo-600" />
@@ -589,6 +660,11 @@ export function SyntheticPreviewModal({
                             );
                           })}
                         </div>
+                      </div>
+                    ) : (
+                      <div className="bg-white rounded-2xl border border-dashed border-slate-200 p-4 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
+                        <Briefcase className="w-4 h-4 text-slate-400 shrink-0" />
+                        <span>ผู้สมัครระดับเริ่มต้น / นิสิตนักศึกษาจบใหม่ (Entry-Level / Fresh Graduate) — ไม่มีประวัติงานเดิม เน้นผลงานโปรเจกต์เชิงประจักษ์และการศึกษา</span>
                       </div>
                     )}
 
@@ -811,50 +887,50 @@ export function SyntheticPreviewModal({
                         <HelpCircle className="w-4 h-4 text-purple-600" /> คำถามสัมภาษณ์ (Question Text)
                       </span>
                       <div className="flex items-center gap-2">
-                        {previewData.difficulty && (
+                        {normalizedData.difficulty && (
                           <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                            ระดับ: {safeStr(previewData.difficulty)}
+                            ระดับ: {safeStr(normalizedData.difficulty)}
                           </span>
                         )}
-                        {previewData.category && (
+                        {normalizedData.category && (
                           <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
-                            {safeStr(previewData.category)}
+                            {safeStr(normalizedData.category)}
                           </span>
                         )}
                       </div>
                     </div>
 
                     <div className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
-                      &quot;{safeStr(previewData.question)}&quot;
+                      &quot;{safeStr(normalizedData.question)}&quot;
                     </div>
 
-                    {previewData.question_th && (
+                    {normalizedData.question_th && (
                       <div className="text-xs sm:text-sm text-slate-600 italic pt-1 border-t border-purple-100">
-                        {safeStr(previewData.question_th)}
+                        {safeStr(normalizedData.question_th)}
                       </div>
                     )}
                   </div>
 
                   {/* Intent & Competencies */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {previewData.intent_and_objective && (
+                    {normalizedData.intent_and_objective && (
                       <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-2">
                         <div className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
                           <Target className="w-3.5 h-3.5 text-indigo-600" /> วัตถุประสงค์การวัดผล (Intent & Objective)
                         </div>
                         <p className="text-xs text-slate-600 leading-relaxed font-normal">
-                          {safeStr(previewData.intent_and_objective)}
+                          {safeStr(normalizedData.intent_and_objective)}
                         </p>
                       </div>
                     )}
 
-                    {Array.isArray(previewData.competencies_evaluated) && (
+                    {Array.isArray(normalizedData.competencies_evaluated) && (
                       <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-2">
                         <div className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
                           <Award className="w-3.5 h-3.5 text-indigo-600" /> สมรรถนะที่ประเมิน (Competencies)
                         </div>
                         <div className="flex flex-wrap gap-1.5 pt-1">
-                          {previewData.competencies_evaluated.map((comp: any, i: number) => (
+                          {normalizedData.competencies_evaluated.map((comp: any, i: number) => (
                             <span key={i} className="px-2.5 py-1 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
                               {safeStr(comp)}
                             </span>
@@ -866,26 +942,26 @@ export function SyntheticPreviewModal({
 
                   {/* Side-by-Side: What to Look For vs Red Flags */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {Array.isArray(previewData.key_points_to_look_for) && (
+                    {Array.isArray(normalizedData.key_points_to_look_for) && (
                       <div className="bg-emerald-50/50 rounded-2xl border border-emerald-200 p-5 shadow-2xs space-y-2.5">
                         <div className="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
                           <CheckCircle2 className="w-4 h-4 text-emerald-600" /> จุดเด่นที่ควรมองหา (Key Points to Look For)
                         </div>
                         <ul className="list-disc list-inside space-y-1.5 text-xs text-emerald-950 leading-relaxed pl-1">
-                          {previewData.key_points_to_look_for.map((pt: any, i: number) => (
+                          {normalizedData.key_points_to_look_for.map((pt: any, i: number) => (
                             <li key={i}>{safeStr(pt)}</li>
                           ))}
                         </ul>
                       </div>
                     )}
 
-                    {Array.isArray(previewData.red_flags) && (
+                    {Array.isArray(normalizedData.red_flags) && (
                       <div className="bg-rose-50/50 rounded-2xl border border-rose-200 p-5 shadow-2xs space-y-2.5">
                         <div className="text-xs font-bold uppercase tracking-wider text-rose-800 flex items-center gap-1.5">
                           <XCircle className="w-4 h-4 text-rose-600" /> สัญญาณเตือนที่ต้องระวัง (Red Flags)
                         </div>
                         <ul className="list-disc list-inside space-y-1.5 text-xs text-rose-950 leading-relaxed pl-1">
-                          {previewData.red_flags.map((rf: any, i: number) => (
+                          {normalizedData.red_flags.map((rf: any, i: number) => (
                             <li key={i}>{safeStr(rf)}</li>
                           ))}
                         </ul>
@@ -894,13 +970,13 @@ export function SyntheticPreviewModal({
                   </div>
 
                   {/* Sample Follow Ups */}
-                  {Array.isArray(previewData.sample_follow_ups) && previewData.sample_follow_ups.length > 0 && (
+                  {Array.isArray(normalizedData.sample_follow_ups) && normalizedData.sample_follow_ups.length > 0 && (
                     <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-2.5">
                       <div className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
                         <MessageSquare className="w-3.5 h-3.5 text-indigo-600" /> คำถามเจาะลึกเพิ่มเติม (Sample Follow-ups)
                       </div>
                       <div className="space-y-1.5">
-                        {previewData.sample_follow_ups.map((fu: any, i: number) => (
+                        {normalizedData.sample_follow_ups.map((fu: any, i: number) => (
                           <div key={i} className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-800 font-medium flex items-start gap-2">
                             <span className="font-bold text-indigo-600">Q{i + 1}:</span>
                             <span>{safeStr(fu)}</span>
@@ -924,29 +1000,29 @@ export function SyntheticPreviewModal({
                       <div>
                         <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">ระดับคุณภาพคำตอบ</div>
                         <div className="text-base font-black text-slate-900 flex items-center gap-2">
-                          <span>{safeStr(previewData.answer_quality) || "Excellent"}</span>
+                          <span>{safeStr(normalizedData.answer_quality) || "Excellent"}</span>
                           <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-                            {safeStr(previewData.candidate_level) || "Professional"}
+                            {safeStr(normalizedData.candidate_level) || "Professional"}
                           </span>
                         </div>
                       </div>
                     </div>
 
-                    {previewData.structure_framework_used && (
+                    {normalizedData.structure_framework_used && (
                       <div className="text-right">
                         <span className="text-[11px] font-semibold text-slate-500 block">โครงสร้างการตอบ:</span>
                         <span className="text-xs font-bold text-purple-700 font-mono">
-                          {safeStr(previewData.structure_framework_used)}
+                          {safeStr(normalizedData.structure_framework_used)}
                         </span>
                       </div>
                     )}
                   </div>
 
                   {/* Question Reference */}
-                  {previewData.question && (
+                  {normalizedData.question && (
                     <div className="p-4 bg-slate-100/70 rounded-2xl border border-slate-200 text-xs text-slate-700 space-y-1">
                       <span className="font-bold text-slate-500 uppercase text-[10px] block">คำถามที่ตอบ (Question):</span>
-                      <p className="font-semibold text-slate-900">&quot;{safeStr(previewData.question)}&quot;</p>
+                      <p className="font-semibold text-slate-900">&quot;{safeStr(normalizedData.question)}&quot;</p>
                     </div>
                   )}
 
@@ -956,38 +1032,38 @@ export function SyntheticPreviewModal({
                       <MessageSquare className="w-4 h-4 text-indigo-600" /> คำตอบของผู้สมัคร (Candidate Answer)
                     </div>
                     <div className="text-xs text-slate-800 leading-relaxed font-sans whitespace-pre-wrap p-4 bg-slate-50/60 rounded-xl border border-slate-200/80">
-                      {safeStr(previewData.answer_text)}
+                      {safeStr(normalizedData.answer_text)}
                     </div>
 
-                    {previewData.answer_text_th && (
+                    {normalizedData.answer_text_th && (
                       <div className="pt-2 border-t border-slate-100 text-xs text-slate-600 italic">
-                        {safeStr(previewData.answer_text_th)}
+                        {safeStr(normalizedData.answer_text_th)}
                       </div>
                     )}
                   </div>
 
                   {/* Strengths & Weaknesses */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {Array.isArray(previewData.key_strengths) && (
+                    {Array.isArray(normalizedData.key_strengths) && (
                       <div className="bg-emerald-50/50 rounded-2xl border border-emerald-200 p-5 shadow-2xs space-y-2">
                         <div className="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
                           <CheckCircle2 className="w-4 h-4 text-emerald-600" /> จุดเด่นของคำตอบ (Key Strengths)
                         </div>
                         <ul className="list-disc list-inside space-y-1 text-xs text-emerald-950">
-                          {previewData.key_strengths.map((str: any, i: number) => (
+                          {normalizedData.key_strengths.map((str: any, i: number) => (
                             <li key={i}>{safeStr(str)}</li>
                           ))}
                         </ul>
                       </div>
                     )}
 
-                    {Array.isArray(previewData.weaknesses_or_gaps) && (
+                    {Array.isArray(normalizedData.weaknesses_or_gaps) && (
                       <div className="bg-amber-50/50 rounded-2xl border border-amber-200 p-5 shadow-2xs space-y-2">
                         <div className="text-xs font-bold uppercase tracking-wider text-amber-800 flex items-center gap-1.5">
                           <AlertTriangle className="w-4 h-4 text-amber-600" /> จุดที่ต้องพัฒนา (Gaps / Weaknesses)
                         </div>
                         <ul className="list-disc list-inside space-y-1 text-xs text-amber-950">
-                          {previewData.weaknesses_or_gaps.map((w: any, i: number) => (
+                          {normalizedData.weaknesses_or_gaps.map((w: any, i: number) => (
                             <li key={i}>{safeStr(w)}</li>
                           ))}
                         </ul>
@@ -1005,56 +1081,56 @@ export function SyntheticPreviewModal({
                       <span className="text-xs font-bold text-purple-700 uppercase tracking-wider flex items-center gap-1.5">
                         <Compass className="w-4 h-4 text-purple-600" /> แฟ้มสะสมผลงานกรณีศึกษา (Portfolio Case Study)
                       </span>
-                      {previewData.project_category && (
+                      {normalizedData.project_category && (
                         <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
-                          {safeStr(previewData.project_category)}
+                          {safeStr(normalizedData.project_category)}
                         </span>
                       )}
                     </div>
 
                     <h2 className="text-lg sm:text-xl font-black text-slate-900 leading-snug">
-                      {safeStr(previewData.project_title || "Project Case Study")}
+                      {safeStr(normalizedData.project_title || "Project Case Study")}
                     </h2>
 
-                    {previewData.overview && (
+                    {normalizedData.overview && (
                       <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal pt-1">
-                        {safeStr(previewData.overview)}
+                        {safeStr(normalizedData.overview)}
                       </p>
                     )}
 
                     <div className="flex items-center gap-4 text-xs text-slate-500 pt-2 border-t border-purple-100 flex-wrap font-medium">
-                      {previewData.candidate_role && (
-                        <span>บทบาท: <strong className="text-slate-800">{safeStr(previewData.candidate_role)}</strong></span>
+                      {normalizedData.candidate_role && (
+                        <span>บทบาท: <strong className="text-slate-800">{safeStr(normalizedData.candidate_role)}</strong></span>
                       )}
-                      {previewData.team_composition && (
-                        <span>ขนาดทีม: <strong className="text-slate-800">{safeStr(previewData.team_composition)}</strong></span>
+                      {normalizedData.team_composition && (
+                        <span>ขนาดทีม: <strong className="text-slate-800">{safeStr(normalizedData.team_composition)}</strong></span>
                       )}
-                      {previewData.project_duration && (
-                        <span>ระยะเวลา: <strong className="text-slate-800">{safeStr(previewData.project_duration)}</strong></span>
+                      {normalizedData.project_duration && (
+                        <span>ระยะเวลา: <strong className="text-slate-800">{safeStr(normalizedData.project_duration)}</strong></span>
                       )}
                     </div>
                   </div>
 
                   {/* Problem & Objectives */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {previewData.problem_statement && (
+                    {normalizedData.problem_statement && (
                       <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-2">
                         <div className="text-xs font-bold uppercase tracking-wider text-rose-700 flex items-center gap-1.5">
                           <AlertTriangle className="w-3.5 h-3.5 text-rose-600" /> โจทย์ปัญหาและความท้าทาย (Problem Statement)
                         </div>
                         <p className="text-xs text-slate-600 leading-relaxed">
-                          {safeStr(previewData.problem_statement)}
+                          {safeStr(normalizedData.problem_statement)}
                         </p>
                       </div>
                     )}
 
-                    {Array.isArray(previewData.objectives) && previewData.objectives.length > 0 && (
+                    {Array.isArray(normalizedData.objectives) && normalizedData.objectives.length > 0 && (
                       <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-2">
                         <div className="text-xs font-bold uppercase tracking-wider text-indigo-700 flex items-center gap-1.5">
                           <Target className="w-3.5 h-3.5 text-indigo-600" /> วัตถุประสงค์และเป้าหมาย (Key Objectives)
                         </div>
                         <ul className="list-disc list-inside space-y-1 text-xs text-slate-600 leading-relaxed pl-1">
-                          {previewData.objectives.map((obj: any, oIdx: number) => (
+                          {normalizedData.objectives.map((obj: any, oIdx: number) => (
                             <li key={oIdx}>{safeStr(obj)}</li>
                           ))}
                         </ul>
@@ -1063,13 +1139,13 @@ export function SyntheticPreviewModal({
                   </div>
 
                   {/* Tools & Tech */}
-                  {Array.isArray(previewData.tools_and_technologies) && previewData.tools_and_technologies.length > 0 && (
+                  {Array.isArray(normalizedData.tools_and_technologies) && normalizedData.tools_and_technologies.length > 0 && (
                     <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-2">
                       <div className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
                         <Award className="w-3.5 h-3.5 text-indigo-600" /> เครื่องมือและเทคโนโลยีที่ใช้ (Tools & Tech)
                       </div>
                       <div className="flex flex-wrap gap-1.5">
-                        {previewData.tools_and_technologies.map((t: any, idx: number) => (
+                        {normalizedData.tools_and_technologies.map((t: any, idx: number) => (
                           <span key={idx} className="px-2.5 py-1 rounded-lg text-xs font-mono font-medium bg-slate-50 text-slate-800 border border-slate-200">
                             {safeStr(t)}
                           </span>
@@ -1079,13 +1155,13 @@ export function SyntheticPreviewModal({
                   )}
 
                   {/* Results & Impact */}
-                  {Array.isArray(previewData.results_and_impact) && previewData.results_and_impact.length > 0 && (
+                  {Array.isArray(normalizedData.results_and_impact) && normalizedData.results_and_impact.length > 0 && (
                     <div className="bg-emerald-50/50 rounded-2xl border border-emerald-200 p-5 shadow-2xs space-y-2.5">
                       <div className="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
                         <CheckCircle2 className="w-4 h-4 text-emerald-600" /> ผลลัพธ์และผลกระทบเชิงประจักษ์ (Results & Impact)
                       </div>
                       <ul className="list-disc list-inside space-y-1.5 text-xs text-emerald-950 leading-relaxed pl-1">
-                        {previewData.results_and_impact.map((res: any, rIdx: number) => (
+                        {normalizedData.results_and_impact.map((res: any, rIdx: number) => (
                           <li key={rIdx}>{safeStr(res)}</li>
                         ))}
                       </ul>
@@ -1102,34 +1178,34 @@ export function SyntheticPreviewModal({
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700 border border-purple-200">
-                            {safeStr(previewData.document_type || "Certificate")}
+                            {safeStr(normalizedData.document_type || "Certificate")}
                           </span>
                           <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                            <ShieldCheck className="w-3 h-3 text-emerald-600" /> {safeStr(previewData.verification_status || "VERIFIED")}
+                            <ShieldCheck className="w-3 h-3 text-emerald-600" /> {safeStr(normalizedData.verification_status || "VERIFIED")}
                           </span>
                         </div>
                         <h2 className="text-lg font-black text-slate-900 mt-2">
-                          {safeStr(previewData.document_title || "Official Supporting Document")}
+                          {safeStr(normalizedData.document_title || "Official Supporting Document")}
                         </h2>
                         <p className="text-xs text-indigo-700 font-semibold mt-0.5">
-                          ผู้ออกเอกสาร: {safeStr(previewData.issuer_organization || "Accredited Body")}
+                          ผู้ออกเอกสาร: {safeStr(normalizedData.issuer_organization || "Accredited Body")}
                         </p>
                       </div>
 
                       <div className="text-[11px] text-slate-500 space-y-1 font-mono sm:text-right bg-slate-50 sm:bg-transparent p-3 sm:p-0 rounded-xl">
-                        <div>เลขทะเบียน: <strong className="text-slate-800">{safeStr(previewData.credential_id_or_number || "-")}</strong></div>
-                        <div>วันที่ออก: <strong className="text-slate-800">{safeStr(previewData.issue_date || "-")}</strong></div>
-                        {previewData.candidate_name && (
-                          <div className="font-sans text-slate-700">ผู้ถือครอง: <strong>{safeStr(previewData.candidate_name)}</strong></div>
+                        <div>เลขทะเบียน: <strong className="text-slate-800">{safeStr(normalizedData.credential_id_or_number || "-")}</strong></div>
+                        <div>วันที่ออก: <strong className="text-slate-800">{safeStr(normalizedData.issue_date || "-")}</strong></div>
+                        {normalizedData.candidate_name && (
+                          <div className="font-sans text-slate-700">ผู้ถือครอง: <strong>{safeStr(normalizedData.candidate_name)}</strong></div>
                         )}
                       </div>
                     </div>
 
-                    {previewData.narrative_body && (
+                    {normalizedData.narrative_body && (
                       <div className="p-4 bg-slate-50/80 rounded-xl border border-slate-200/80 space-y-2">
                         <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">เนื้อหาเอกสารรับรอง (Narrative Body):</span>
                         <p className="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap font-sans">
-                          {safeStr(previewData.narrative_body)}
+                          {safeStr(normalizedData.narrative_body)}
                         </p>
                       </div>
                     )}
@@ -1152,7 +1228,7 @@ export function SyntheticPreviewModal({
                     </div>
 
                     <div className="space-y-3">
-                      {Object.entries(previewData).map(([key, value]) => {
+                      {Object.entries(normalizedData).map(([key, value]) => {
                         if (key === "metadata") return null;
                         return (
                           <div key={key} className="p-3.5 bg-slate-50/80 rounded-xl border border-slate-200/80 space-y-1">

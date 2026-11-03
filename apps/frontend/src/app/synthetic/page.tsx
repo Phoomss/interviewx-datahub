@@ -257,6 +257,7 @@ export default function UniversalSyntheticStudioPage() {
   // Handle Live Preview
   const handleLivePreview = async () => {
     setPreviewLoading(true);
+    setPreviewData(null);
     setShowPreviewModal(true);
 
     try {
@@ -292,11 +293,18 @@ export default function UniversalSyntheticStudioPage() {
         }),
       });
 
-      if (!res.ok) throw new Error("Preview generation failed");
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`AI Service (${res.status}): ${errorText}`);
+      }
       const json = await res.json();
-      setPreviewData(json.previewItem);
+      setPreviewData(json.previewItem || json);
     } catch (err: any) {
-      console.error(err);
+      console.error("Preview generation error:", err);
+      setPreviewData({
+        error: true,
+        message: err.message || "เกิดข้อผิดพลาดในการโหลดตัวอย่างข้อมูลสังเคราะห์",
+      });
       showToast(err.message || "เกิดข้อผิดพลาดในการโหลดตัวอย่าง");
     } finally {
       setPreviewLoading(false);
@@ -867,7 +875,13 @@ export default function UniversalSyntheticStudioPage() {
                         <button
                           type="button"
                           onClick={() => {
-                            setPreviewData(rec.content);
+                            let content = rec.content;
+                            if (typeof content === "string") {
+                              try {
+                                content = JSON.parse(content);
+                              } catch {}
+                            }
+                            setPreviewData(content);
                             setPreviewDatasetType(rec.datasetType || datasetType);
                             const indStr = typeof rec.industry === "object"
                               ? (rec.industry?.nameTh || rec.industry?.name || rec.industry?.key || "")
