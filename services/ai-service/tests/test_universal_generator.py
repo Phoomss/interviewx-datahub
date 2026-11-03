@@ -101,3 +101,111 @@ def test_academic_and_research_interview_questions():
     assert q["question_th"] is not None
     assert len(q["competencies_evaluated"]) > 0
     assert len(q["red_flags"]) > 0
+
+
+def test_thai_and_international_name_banks():
+    from src.services.data_banks.name_banks import (
+        generate_candidate_identity,
+        THAI_MALE_NAMES,
+        THAI_FEMALE_NAMES,
+        THAI_SURNAMES,
+        THAI_NICKNAMES,
+        WESTERN_FIRST_NAMES_MALE,
+        EAST_ASIAN_NAMES,
+        SEA_NAMES,
+    )
+
+    # Verify bank size richness
+    assert len(THAI_MALE_NAMES) >= 50
+    assert len(THAI_FEMALE_NAMES) >= 50
+    assert len(THAI_SURNAMES) >= 50
+    assert len(THAI_NICKNAMES) >= 30
+    assert len(WESTERN_FIRST_NAMES_MALE) >= 20
+    assert len(EAST_ASIAN_NAMES) >= 30
+    assert len(SEA_NAMES) >= 10
+
+    # Test Thai Identity Generation
+    thai_id = generate_candidate_identity(language="th", include_nickname=True)
+    assert len(thai_id.full_name) > 0
+    assert thai_id.gender in ["Male", "Female"]
+    assert "Thai" in thai_id.cultural_background
+
+    # Test International Identity Generation
+    intl_id = generate_candidate_identity(language="en", origin_preference="international_only")
+    assert len(intl_id.full_name) > 0
+    assert "@" not in intl_id.clean_email_slug
+
+    # Test Mixed Bilingual Identity
+    mixed_id = generate_candidate_identity(language="mixed", include_nickname=True)
+    assert mixed_id.full_name_th is not None
+
+
+def test_multidimensional_profile_richness():
+    industries = ["tech", "healthcare", "finance", "legal", "engineering"]
+    for ind in industries:
+        req = UniversalGenerateBatchRequest(
+            dataset_type="profile",
+            industry_key=ind,
+            profession_key=f"{ind}_lead",
+            profession_name=f"{ind.capitalize()} Lead",
+            interview_category="job",
+            seniority="Senior Specialist",
+            batch_size=2,
+            language="mixed",
+        )
+        items = UniversalSyntheticGenerator.generate_batch(req)
+        assert len(items) == 2
+        for profile in items:
+            assert len(profile["skills"]) >= 3
+            assert len(profile["education"]) > 0
+            assert "country" in profile["education"][0]
+            assert len(profile["languages"]) >= 2
+            assert len(profile["certifications"]) > 0
+            assert len(profile["awards"]) > 0
+            assert profile["work_experience"] is not None
+            assert len(profile["work_experience"]) > 0
+            assert "responsibilities" in profile["work_experience"][0]
+            # Verify cultural background and contact details
+            assert "candidate_cultural_background" in profile["profession_specific_fields"]
+
+
+def test_multidimensional_resume_projects_and_certifications():
+    req = UniversalGenerateBatchRequest(
+        dataset_type="resume",
+        industry_key="tech",
+        profession_key="ai_engineer",
+        profession_name="Senior AI Architect",
+        interview_category="job",
+        seniority="Senior",
+        batch_size=1,
+    )
+    items = UniversalSyntheticGenerator.generate_batch(req)
+    assert len(items) == 1
+    resume = items[0]
+    assert "projects_or_initiatives" in resume
+    assert len(resume["projects_or_initiatives"]) > 0
+    proj = resume["projects_or_initiatives"][0]
+    assert "impact_metric" in proj
+    assert "technologies_or_tools" in proj
+    assert len(resume["certifications_and_licenses"]) > 0
+    assert "skills_breakdown" in resume
+
+
+def test_industry_specific_scenarios():
+    for ind in ["healthcare", "finance", "legal", "tech"]:
+        req = UniversalGenerateBatchRequest(
+            dataset_type="scenario",
+            industry_key=ind,
+            profession_key="lead",
+            profession_name="Director",
+            interview_category="competency",
+            seniority="Director",
+            batch_size=1,
+        )
+        items = UniversalSyntheticGenerator.generate_batch(req)
+        assert len(items) == 1
+        scen = items[0]
+        assert len(scen["conflicting_constraints"]) >= 3
+        assert len(scen["expected_candidate_actions"]) >= 3
+        assert "Level 4 (Exemplary)" in scen["rubric_scoring_guide"]
+

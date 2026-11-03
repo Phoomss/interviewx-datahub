@@ -18,11 +18,13 @@
 
 | มิติ (Dimension) | ตัวเลือกและการกระจายตัว (Options & Distribution) |
 | :--- | :--- |
-| **สายงาน (Job Roles)** | Backend Engineer, Frontend Engineer, Fullstack Developer, Data Engineer, Machine Learning Engineer, DevOps/Platform Engineer, QA Automation, Product Manager, UI/UX Designer |
-| **ระดับประสบการณ์ (Seniority)** | Junior (0–2 ปี), Mid-level (2–5 ปี), Senior (5–8 ปี), Staff / Lead / Architect (8+ ปี) |
-| **กลุ่มอุตสาหกรรม (Industries)** | FinTech, E-Commerce, HealthTech, Enterprise SaaS, Logistics, EdTech, Consulting |
-| **กลุ่มทักษะ (Tech Stacks)** | TypeScript/Node.js, Python/FastAPI, Go, Java/Spring, Cloud Native (AWS/GCP/K8s), Data/AI Stacks |
-| **ภาษา (Languages)** | ภาษาอังกฤษ (80%), ภาษาไทย (20%) ในระยะเริ่มต้น |
+| **คลังชื่อบุคคล (Name Banks)** | **ไทย (Thai)**: 100+ ชื่อชาย-หญิงไทย, นามสกุลไทยหลากหลายตระกูล/ภูมิหลัง, พร้อมชื่อเล่นไทยและคำทับศัพท์ (เช่น กิตติพงษ์ วงษ์ประดิษฐ์ (แบงค์))<br>**สากล (International)**: Western/Anglo-American, East Asian (จีน, ญี่ปุ่น, เกาหลี), Southeast Asian (สิงคโปร์, มาเลเซีย, เวียดนาม, ฟิลิปปินส์), South Asian, Continental European |
+| **สถาบันการศึกษา (Institutions)** | มหาวิทยาลัยชั้นนำของไทย (จุฬาฯ, มธ., มหิดล, มก., มจธ., สจล., มช., มข., ม.อ., มศว, นิด้า, เอแบค) และสถาบันชั้นนำระดับโลก (NUS, NTU, Univ of Tokyo, Oxford, Cambridge, Harvard, Stanford, Imperial, Melbourne) |
+| **ระบบนิเวศองค์กร (Organizations)** | จำลองบริษัทตามกลุ่มอุตสาหกรรม (Tech Unicorns/Scale-ups, Healthcare Tertiary Hospitals, Banking & Wealth Houses, Corporate Law Chambers, EPC Engineering, Conglomerates) |
+| **สายงาน (Job Roles)** | ครอบคลุม 8+ อุตสาหกรรม: Technology, Healthcare, Finance, Legal, Engineering, Business, Education, Creative |
+| **ระดับประสบการณ์ (Seniority)** | Student/Trainee (0 ปี), Junior (1–3 ปี), Mid-level (3–5 ปี), Senior Specialist / Lead (5–8 ปี), Director / Principal (8+ ปี) |
+| **ภาษาและวัฒนธรรม (Languages)** | ภาษาอังกฤษสากล (`en`), ภาษาไทย (`th`), และทวิภาษา (`mixed` / Bilingual Thai-English) พร้อมระดับความเชี่ยวชาญ CEFR |
+| **ประเภทชุดข้อมูล (7 Dataset Types)** | Profile, Resume, Interview Question, Interview Answer (6 ระดับคุณภาพ), Rubric Evaluation, Feedback & Coaching, Scenario Dilemma |
 
 ---
 
