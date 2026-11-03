@@ -30,6 +30,7 @@ import {
   FileCheck,
   Trash2,
 } from "lucide-react";
+import { SyntheticPreviewModal } from "@/components/synthetic/SyntheticPreviewModal";
 
 const DATASET_TYPES = [
   { id: "profile", label: "Professional Profile", labelTh: "โปรไฟล์ประวัติการทำงาน", desc: "ข้อมูลประวัติ ทักษะ การศึกษา และผลงาน", icon: Briefcase },
@@ -83,6 +84,9 @@ export default function UniversalSyntheticStudioPage() {
   const [previewData, setPreviewData] = useState<any | null>(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [copiedPreview, setCopiedPreview] = useState(false);
+  const [previewDatasetType, setPreviewDatasetType] = useState("profile");
+  const [previewIndustry, setPreviewIndustry] = useState("");
+  const [previewProfession, setPreviewProfession] = useState("");
 
   // Custom Profession Dialog State
   const [showAddProfModal, setShowAddProfModal] = useState(false);
@@ -261,6 +265,10 @@ export default function UniversalSyntheticStudioPage() {
       const skillsArray = customSkillsInput
         ? customSkillsInput.split(",").map((s) => s.trim()).filter(Boolean)
         : (profObj?.suggestedSkills as string[]) || [];
+
+      setPreviewDatasetType(datasetType);
+      setPreviewIndustry(currentIndustry?.nameTh || currentIndustry?.name || selectedIndustryKey);
+      setPreviewProfession(profObj?.nameTh || profObj?.name || activeProfKey);
 
       const res = await fetch(`${apiUrl}/synthetic/universal/preview`, {
         method: "POST",
@@ -739,9 +747,14 @@ export default function UniversalSyntheticStudioPage() {
                 type="button"
                 onClick={handleLivePreview}
                 disabled={previewLoading || generating}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl shadow-2xs transition"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 hover:border-purple-300 hover:from-purple-100 hover:to-indigo-100 text-purple-900 text-xs font-bold rounded-xl shadow-2xs transition group disabled:opacity-50"
+                title="ทดสอบสร้างตัวอย่าง 1 รายการก่อนสั่งผลิตชุดใหญ่"
               >
-                {previewLoading ? <RefreshCw className="w-4 h-4 animate-spin text-purple-600" /> : <Eye className="w-4 h-4 text-purple-600" />}
+                {previewLoading ? (
+                  <RefreshCw className="w-4 h-4 animate-spin text-purple-600" />
+                ) : (
+                  <Sparkles className="w-4 h-4 text-purple-600 group-hover:scale-110 transition-transform" />
+                )}
                 <span>ดูตัวอย่างสด (Live Preview)</span>
               </button>
 
@@ -847,6 +860,9 @@ export default function UniversalSyntheticStudioPage() {
                           type="button"
                           onClick={() => {
                             setPreviewData(rec.content);
+                            setPreviewDatasetType(rec.datasetType || datasetType);
+                            setPreviewIndustry(rec.industry || currentIndustry?.nameTh || selectedIndustryKey);
+                            setPreviewProfession(rec.profession || selectedProfessionKeys[0]);
                             setShowPreviewModal(true);
                           }}
                           className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 px-2.5 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100 transition"
@@ -863,77 +879,17 @@ export default function UniversalSyntheticStudioPage() {
         </div>
       </div>
 
-      {/* Live Preview Modal */}
-      {showPreviewModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95">
-            <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
-                  <Sparkles className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">
-                    Live Preview: {datasetType.toUpperCase()}
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    ตรวจสอบโครงสร้างข้อมูลสังเคราะห์แบบ Real-time ก่อนทำการผลิตจำนวนมาก
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowPreviewModal(false)}
-                className="text-slate-400 hover:text-slate-600 text-sm font-semibold p-1"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="p-5 overflow-y-auto flex-1 font-mono text-xs bg-slate-950 text-slate-100 rounded-b-2xl">
-              {previewLoading ? (
-                <div className="py-16 text-center text-slate-400 space-y-3">
-                  <RefreshCw className="w-8 h-8 animate-spin mx-auto text-purple-400" />
-                  <p>กำลังเรียก AI Service เพื่อจำลองข้อมูลตัวอย่าง...</p>
-                </div>
-              ) : previewData ? (
-                <pre className="whitespace-pre-wrap leading-relaxed">
-                  {JSON.stringify(previewData, null, 2)}
-                </pre>
-              ) : (
-                <div className="py-12 text-center text-slate-400">ไม่มีข้อมูลตัวอย่าง</div>
-              )}
-            </div>
-
-            <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between rounded-b-2xl">
-              <span className="text-xs text-slate-500">
-                Pydantic Schema Compliant • Provenance Tracked
-              </span>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    navigator.clipboard.writeText(JSON.stringify(previewData, null, 2));
-                    setCopiedPreview(true);
-                    setTimeout(() => setCopiedPreview(false), 2000);
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-100"
-                >
-                  {copiedPreview ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copiedPreview ? "คัดลอกแล้ว" : "คัดลอก JSON"}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowPreviewModal(false)}
-                  className="px-4 py-1.5 rounded-lg bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800"
-                >
-                  ปิดหน้าต่าง
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* User-Friendly Enhanced Live Preview Modal */}
+      <SyntheticPreviewModal
+        isOpen={showPreviewModal}
+        onClose={() => setShowPreviewModal(false)}
+        datasetType={previewDatasetType}
+        previewData={previewData}
+        loading={previewLoading}
+        onRegenerate={handleLivePreview}
+        industryName={previewIndustry}
+        professionName={previewProfession}
+      />
 
       {/* Add Custom Profession Modal */}
       {showAddProfModal && (
