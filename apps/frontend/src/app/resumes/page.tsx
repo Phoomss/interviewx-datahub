@@ -403,152 +403,209 @@ export default function ResumesListPage() {
         </div>
 
         {/* Filter Controls & Search Bar */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-          {/* Search Input */}
-          <div className="relative flex-1 max-w-md">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="ค้นหาชื่อไฟล์, บทบาทงาน, ทักษะ หรือ ID..."
-              className="w-full text-xs border border-slate-200 rounded-xl pl-9 pr-8 py-2 text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-indigo-600 bg-white"
-            />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs"
-              >
-                ✕
-              </button>
-            )}
-          </div>
+        <div className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-2xs space-y-3">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            {/* Search Input */}
+            <div className="relative flex-1 max-w-md">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="ค้นหาชื่อผู้สมัคร, ไฟล์, ตำแหน่ง, ทักษะ หรือ ID..."
+                className="w-full text-xs border border-slate-200 rounded-xl pl-9 pr-8 py-2 text-slate-800 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-600 bg-slate-50/50 hover:bg-white focus:bg-white transition"
+              />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs p-1"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
 
-          {/* Filter Pills & View Mode */}
-          <div className="flex flex-wrap items-center gap-2 justify-between md:justify-end">
-            {/* Status Filter */}
-            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs">
+            {/* Quick Status Segmented Controls */}
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs overflow-x-auto">
               {[
-                { id: "ALL", label: "ทั้งหมด" },
-                { id: "PARSED", label: "รอตรวจ" },
-                { id: "APPROVED", label: "อนุมัติแล้ว" },
-                { id: "REJECTED", label: "ปฏิเสธ" },
+                { id: "ALL", label: "ทั้งหมด", count: totalCount },
+                { id: "PARSED", label: "รอตรวจทาน", count: pendingCount },
+                { id: "APPROVED", label: "อนุมัติแล้ว", count: approvedCount },
+                { id: "REJECTED", label: "ปฏิเสธ", count: rejectedCount },
               ].map((st) => (
                 <button
                   key={st.id}
+                  type="button"
                   onClick={() => setFilterStatus(st.id)}
-                  className={`px-3 py-1 rounded-lg font-semibold transition ${
+                  className={`px-3 py-1.5 rounded-lg font-bold text-[11px] whitespace-nowrap transition flex items-center gap-1.5 ${
                     filterStatus === st.id
-                      ? "bg-white text-slate-900 shadow-2xs"
+                      ? "bg-white text-indigo-700 shadow-2xs"
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
-                  {st.label}
+                  <span>{st.label}</span>
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+                    filterStatus === st.id ? "bg-indigo-100 text-indigo-800" : "bg-slate-200/70 text-slate-500"
+                  }`}>
+                    {st.count}
+                  </span>
                 </button>
               ))}
             </div>
+          </div>
 
-            {/* Source Type Filter */}
-            <select
-              value={filterSource}
-              onChange={(e) => setFilterSource(e.target.value)}
-              className="text-xs px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white font-medium text-slate-700"
-            >
-              <option value="ALL">ทุกแหล่งข้อมูล</option>
-              <option value="SYNTHETIC">ข้อมูลสังเคราะห์ (Synthetic)</option>
-              <option value="REAL">ข้อมูลจริง (Real Authorized)</option>
-            </select>
-
-            {/* Classification Filter (13 Types) */}
-            <select
-              value={filterClassification}
-              onChange={(e) => setFilterClassification(e.target.value)}
-              className="text-xs px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white font-medium text-slate-700"
-            >
-              <option value="ALL">ทุกหมวดหมู่เอกสาร (13 Types)</option>
-              <option value="RESUME">Resume</option>
-              <option value="CV">CV</option>
-              <option value="ACADEMIC_CV">Academic CV</option>
-              <option value="PORTFOLIO">Portfolio</option>
-              <option value="TRANSCRIPT">Transcript</option>
-              <option value="CERTIFICATE">Certificate</option>
-              <option value="RECOMMENDATION_LETTER">Recommendation Letter</option>
-              <option value="RESEARCH_PAPER">Research Paper</option>
-              <option value="PROJECT_REPORT">Project Report</option>
-              <option value="EMPLOYMENT_DOCUMENT">Employment Document</option>
-              <option value="SCHOLARSHIP_DOCUMENT">Scholarship Document</option>
-              <option value="TRAINING_RECORD">Training Record</option>
-            </select>
-
-            {/* Training Eligibility Filter */}
-            <select
-              value={filterEligibility}
-              onChange={(e) => setFilterEligibility(e.target.value)}
-              className="text-xs px-2.5 py-1.5 rounded-xl border border-slate-200 bg-white font-medium text-slate-700"
-            >
-              <option value="ALL">ทุกสถานะ Training Gate</option>
-              <option value="APPROVED_FOR_TRAINING">Approved for Training</option>
-              <option value="APPROVED_FOR_PROFILE_MANAGEMENT">Profile Management Only</option>
-              <option value="AWAITING_REVIEW">Awaiting Review</option>
-              <option value="EXTRACTION_COMPLETED">Extraction Completed</option>
-              <option value="RESTRICTED">Restricted</option>
-              <option value="CONSENT_WITHDRAWN">Consent Withdrawn</option>
-            </select>
-
-            {/* View Mode Toggle */}
-            <div className="flex items-center border border-slate-200 rounded-xl p-0.5 bg-white">
-              <button
-                onClick={() => setViewMode("table")}
-                title="มุมมองตาราง"
-                className={`p-1.5 rounded-lg transition ${
-                  viewMode === "table" ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100"
-                }`}
+          {/* Secondary Dropdown Filters Bar */}
+          <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2.5">
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              {/* Source Type Filter */}
+              <select
+                value={filterSource}
+                onChange={(e) => setFilterSource(e.target.value)}
+                className="text-xs px-3 py-1.5 rounded-xl border border-slate-200 bg-white font-medium text-slate-700 shadow-2xs hover:border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-indigo-600"
               >
-                <List className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={() => setViewMode("grid")}
-                title="มุมมองการ์ด"
-                className={`p-1.5 rounded-lg transition ${
-                  viewMode === "grid" ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100"
-                }`}
+                <option value="ALL">ทุกแหล่งข้อมูล (All Sources)</option>
+                <option value="SYNTHETIC">ข้อมูลสังเคราะห์ (Synthetic)</option>
+                <option value="REAL">ข้อมูลจริงมี Consent (Real Authorized)</option>
+              </select>
+
+              {/* Classification Filter (13 Types) */}
+              <select
+                value={filterClassification}
+                onChange={(e) => setFilterClassification(e.target.value)}
+                className="text-xs px-3 py-1.5 rounded-xl border border-slate-200 bg-white font-medium text-slate-700 shadow-2xs hover:border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-indigo-600"
               >
-                <LayoutGrid className="w-3.5 h-3.5" />
-              </button>
+                <option value="ALL">ทุกประเภทเอกสาร (13 Classifications)</option>
+                <option value="RESUME">Resume</option>
+                <option value="CV">CV</option>
+                <option value="ACADEMIC_CV">Academic CV</option>
+                <option value="PORTFOLIO">Portfolio</option>
+                <option value="TRANSCRIPT">Transcript</option>
+                <option value="CERTIFICATE">Certificate</option>
+                <option value="RECOMMENDATION_LETTER">Recommendation Letter</option>
+                <option value="RESEARCH_PAPER">Research Paper</option>
+                <option value="PROJECT_REPORT">Project Report</option>
+                <option value="EMPLOYMENT_DOCUMENT">Employment Document</option>
+                <option value="SCHOLARSHIP_DOCUMENT">Scholarship Document</option>
+                <option value="TRAINING_RECORD">Training Record</option>
+                <option value="OTHER">Other Documents</option>
+              </select>
+
+              {/* Training Eligibility Filter */}
+              <select
+                value={filterEligibility}
+                onChange={(e) => setFilterEligibility(e.target.value)}
+                className="text-xs px-3 py-1.5 rounded-xl border border-slate-200 bg-white font-medium text-slate-700 shadow-2xs hover:border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-indigo-600"
+              >
+                <option value="ALL">ทุกสถานะ Training Gate</option>
+                <option value="APPROVED_FOR_TRAINING">Approved for Training</option>
+                <option value="APPROVED_FOR_PROFILE_MANAGEMENT">Profile Management Only</option>
+                <option value="EXTRACTION_COMPLETED">Extraction Completed</option>
+                <option value="PENDING_HUMAN_REVIEW">Pending Human Review</option>
+                <option value="RESTRICTED">Restricted</option>
+                <option value="REVOKED_CONSENT_RESTRICTED">Consent Revoked</option>
+              </select>
+
+              {/* Reset Filters Button */}
+              {(searchTerm || filterStatus !== "ALL" || filterSource !== "ALL" || filterClassification !== "ALL" || filterEligibility !== "ALL") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchTerm("");
+                    setFilterStatus("ALL");
+                    setFilterSource("ALL");
+                    setFilterClassification("ALL");
+                    setFilterEligibility("ALL");
+                  }}
+                  className="text-[11px] font-semibold text-rose-600 hover:text-rose-800 px-2.5 py-1.5 rounded-lg hover:bg-rose-50 transition flex items-center gap-1"
+                >
+                  <X className="w-3 h-3" /> ล้างตัวกรอง
+                </button>
+              )}
+            </div>
+
+            {/* Results Counter & View Mode Switcher */}
+            <div className="flex items-center gap-3">
+              <span className="text-[11px] font-medium text-slate-500">
+                พบ <strong className="text-slate-900">{filteredDocs.length}</strong> จาก {totalCount} รายการ
+              </span>
+
+              <div className="flex items-center border border-slate-200 rounded-xl p-0.5 bg-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("table")}
+                  title="มุมมองตาราง (Table View)"
+                  className={`p-1.5 rounded-lg transition ${
+                    viewMode === "table" ? "bg-white text-indigo-700 shadow-2xs font-bold" : "text-slate-500 hover:text-slate-900"
+                  }`}
+                >
+                  <List className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("grid")}
+                  title="มุมมองการ์ด (Grid View)"
+                  className={`p-1.5 rounded-lg transition ${
+                    viewMode === "grid" ? "bg-white text-indigo-700 shadow-2xs font-bold" : "text-slate-500 hover:text-slate-900"
+                  }`}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Document Results Content */}
         {filteredDocs.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
-              <FileText className="w-6 h-6" />
+          <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-4 shadow-2xs">
+            <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
+              <FileText className="w-7 h-7" />
             </div>
-            <h3 className="text-base font-bold text-slate-900">ไม่พบเอกสารตามเงื่อนไขที่เลือก</h3>
-            <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              ลองเปลี่ยนคำค้นหาหรือนำเข้าเอกสารใหม่เข้าระบบเพื่อเริ่มกระบวนการสกัดและตรวจทาน
-            </p>
-            <button
-              onClick={() => setShowUploadModal(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-2xs transition"
-            >
-              <Upload className="w-3.5 h-3.5" /> นำเข้าเอกสารใหม่
-            </button>
+            <div className="space-y-1">
+              <h3 className="text-base font-bold text-slate-900">ไม่พบเอกสารตามเงื่อนไขที่เลือก</h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                ลองปรับเปลี่ยนคำค้นหาหรือนำเข้าเอกสารใหม่เข้าระบบเพื่อเริ่มกระบวนการสกัดและตรวจทาน
+              </p>
+            </div>
+            <div className="flex items-center justify-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchTerm("");
+                  setFilterStatus("ALL");
+                  setFilterSource("ALL");
+                  setFilterClassification("ALL");
+                  setFilterEligibility("ALL");
+                }}
+                className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
+              >
+                ล้างตัวกรองทั้งหมด
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowUploadModal(true)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-2xs transition"
+              >
+                <Upload className="w-3.5 h-3.5" /> นำเข้าเอกสารใหม่
+              </button>
+            </div>
           </div>
         ) : viewMode === "table" ? (
-          /* Table View */
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+          /* User-Friendly Enhanced Table View */
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
-                    <th className="py-3 px-4">ชื่อเอกสาร & สรุปโปรไฟล์</th>
-                    <th className="py-3 px-4">หมวดหมู่เอกสาร</th>
-                    <th className="py-3 px-4">แหล่งข้อมูล</th>
-                    <th className="py-3 px-4">Training Eligibility Gate</th>
-                    <th className="py-3 px-4">AI Confidence</th>
-                    <th className="py-3 px-4 text-right">การจัดการ</th>
+                  <tr className="bg-slate-50/90 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[10px]">
+                    <th className="py-3.5 px-4">เอกสาร & ข้อมูลผู้สมัคร</th>
+                    <th className="py-3.5 px-4">หมวดหมู่เอกสาร</th>
+                    <th className="py-3.5 px-4">แหล่งข้อมูล & Consent</th>
+                    <th className="py-3.5 px-4">สถานะการตรวจ</th>
+                    <th className="py-3.5 px-4">Training Gate</th>
+                    <th className="py-3.5 px-4">ทักษะสำคัญ</th>
+                    <th className="py-3.5 px-4">AI Score</th>
+                    <th className="py-3.5 px-4 text-right">การจัดการ</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -557,22 +614,45 @@ export default function ResumesListPage() {
                     const skills = Array.isArray(profile?.skills) ? profile.skills : [];
                     const confidence = doc.parsedProfile?.confidenceScore ?? 0.98;
 
+                    // Derive candidate name or initials
+                    const rawFirstLine = (doc.parsedProfile?.rawText || "").split("\n")[0]?.trim();
+                    const detectedName =
+                      profile?.full_name ||
+                      profile?.name ||
+                      (rawFirstLine && rawFirstLine.length < 50 && !rawFirstLine.toLowerCase().includes("resume")
+                        ? rawFirstLine
+                        : doc.fileName.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " "));
+
+                    const initials = detectedName
+                      .split(" ")
+                      .filter(Boolean)
+                      .slice(0, 2)
+                      .map((w: string) => w[0]?.toUpperCase())
+                      .join("") || "CV";
+
                     return (
-                      <tr key={doc.id} className="hover:bg-slate-50/70 transition">
-                        <td className="py-3.5 px-4 max-w-sm">
-                          <div className="flex items-start gap-2.5">
-                            <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
-                              <FileText className="w-4 h-4" />
+                      <tr
+                        key={doc.id}
+                        className="hover:bg-indigo-50/35 transition-colors group"
+                      >
+                        {/* 1. Candidate & Document Meta */}
+                        <td className="py-3.5 px-4 max-w-xs sm:max-w-sm">
+                          <div className="flex items-start gap-3">
+                            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                              {initials}
                             </div>
-                            <div>
-                              <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                                <span className="truncate">{doc.fileName}</span>
-                                <span className="text-[10px] px-1.5 py-0.2 bg-slate-100 text-slate-600 rounded-sm font-mono uppercase">
+                            <div className="min-w-0">
+                              <Link
+                                href={`/resumes/${doc.id}/review`}
+                                className="font-bold text-slate-900 hover:text-indigo-600 transition flex items-center gap-1.5 truncate group/link"
+                              >
+                                <span className="truncate">{detectedName}</span>
+                                <span className="text-[10px] px-1.5 py-0.2 bg-slate-100 text-slate-600 rounded font-mono uppercase font-bold shrink-0">
                                   {doc.fileType || "PDF"}
                                 </span>
-                              </div>
-                              <div className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
-                                {profile?.professional_summary || profile?.headline || "ไม่มีข้อความสรุป"}
+                              </Link>
+                              <div className="text-[11px] text-slate-500 truncate mt-0.5 font-medium">
+                                {doc.fileName}
                               </div>
                               <div className="text-[10px] text-slate-400 font-mono mt-0.5">
                                 ID: {doc.id}
@@ -581,111 +661,158 @@ export default function ResumesListPage() {
                           </div>
                         </td>
 
+                        {/* 2. Classification */}
                         <td className="py-3.5 px-4">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200/80">
                             {doc.classification || "RESUME"}
                           </span>
                         </td>
 
+                        {/* 3. Source & Consent */}
                         <td className="py-3.5 px-4">
-                          {doc.isSynthetic ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-purple-50 text-purple-700 border border-purple-200">
-                              <Sparkles className="w-3 h-3" /> Synthetic
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                              <ShieldCheck className="w-3 h-3" /> Real Authorized
-                            </span>
-                          )}
-                        </td>
-
-                        <td className="py-3.5 px-4">
-                          <span
-                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                              (doc.trainingEligibilityStatus === "APPROVED_FOR_TRAINING" || doc.isSynthetic)
-                                ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                                : doc.trainingEligibilityStatus === "APPROVED_FOR_PROFILE_MANAGEMENT"
-                                ? "bg-blue-100 text-blue-800 border border-blue-200"
-                                : doc.trainingEligibilityStatus === "CONSENT_WITHDRAWN"
-                                ? "bg-slate-200 text-slate-700 line-through"
-                                : "bg-amber-100 text-amber-800 border border-amber-200"
-                            }`}
-                          >
-                            {(doc.trainingEligibilityStatus === "APPROVED_FOR_TRAINING" || doc.isSynthetic) && <Check className="w-3 h-3" />}
-                            {doc.trainingEligibilityStatus || (doc.isSynthetic ? "APPROVED_FOR_TRAINING" : "AWAITING_REVIEW")}
-                          </span>
-                        </td>
-
-                        <td className="py-3.5 px-4">
-                          <div className="flex items-center gap-2">
-                            <div className="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                              <div
-                                className={`h-full rounded-full ${
-                                  confidence >= 0.9 ? "bg-emerald-500" : confidence >= 0.75 ? "bg-amber-500" : "bg-rose-500"
-                                }`}
-                                style={{ width: `${Math.round(confidence * 100)}%` }}
-                              ></div>
-                            </div>
-                            <span className="font-mono text-slate-700 font-bold">
-                              {Math.round(confidence * 100)}%
-                            </span>
+                          <div className="space-y-1">
+                            {doc.isSynthetic ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                                <Sparkles className="w-2.5 h-2.5" /> Synthetic
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                                <ShieldCheck className="w-2.5 h-2.5 text-blue-600" /> Real Authorized
+                              </span>
+                            )}
+                            {doc.consentId && !doc.isSynthetic && (
+                              <div className="text-[10px] font-mono text-slate-400 truncate max-w-[130px]">
+                                {doc.consentId}
+                              </div>
+                            )}
                           </div>
                         </td>
 
+                        {/* 4. Review Status */}
+                        <td className="py-3.5 px-4">
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                              doc.status === "APPROVED"
+                                ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                                : doc.status === "REJECTED"
+                                ? "bg-rose-100 text-rose-800 border border-rose-200"
+                                : doc.status === "NEEDS_CORRECTION"
+                                ? "bg-amber-100 text-amber-800 border border-amber-200"
+                                : "bg-blue-100 text-blue-800 border border-blue-200"
+                            }`}
+                          >
+                            <span className={`w-1.5 h-1.5 rounded-full ${
+                              doc.status === "APPROVED"
+                                ? "bg-emerald-600"
+                                : doc.status === "REJECTED"
+                                ? "bg-rose-600"
+                                : "bg-blue-600 animate-pulse"
+                            }`} />
+                            {doc.status === "PARSED" ? "รอตรวจทาน" : doc.status}
+                          </span>
+                        </td>
+
+                        {/* 5. Training Eligibility Gate */}
+                        <td className="py-3.5 px-4">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-bold ${
+                              (doc.trainingEligibilityStatus === "APPROVED_FOR_TRAINING" || doc.isSynthetic)
+                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                : doc.trainingEligibilityStatus === "APPROVED_FOR_PROFILE_MANAGEMENT"
+                                ? "bg-blue-50 text-blue-700 border border-blue-200"
+                                : doc.trainingEligibilityStatus === "REVOKED_CONSENT_RESTRICTED"
+                                ? "bg-slate-100 text-slate-600 line-through"
+                                : "bg-amber-50 text-amber-700 border border-amber-200"
+                            }`}
+                          >
+                            {(doc.trainingEligibilityStatus === "APPROVED_FOR_TRAINING" || doc.isSynthetic) && (
+                              <Check className="w-3 h-3 text-emerald-600" />
+                            )}
+                            {doc.trainingEligibilityStatus === "APPROVED_FOR_TRAINING" || doc.isSynthetic
+                              ? "พร้อมเทรน AI"
+                              : doc.trainingEligibilityStatus === "APPROVED_FOR_PROFILE_MANAGEMENT"
+                              ? "Profile Only"
+                              : "รอพิจารณา"}
+                          </span>
+                        </td>
+
+                        {/* 6. Skills Cloud Snippet */}
                         <td className="py-3.5 px-4 max-w-xs">
                           <div className="flex flex-wrap gap-1">
                             {skills.slice(0, 3).map((sk: string, i: number) => (
                               <span
                                 key={i}
-                                className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-medium"
+                                className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-semibold border border-slate-200/60"
                               >
                                 {sk}
                               </span>
                             ))}
                             {skills.length > 3 && (
-                              <span className="text-[10px] text-slate-400 font-semibold self-center">
+                              <span className="text-[10px] text-slate-400 font-bold self-center px-1">
                                 +{skills.length - 3}
                               </span>
                             )}
                           </div>
                         </td>
 
+                        {/* 7. AI Confidence Score */}
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-2">
+                            <div className="w-14 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                              <div
+                                className={`h-full rounded-full ${
+                                  confidence >= 0.9 ? "bg-emerald-500" : confidence >= 0.75 ? "bg-amber-500" : "bg-rose-500"
+                                }`}
+                                style={{ width: `${Math.round(confidence * 100)}%` }}
+                              />
+                            </div>
+                            <span className="font-mono text-slate-700 font-bold text-[11px]">
+                              {Math.round(confidence * 100)}%
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* 8. Actions */}
                         <td className="py-3.5 px-4 text-right">
                           <div className="flex items-center justify-end gap-1.5">
+                            {/* Inspect JSON Drawer */}
                             <button
                               type="button"
                               onClick={() => setInspectDoc(doc)}
-                              title="ดูข้อมูลสกัดด่วน"
-                              className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition"
+                              title="ดูผลการสกัด JSON ด่วน"
+                              className="p-1.5 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition"
                             >
-                              <Code2 className="w-3.5 h-3.5" />
+                              <Code2 className="w-4 h-4" />
                             </button>
 
+                            {/* View Raw Stream */}
                             <a
                               href={`${apiUrl}/documents/${doc.id}/raw`}
                               target="_blank"
                               rel="noreferrer"
-                              title="ดูไฟล์ต้นฉบับ (PDF/DOCX Stream)"
-                              className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
+                              title="เปิดดูไฟล์ต้นฉบับ (PDF/DOCX Stream)"
+                              className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
                             >
-                              <ExternalLink className="w-3.5 h-3.5" />
+                              <ExternalLink className="w-4 h-4" />
                             </a>
 
+                            {/* Primary Review Button */}
                             <Link
                               href={`/resumes/${doc.id}/review`}
-                              className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-lg transition shadow-2xs"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-2xs transition group-hover:shadow-md"
                             >
                               <Eye className="w-3.5 h-3.5" />
-                              <span>ตรวจข้อมูล</span>
+                              <span>ตรวจทาน</span>
                             </Link>
 
+                            {/* Delete Button */}
                             <button
                               type="button"
                               onClick={() => handleDeleteDocument(doc.id, doc.fileName)}
-                              title="ลบเอกสาร"
-                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                              title="ลบเอกสารออกจากระบบ"
+                              className="p-1.5 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition ml-0.5"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                         </td>
@@ -695,44 +822,93 @@ export default function ResumesListPage() {
                 </tbody>
               </table>
             </div>
+
+            {/* Table Footer */}
+            <div className="p-4 bg-slate-50/80 border-t border-slate-200/90 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+              <div>
+                แสดงทั้งหมด <strong className="text-slate-800">{filteredDocs.length}</strong> รายการ จากคลังเอกสาร
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-slate-400">คลิกที่ชื่อผู้สมัครหรือกด &quot;ตรวจทาน&quot; เพื่อเปิดหน้าจอ Side-by-side</span>
+              </div>
+            </div>
           </div>
         ) : (
-          /* Card Grid View */
+          /* Enhanced Card Grid View */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {filteredDocs.map((doc) => {
               const profile = doc.parsedProfile?.structuredData;
               const skills = Array.isArray(profile?.skills) ? profile.skills : [];
               const confidence = doc.parsedProfile?.confidenceScore ?? 0.98;
 
+              const rawFirstLine = (doc.parsedProfile?.rawText || "").split("\n")[0]?.trim();
+              const detectedName =
+                profile?.full_name ||
+                profile?.name ||
+                (rawFirstLine && rawFirstLine.length < 50 && !rawFirstLine.toLowerCase().includes("resume")
+                  ? rawFirstLine
+                  : doc.fileName.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " "));
+
+              const initials = detectedName
+                .split(" ")
+                .filter(Boolean)
+                .slice(0, 2)
+                .map((w: string) => w[0]?.toUpperCase())
+                .join("") || "CV";
+
               return (
                 <div
                   key={doc.id}
-                  className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs hover:shadow-md transition flex flex-col justify-between space-y-4"
+                  className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs hover:shadow-md hover:border-slate-300 transition-all flex flex-col justify-between space-y-4 group"
                 >
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
-                          <FileText className="w-5 h-5" />
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                          {initials}
                         </div>
-                        <div>
-                          <div className="font-bold text-xs text-slate-900 line-clamp-1">{doc.fileName}</div>
-                          <div className="text-[10px] text-slate-400 font-mono truncate max-w-[160px]">
-                            {doc.id}
+                        <div className="min-w-0">
+                          <Link
+                            href={`/resumes/${doc.id}/review`}
+                            className="font-bold text-xs sm:text-sm text-slate-900 hover:text-indigo-600 transition truncate block"
+                          >
+                            {detectedName}
+                          </Link>
+                          <div className="text-[10px] text-slate-400 font-mono truncate max-w-[170px]">
+                            {doc.fileName}
                           </div>
                         </div>
                       </div>
 
                       <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${
                           doc.status === "APPROVED"
-                            ? "bg-emerald-100 text-emerald-800"
+                            ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
                             : doc.status === "REJECTED"
-                            ? "bg-rose-100 text-rose-800"
-                            : "bg-amber-100 text-amber-800"
+                            ? "bg-rose-100 text-rose-800 border border-rose-200"
+                            : "bg-amber-100 text-amber-800 border border-amber-200"
                         }`}
                       >
-                        {doc.status}
+                        {doc.status === "PARSED" ? "รอตรวจทาน" : doc.status}
+                      </span>
+                    </div>
+
+                    {/* Metadata Badges */}
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200/60">
+                        {doc.classification || "RESUME"}
+                      </span>
+                      {doc.isSynthetic ? (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200 flex items-center gap-1">
+                          <Sparkles className="w-2.5 h-2.5" /> Synthetic
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
+                          <ShieldCheck className="w-2.5 h-2.5 text-blue-600" /> Real Authorized
+                        </span>
+                      )}
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        {doc.trainingEligibilityStatus === "APPROVED_FOR_TRAINING" || doc.isSynthetic ? "พร้อมเทรน" : "รอตรวจ"}
                       </span>
                     </div>
 
@@ -741,23 +917,28 @@ export default function ResumesListPage() {
                     </p>
 
                     <div>
-                      <div className="text-[11px] font-semibold text-slate-500 mb-1">ทักษะสำคัญ:</div>
+                      <div className="text-[11px] font-bold text-slate-500 mb-1.5">ทักษะสำคัญ:</div>
                       <div className="flex flex-wrap gap-1">
                         {skills.slice(0, 4).map((sk: string, i: number) => (
                           <span
                             key={i}
-                            className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-medium"
+                            className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-semibold border border-slate-200/60"
                           >
                             {sk}
                           </span>
                         ))}
+                        {skills.length > 4 && (
+                          <span className="text-[10px] text-slate-400 font-bold self-center px-1">
+                            +{skills.length - 4}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
 
                   <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5 text-slate-500 font-mono text-[11px]">
-                      <span>AI:</span>
+                      <span>AI Score:</span>
                       <span className="font-bold text-slate-800">{Math.round(confidence * 100)}%</span>
                     </div>
 
@@ -765,13 +946,14 @@ export default function ResumesListPage() {
                       <button
                         type="button"
                         onClick={() => setInspectDoc(doc)}
-                        className="px-2.5 py-1 text-slate-600 hover:bg-slate-100 rounded-lg text-xs font-medium"
+                        className="p-1.5 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition"
+                        title="ดูผลสกัด JSON"
                       >
-                        ดูผลสกัด
+                        <Code2 className="w-4 h-4" />
                       </button>
                       <Link
                         href={`/resumes/${doc.id}/review`}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-2xs"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-2xs transition"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         <span>ตรวจทาน</span>
