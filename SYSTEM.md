@@ -207,11 +207,116 @@ All export formatters (Alpaca, ChatML, ShareGPT) apply secondary regex redaction
 
 ---
 
-## 6. Verification & Automated Test Matrix
+## 6. Frontend Studio, Brand Identity & Universal Navigation System
+
+The Next.js 14 frontend studio provides an enterprise-grade, clean light-themed UI designed for clarity, ergonomics, and rapid data exploration.
+
+```mermaid
+flowchart TD
+    subgraph Navbar["Floating Capsule Navbar (Light Theme)"]
+        Logo["InterviewX Logo\n(Dynamic 'X' + DataHub Node + Spark ✦)"]
+        MainTrigger["Single Main Menu Trigger\n(❖ เมนูระบบทั้งหมด ▾)"]
+        RolePill["Role Switcher & Action Pill\n(👑 Admin / DPO ▾ + Copied ✅)"]
+    end
+
+    subgraph Flyout["Floating Navigation Card (rounded-[28px])"]
+        M1["1. แดชบอร์ดหลัก (/)"]
+        M2["2. สตูดิโอสังเคราะห์ข้อมูล (/synthetic)"]
+        M3["3. คลังเรซูเม่ & CV (/resumes)"]
+        M4["4. ผังอุตสาหกรรม (/taxonomy)"]
+        M5["5. ความยินยอม & PII Vault (/consent)"]
+        M6["6. ชุดข้อมูลเทรน AI (/datasets)"]
+        M7["7. ธรรมาภิบาล (/analytics)"]
+        M8["Swagger REST API (Port 4000)"]
+    end
+
+    subgraph ResponsiveReview["Responsive Review Studio (/resumes/:id/review)"]
+        DesktopView["Side-by-Side Dual Pane (Desktop)"]
+        MobileTabs["Thumb-friendly Tab Switcher (Mobile/Tablet)"]
+        NavBarSuppression["Navbar Automatically Suppressed for Max Viewport"]
+    end
+
+    MainTrigger -->|Hover 70ms / Click| Flyout
+    Navbar -.->|Suppressed on| ResponsiveReview
+```
+
+### 6.1 Modern Floating Capsule Navbar (`apps/frontend/src/components/navigation/IconNavigation.tsx`)
+- **Aesthetic**: Floating glassmorphic white capsule (`bg-white/90 backdrop-blur-xl border border-slate-200/80 shadow-xl shadow-slate-200/50 rounded-full px-3 py-2`).
+- **Brand Identity (`apps/frontend/src/components/brand/InterviewXLogo.tsx`)**:
+  - Gradient icon badge (`from-blue-600 via-indigo-600 to-blue-500`).
+  - Dynamic intersecting **"X"** stroke representing InterviewX agility and AI intelligence.
+  - Central neural data node (`●`) representing DataHub consolidation.
+  - Top-right intelligence sparkle (`✦`) symbolizing LLM generation and synthetic excellence.
+- **Single Main Menu Trigger**:
+  - Eliminates visual clutter by replacing multiple top-level buttons with one unified trigger: `[ ❖ เมนูระบบทั้งหมด (All Modules) [Active Page] ▾ ]`.
+  - **Zero-Flicker Debounce**: 70ms opening delay (prevents accidental popups when crossing the mouse) and 150ms closing buffer (smooth cursor transition between trigger and menu card).
+  - Highlights the current route with an active pill tag.
+- **Signature Role Switcher Pill (`ROLE_CONFIGS`)**:
+  - Displays current clearance: `👑 Admin / DPO`, `Annotator`, `ML Engineer`, or `Auditor`.
+  - Allows live switching of simulated RBAC permissions to test PII Vault access policies.
+  - Integrated copy action: Clicking copies the backend API URL (`http://localhost:4000/api/v1`) with instant animated **`Copied ✅`** feedback.
+- **Mobile & Tablet Interaction**:
+  - Automatically switches to a compact header with hamburger toggle.
+  - On open, transforms into a close `✕` button with a cleanly stacked vertical drawer below.
+- **Review Studio Workspace Suppression**:
+  - The floating navbar automatically unmounts when navigating to `/resumes/[id]/review`, maximizing the vertical workspace for document analysis.
+
+### 6.2 Floating Modules Navigation Menu (`apps/frontend/src/components/navigation/FloatingNavigationMenu.tsx`)
+- Sleek floating card (`rounded-[28px]`, `bg-white/95 backdrop-blur-2xl border border-slate-200/80 shadow-2xl`).
+- Displays all 7 platform modules with bespoke pastel badge icons, Thai titles, and English descriptions.
+- Highlights active routes with `✓ ปัจจุบัน` badge and soft blue container rings.
+- Provides a direct link to the backend Swagger documentation (`http://localhost:4000/docs`).
+
+---
+
+## 7. Accredited Universities Knowledge Base (`INSTITUTIONS_BANK`)
+
+To eliminate synthetic data bias and guarantee realistic educational records, the platform embeds a comprehensive registry of accredited institutions (`apps/backend/src/synthetic/synthetic.service.ts`):
+
+### 7.1 Thai Universities (All 120+ Accredited Institutions)
+Classified by academic tier, governance model, and geographic region:
+1. **National Research Universities & Premier Autonomous Universities**:
+   - จุฬาลงกรณ์มหาวิทยาลัย, มหาวิทยาลัยมหิดล, มหาวิทยาลัยเชียงใหม่, มหาวิทยาลัยขอนแก่น, มหาวิทยาลัยสงขลานครินทร์, มหาวิทยาลัยธรรมศาสตร์, มหาวิทยาลัยเกษตรศาสตร์, มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าธนบุรี (มจธ.), มหาวิทยาลัยเทคโนโลยีสุรนารี (มทส.).
+2. **State & Autonomous Comprehensive Universities**:
+   - มหาวิทยาลัยศรีนครินทรวิโรฒ (มศว), มหาวิทยาลัยศิลปากร, มหาวิทยาลัยบูรพา, มหาวิทยาลัยนเรศวร, มหาวิทยาลัยพะเยา, มหาวิทยาลัยแม่ฟ้าหลวง, มหาวิทยาลัยทักษิณ, มหาวิทยาลัยอุบลราชธานี, มหาวิทยาลัยมหาสารคาม, มหาวิทยาลัยรามคำแหง, มหาวิทยาลัยสุโขทัยธรรมาธิราช (มสธ.).
+3. **Rajabhat University System (All 38 Campuses Nationwide)**:
+   - Bangkok & Central: มรภ.สวนสุนันทา, มรภ.จันทรเกษม, มรภ.บ้านสมเด็จเจ้าพระยา, มรภ.พระนคร, มรภ.ธนบุรี, มรภ.พระนครศรีอยุธยา, มรภ.รำไพพรรณี, มรภ.ราชนครินทร์, มรภ.เพชรบุรี, มรภ.กาญจนบุรี, มรภ.นครปฐม, มรภ.วไลยอลงกรณ์, มรภ.หมู่บ้านจอมบึง, มรภ.ลพบุรี, มรภ.เทพสตรี.
+   - Northern: มรภ.เชียงใหม่, มรภ.เชียงราย, มรภ.ลำปาง, มรภ.อุตรดิตถ์, มรภ.พิบูลสงคราม, มรภ.กำแพงเพชร, มรภ.เพชรบูรณ์, มรภ.นครสวรรค์.
+   - Northeastern: มรภ.อุดรธานี, มรภ.อุบลราชธานี, มรภ.นครราชสีมา, มรภ.บุรีรัมย์, มรภ.สุรินทร์, มรภ.สกลนคร, มรภ.ร้อยเอ็ด, มรภ.มหาสารคาม, มรภ.เลย, มรภ.ชัยภูมิ, มรภ.ศรีสะเกษ.
+   - Southern: มรภ.สุราษฎร์ธานี, มรภ.นครศรีธรรมราช, มรภ.ภูเก็ต, มรภ.สงขลา, มรภ.ยะลา.
+4. **Rajamangala University of Technology (RMUT) System (All 9 Campuses)**:
+   - มทร.ธัญบุรี, มทร.กรุงเทพ, มทร.พระนคร, มทร.รัตนโกสินทร์, มทร.ตะวันออก, มทร.สุวรรณภูมิ, มทร.ล้านนา, มทร.อีสาน, มทร.ศรีวิชัย.
+5. **Private Universities & Specialized Academic Institutes**:
+   - มหาวิทยาลัยอัสสัมชัญ (ABAC), มหาวิทยาลัยกรุงเทพ, มหาวิทยาลัยรังสิต, มหาวิทยาลัยหอการค้าไทย, มหาวิทยาลัยศรีปทุม, มหาวิทยาลัยพายัพ, สถาบันบัณฑิตพัฒนบริหารศาสตร์ (NIDA), สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง (สจล.), สถาบันเทคโนโลยีพระจอมเกล้าพระนครเหนือ (มจพ.), สถาบันเทคโนโลยีแห่งเอเชีย (AIT), สถาบันวิทยสิริเมธี (VISTEC).
+
+### 7.2 Global Accredited Universities (50+ Leading Institutions)
+- **United States & Canada**: Harvard, MIT, Stanford, UC Berkeley, Princeton, Columbia, Yale, Caltech, Carnegie Mellon, Cornell, UCLA, Univ of Washington, Univ of Toronto, McGill, UBC.
+- **United Kingdom & Ireland**: Univ of Oxford, Univ of Cambridge, Imperial College London, UCL, LSE, Univ of Edinburgh, King's College London, Univ of Manchester, Trinity College Dublin.
+- **Asia-Pacific**: National University of Singapore (NUS), Nanyang Technological University (NTU), Univ of Tokyo, Kyoto University, Tsinghua University, Peking University, Seoul National University, KAIST, University of Melbourne, University of Sydney, Australian National University, University of Hong Kong (HKU), HKUST.
+- **Europe**: ETH Zurich, EPFL, TU Munich, Delft University of Technology, Sorbonne University, Karolinska Institute.
+
+---
+
+## 8. Dynamic Multi-Format PDF Synthesis & Raw Document Engine
+
+To ensure that both real-world uploads and synthetic candidate profiles can be rendered and audited seamlessly in the Document Review Studio (`apps/backend/src/documents/documents.service.ts`):
+
+- **Synthetic Dynamic PDF Synthesis**:
+  - Synthetic records stored as structured JSON are compiled on demand into valid PDF format via dynamic PDF generation buffers.
+  - When the frontend requests `/api/v1/documents/:id/raw`, synthetic documents return a standard PDF payload (`Content-Type: application/pdf`).
+  - Fallback mechanisms return plain text structured summaries if binary parsing encounters non-standard encodings, preventing 404 Not Found errors on preview inspection.
+- **Side-by-Side Review Workspace (`apps/frontend/src/app/resumes/[id]/review/page.tsx`)**:
+  - Left pane displays the authentic rendered document (PDF or formatted text).
+  - Right pane provides interactive provenance annotations, skill tags, and validation status controls.
+  - Mobile/tablet view provides a touch-friendly switcher between Document Viewer and Structured Corrections.
+
+---
+
+## 9. Verification & Automated Test Matrix
 
 The system features complete end-to-end unit and integration test suites:
 
-### 6.1 Backend Test Suite (`bun test src/`)
+### 9.1 Backend Test Suite (`bun test src/`)
 - **Total Tests**: 47 passed, 0 failed (790ms execution time).
 - **Test Suites**:
   1. `pii-vault.service.spec.ts`: AES-256-GCM encryption/decryption, pseudonymous ID generation, ADMIN RBAC enforcement, ANNOTATOR rejection (403), Right to be Forgotten purge.
@@ -223,7 +328,7 @@ The system features complete end-to-end unit and integration test suites:
   7. `synthetic.service.spec.ts`: Multi-industry synthetic dataset generator, human QA reviews.
   8. `documents.service.spec.ts`: Ingestion validation, status management, soft deletion.
 
-### 6.2 AI Service Test Suite (`pytest`)
+### 9.2 AI Service Test Suite (`pytest`)
 - **Total Tests**: 25 passed, 0 failed (0.14s execution time).
 - **Test Suites**:
   1. `test_deep_extraction.py`: 13 document classifications, 13 skill taxonomies, explicit vs inferred flags, measurable impact extraction, provenance offsets.
@@ -231,16 +336,16 @@ The system features complete end-to-end unit and integration test suites:
   3. `test_consistency_engine.py`: Chronological timeline validation and cross-field checks.
   4. `test_universal_generator.py`: Synthetic interview prompts, rubrics, dilemmas across 10 dimensions.
 
-### 6.3 TypeScript Typecheck (`bun run typecheck`)
+### 9.3 TypeScript Typecheck (`bun run typecheck`)
 - `apps/backend`: **0 errors** (`tsc --noEmit`).
 - `apps/frontend`: **0 errors** (`tsc --noEmit`).
 - `apps/frontend` Production Build: **10/10 routes successfully optimized** (`next build`).
 
 ---
 
-## 7. Operational & Deployment Guide
+## 10. Operational & Deployment Guide
 
-### 7.1 Local Development Commands
+### 10.1 Local Development Commands
 ```bash
 # Start all infrastructure (Postgres, MinIO, Redis, MLflow)
 docker-compose up -d postgres minio redis mlflow

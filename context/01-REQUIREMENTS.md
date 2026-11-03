@@ -68,6 +68,18 @@
 - ระบบบันทึกเอกสารความยินยอม (Consent Record) ผูกกับเรซูเมจริง
 - รองรับคำขอถอนความยินยอม (Consent Revocation): เมื่อผู้ใช้ขอถอนความยินยอม ระบบต้องลบไฟล์จริงออกจาก MinIO และลบข้อมูลออกจากฐานข้อมูล หรือ Mark เป็น Hard Deleted รวมถึงนำออกจากคลัง Dataset ที่รอเทรน
 
+### FR-09: ระบบการนำทางสากลและการออกแบบส่วนติดต่อผู้ใช้ (Universal Navigation & Modern SaaS UI)
+- แถบนำทางแคปซูลลอยตัว (Floating Capsule Navbar) ธีมสว่าง (Clean Light Theme)
+- สัญลักษณ์แบรนด์เฉพาะ `InterviewXLogo` (Dynamic "X", DataHub Node, AI Spark ✦)
+- รวมศูนย์เมนูในปุ่มหลักปุ่มเดียว (`❖ เมนูระบบทั้งหมด ▾`) พร้อมกลไกหน่วงเวลาเปิด 70ms และหน่วงเวลาปิด 150ms (Zero-flicker Debounce)
+- การ์ดเมนูรวมโมดูล (`FloatingNavigationMenu`) แสดง 7 ระบบหลัก พร้อมป้ายกำกับสถานะหน้าปัจจุบันและทางลัด Swagger API
+- ปุ่มสลับบทบาทจำลอง (Role Switcher) แสดงระดับสิทธิ์ PII และปุ่มคัดลอก Endpoint API พร้อมแอนิเมชัน `Copied ✅`
+- ซ่อนแถบนำทางโดยอัตโนมัติในหน้า Review Workspace (`/resumes/:id/review`) เพื่อคืนพื้นที่หน้าจออย่างสมบูรณ์
+
+### FR-10: การสังเคราะห์เอกสารดิบเสมือนจริง (Synthetic Raw Document Synthesis)
+- สร้างไฟล์ PDF แบบ Dynamic On-the-fly จากข้อมูลสังเคราะห์ JSON เพื่อรองรับการเปิดดูแบบ Raw Stream (`/api/v1/documents/:id/raw`) ในหน้า Review Studio
+- ป้องกันข้อผิดพลาด HTTP 404 Not Found และมีระบบ Fallback เป็น Plain Text เมื่อแสดงผลบนเบราว์เซอร์หรืออุปกรณ์พกพา
+
 ---
 
 ## 3. ข้อกำหนดที่ไม่ใช่เชิงหน้าที่ (Non-Functional Requirements: NFR)

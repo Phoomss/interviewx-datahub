@@ -11,7 +11,8 @@
 - **UI Component Library**: **shadcn/ui** (สร้างบน Radix UI Primitives และ Lucide React Icons)
 - **State & Data Fetching**: **TanStack Query (React Query)** สำหรับจัดการ Server State, Caching, และ Polling
 - **Form Management & Validation**: **React Hook Form** ร่วมกับ **Zod Schema**
-- **ธีมสีและการแสดงผล**: Clean Modern Enterprise Dashboard รองรับทั้ง Light Mode และ Dark Mode
+- **ธีมสีและการแสดงผล**: Clean Modern SaaS Light Theme ออกแบบให้สบายตา (Eye-friendly) ปราศจากความรก (Minimalist) พร้อมโครงสร้าง Floating Capsule Navbar ลอยตัว
+- **สัญลักษณ์แบรนด์ (Brand Mark)**: โลโก้เวกเตอร์เฉพาะ `InterviewXLogo` (ตัวอักษร "X" ทันสมัย, Neural Node จุดเชื่อมโยงข้อมูล DataHub, และประกายดาว AI Intelligence ✦)
 
 ---
 
@@ -19,20 +20,52 @@
 
 ```mermaid
 flowchart TD
-    Layout["Root Layout (Sidebar Navigation + Topbar Header)"]
-    Layout --> Dashboard["/dashboard (ภาพรวมระบบและ KPIs)"]
-    Layout --> Resumes["/resumes (คลังเอกสารและการค้นหา)"]
-    Layout --> ReviewWorkspace["/resumes/:id/review (พื้นที่ตรวจและแก้ไขข้อมูล Side-by-Side)"]
-    Layout --> SyntheticStudio["/synthetic (สตูดิโอสร้างข้อมูลสังเคราะห์)"]
-    Layout --> Datasets["/datasets (การจัดการและส่งออกชุดข้อมูล)"]
-    Layout --> AuditLogs["/audit-logs (ประวัติการใช้งานระบบ)"]
+    AppShell["App Shell & Floating Capsule Navbar (IconNavigation)"]
+    AppShell --> Home["/ (ภาพรวมระบบและทางลัดโมดูล)"]
+    AppShell --> Synthetic["/synthetic (สตูดิโอสร้างข้อมูลสังเคราะห์)"]
+    AppShell --> Resumes["/resumes (คลังเอกสารและสกัดข้อมูลอัจฉริยะ)"]
+    AppShell --> Taxonomy["/taxonomy (ผัง 15 อุตสาหกรรมและทักษะ)"]
+    AppShell --> Consent["/consent (ความยินยอม & AES-256 PII Vault)"]
+    AppShell --> Datasets["/datasets (การแบ่งสัดส่วนและส่งออกชุดข้อมูล)"]
+    AppShell --> Analytics["/analytics (ธรรมาภิบาลและบันทึก Audit Logs)"]
+    AppShell --> ReviewWorkspace["/resumes/:id/review (พื้นที่ตรวจทาน Side-by-Side Responsive)"]
+    
+    AppShell -.->|Hover 70ms / Click| AllModulesCard["FloatingNavigationMenu (การ์ดมนรวม 7 โมดูล)"]
+    AppShell -.->|Role Switcher| RoleModal["Role & PII Clearance Simulator (Admin, ML, Annotator, Auditor)"]
+    AppShell -.->|ซ่อน Navbar อัตโนมัติ| ReviewWorkspace
 ```
 
 ---
 
-## 3. รายละเอียดหน้าจอหลัก (Core Views)
+## 3. ระบบแถบนำทางลอยตัว (Universal Floating Capsule Navigation)
 
-### 3.1 แดชบอร์ดภาพรวม (`/dashboard`)
+ระบบนำทางได้รับการออกแบบตามมาตรฐาน UI/UX สากล โดยรวมศูนย์เมนูทั้งหมดไว้ในปุ่มหลักปุ่มเดียวเพื่อความโปร่งตา:
+
+### 3.1 แถบนำทางแคปซูล (`IconNavigation.tsx`)
+1. **Brand Mark & Identity**:
+   - โลโก้ทรงกลมไล่เฉดสีฟ้า-คราม (`from-blue-600 via-indigo-600 to-blue-500`) บรรจุสัญลักษณ์ "X" และประกาย AI พร้อมชื่อระบบ `InterviewX DataHub`
+2. **ปุ่มเมนูหลักจุดเดียว (Single Main Menu Trigger)**:
+   - ปุ่ม `❖ เมนูระบบทั้งหมด (All Modules) [Active Page] ▾` แทนที่การเรียงไอคอนหลายปุ่มจนเต็มแถบ
+   - **Zero-Flicker Debounce Buffer**: หน่วงเวลา 70ms ก่อนแสดงเมนู เพื่อป้องกันการเปิดโดยไม่ตั้งใจเมื่อเลื่อนเมาส์ผ่าน และหน่วงเวลา 150ms เมื่อเลื่อนเมาส์ออก เพื่อให้ผู้ใช้ลากเคอร์เซอร์ลงไปยังการ์ดเมนูด้านล่างได้อย่างต่อเนื่องไร้การกะพริบ
+3. **การ์ดเมนูรวมโมดูลแบบลอยตัว (`FloatingNavigationMenu.tsx`)**:
+   - การ์ดสีขาวโค้งมนระดับสูง (`rounded-[28px]`, `bg-white/95 backdrop-blur-2xl shadow-2xl`)
+   - แสดงรายชื่อ 7 โมดูลระบบในแนวตั้งอย่างสบายตา พร้อมคำอธิบายภาษาอังกฤษและไทย
+   - ระบุสถานะหน้าปัจจุบันด้วยป้าย `✓ ปัจจุบัน` สีน้ำเงิน
+   - แนบปุ่มทางลัดเข้าสู่ **Swagger REST API UI (Port 4000)** ที่ส่วนท้าย
+4. **ปุ่มแคปซูลสลับบทบาทและคัดลอก (Signature Role Pill)**:
+   - แสดงสิทธิ์ปัจจุบัน: `👑 Admin / DPO`, `Annotator`, `ML Engineer`, หรือ `Auditor`
+   - คลิกเพื่อเปิดหน้าต่างสลับสิทธิ์การเข้าถึง PII Vault จำลอง
+   - มีปุ่มคัดลอก URL ของ Backend API (`http://localhost:4000/api/v1`) พร้อมแอนิเมชันยืนยัน **`Copied ✅`**
+5. **การทำงานบนจอสัมผัส (Mobile & Tablet)**:
+   - แถบเมนูด้านบนจะแสดงปุ่มแฮมเบอร์เกอร์ เมื่อแตะจะเปลี่ยนเป็นปุ่มปิด `✕` และเปิดการ์ดแสดงรายการเมนูทั้งหมดในแนวตั้ง
+6. **การซ่อนแถบเมนูในห้องตรวจทาน (Review Studio Suppression)**:
+   - เมื่อเข้าสู่ `/resumes/:id/review` แถบนำทางจะถูกซ่อนโดยอัตโนมัติ เพื่อคืนพื้นที่หน้าจอแบบ 100% ให้แก่การเปรียบเทียบเอกสารและการตรวจทาน
+
+---
+
+## 4. รายละเอียดหน้าจอหลัก (Core Views)
+
+### 4.1 แดชบอร์ดภาพรวม (`/`)
 - **Metric Cards**:
   - จำนวนเรซูเมทั้งหมด (Total Profiles)
   - สัดส่วน Synthetic Data vs Real Data (Pie/Donut Chart)
