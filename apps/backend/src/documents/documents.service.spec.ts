@@ -10,6 +10,7 @@ describe('DocumentsService - Ingestion, Review & PDPA Compliance', () => {
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
     },
     consentRecord: {
       findUnique: jest.fn(),
@@ -66,6 +67,11 @@ describe('DocumentsService - Ingestion, Review & PDPA Compliance', () => {
   it('should soft-delete document when remove() is called', async () => {
     const docId = 'doc-001-demo';
     const res = await service.remove(docId);
+    expect(res.success).toBe(true);
+  });
+
+  it('should clear synthetic documents when clearSyntheticDocuments() is called', async () => {
+    const res = await service.clearSyntheticDocuments(false);
     expect(res.success).toBe(true);
   });
 });

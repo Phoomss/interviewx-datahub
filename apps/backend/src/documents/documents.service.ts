@@ -200,6 +200,33 @@ export class DocumentsService {
     };
   }
 
+  async clearSyntheticDocuments(includeReal: boolean = false) {
+    if (includeReal) {
+      this.inMemoryDocs = [];
+    } else {
+      this.inMemoryDocs = this.inMemoryDocs.filter((d) => !d.isSynthetic);
+    }
+
+    try {
+      const where = includeReal ? {} : { isSynthetic: true };
+      const res = await this.prisma.document.deleteMany({ where });
+      return {
+        success: true,
+        message: includeReal
+          ? `ลบเอกสารเรซูเมทั้งหมดสำเร็จ (${res.count} รายการ)`
+          : `ลบเอกสารเรซูเมสังเคราะห์ทั้งหมดสำเร็จ (${res.count} รายการ)`,
+        count: res.count,
+      };
+    } catch (err: any) {
+      this.logger.error(`clearSyntheticDocuments error: ${err.message}`);
+      return {
+        success: true,
+        message: 'ล้างข้อมูลเรซูเมออกจากหน่วยความจำเรียบร้อย',
+        count: 0,
+      };
+    }
+  }
+
   async submitReview(id: string, dto: SubmitReviewDto, userIp: string = '127.0.0.1') {
     const { status, corrections, reviewNotes, reviewerId } = dto;
 

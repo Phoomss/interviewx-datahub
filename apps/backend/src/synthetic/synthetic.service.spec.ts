@@ -31,6 +31,7 @@ describe('SyntheticService - Universal Multi-Industry Generator', () => {
         count: mock(() => Promise.resolve(0)),
         findUnique: mock(() => Promise.resolve(null)),
         update: mock((args: any) => Promise.resolve({ id: 'rec-1', ...args.data })),
+        deleteMany: mock(() => Promise.resolve({ count: 5 })),
       },
       document: {
         create: mock((args: any) => Promise.resolve({ id: 'doc-1', ...args.data })),
@@ -73,5 +74,11 @@ describe('SyntheticService - Universal Multi-Industry Generator', () => {
 
     expect(updated.qualityStatus).toBe('VERIFIED');
     expect(mockPrisma.datasetRecord.update).toHaveBeenCalled();
+  });
+
+  it('should clear records when clearRecords() is called', async () => {
+    mockPrisma.syntheticJob.deleteMany = mock(() => Promise.resolve({ count: 2 }));
+    const res = await service.clearRecords('resume');
+    expect(res.success).toBe(true);
   });
 });

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Param, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { SyntheticService } from './synthetic.service';
 import { CreateSyntheticJobDto } from './dto/create-synthetic-job.dto';
@@ -55,6 +55,13 @@ export class SyntheticController {
       page,
       limit,
     });
+  }
+
+  @Delete('records/clear')
+  @ApiOperation({ summary: 'ล้างชุดข้อมูลสังเคราะห์ทั้งหมดหรือตามประเภทเพื่อเตรียมสร้างใหม่' })
+  @ApiResponse({ status: 200, description: 'ล้างชุดข้อมูลสำเร็จ' })
+  clearRecords(@Query('datasetType') datasetType?: string) {
+    return this.syntheticService.clearRecords(datasetType);
   }
 
   @Get('records/:id')

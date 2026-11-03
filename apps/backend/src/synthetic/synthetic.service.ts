@@ -1,11 +1,16 @@
-import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../prisma/prisma.service';
-import { DocumentsService } from '../documents/documents.service';
-import { CreateSyntheticJobDto } from './dto/create-synthetic-job.dto';
-import { CreateUniversalJobDto } from './dto/create-universal-job.dto';
-import { PreviewUniversalDto } from './dto/preview-universal.dto';
-import { UpdateRecordReviewDto } from './dto/update-record-review.dto';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Logger,
+} from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { PrismaService } from "../prisma/prisma.service";
+import { DocumentsService } from "../documents/documents.service";
+import { CreateSyntheticJobDto } from "./dto/create-synthetic-job.dto";
+import { CreateUniversalJobDto } from "./dto/create-universal-job.dto";
+import { PreviewUniversalDto } from "./dto/preview-universal.dto";
+import { UpdateRecordReviewDto } from "./dto/update-record-review.dto";
 
 @Injectable()
 export class SyntheticService {
@@ -30,15 +35,15 @@ export class SyntheticService {
       }
       const newUser = await this.prisma.user.create({
         data: {
-          email: 'admin@interviewx.ai',
-          fullName: 'InterviewX System Admin',
-          passwordHash: 'seeded_admin_hash',
-          role: 'ADMIN',
+          email: "admin@interviewx.ai",
+          fullName: "InterviewX System Admin",
+          passwordHash: "seeded_admin_hash",
+          role: "ADMIN",
         },
       });
       return newUser.id;
     } catch {
-      return 'user-admin-default';
+      return "user-admin-default";
     }
   }
 
@@ -46,8 +51,14 @@ export class SyntheticService {
    * Universal Live Preview: สร้างข้อมูลตัวอย่าง 1 รายการเพื่อดูตัวอย่างทันทีโดยยังไม่บันทึก
    */
   async previewUniversal(dto: PreviewUniversalDto) {
-    const aiServiceUrl = this.config.get<string>('AI_SERVICE_URL', 'http://ai-service:8000');
-    const internalKey = this.config.get<string>('INTERNAL_SERVICE_KEY', 'interviewx_internal_service_secret_key_2026');
+    const aiServiceUrl = this.config.get<string>(
+      "AI_SERVICE_URL",
+      "http://ai-service:8000",
+    );
+    const internalKey = this.config.get<string>(
+      "INTERNAL_SERVICE_KEY",
+      "interviewx_internal_service_secret_key_2026",
+    );
 
     // Resolve profession name if only key is provided
     let professionName = dto.professionName;
@@ -55,31 +66,34 @@ export class SyntheticService {
       const prof = await this.prisma.profession.findFirst({
         where: { OR: [{ key: dto.professionKey }, { id: dto.professionKey }] },
       });
-      professionName = prof ? prof.name : dto.professionKey.replace(/_/g, ' ');
+      professionName = prof ? prof.name : dto.professionKey.replace(/_/g, " ");
     }
 
     try {
-      const res = await fetch(`${aiServiceUrl}/internal/v1/synthetic/generate-universal-batch`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-internal-service-key': internalKey,
+      const res = await fetch(
+        `${aiServiceUrl}/internal/v1/synthetic/generate-universal-batch`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-internal-service-key": internalKey,
+          },
+          body: JSON.stringify({
+            dataset_type: dto.datasetType,
+            industry_key: dto.industryKey,
+            profession_key: dto.professionKey,
+            profession_name: professionName,
+            interview_category: dto.interviewCategory,
+            interview_subcategory: dto.interviewSubcategory,
+            seniority: dto.seniority,
+            skills: dto.skills || [],
+            language: dto.language || "en",
+            difficulty: dto.difficulty || "Mid",
+            batch_size: 1,
+            custom_parameters: dto.customParameters || {},
+          }),
         },
-        body: JSON.stringify({
-          dataset_type: dto.datasetType,
-          industry_key: dto.industryKey,
-          profession_key: dto.professionKey,
-          profession_name: professionName,
-          interview_category: dto.interviewCategory,
-          interview_subcategory: dto.interviewSubcategory,
-          seniority: dto.seniority,
-          skills: dto.skills || [],
-          language: dto.language || 'en',
-          difficulty: dto.difficulty || 'Mid',
-          batch_size: 1,
-          custom_parameters: dto.customParameters || {},
-        }),
-      });
+      );
 
       if (!res.ok) {
         const errorText = await res.text();
@@ -94,10 +108,12 @@ export class SyntheticService {
           generatedAt: json.generated_at,
         };
       }
-      throw new Error('AI Service returned empty items');
+      throw new Error("AI Service returned empty items");
     } catch (err: any) {
       this.logger.error(`Live preview failed: ${err.message}`);
-      throw new BadRequestException(`ไม่สามารถเรียก AI Service เพื่อพรีวิวข้อมูลได้: ${err.message}`);
+      throw new BadRequestException(
+        `ไม่สามารถเรียก AI Service เพื่อพรีวิวข้อมูลได้: ${err.message}`,
+      );
     }
   }
 
@@ -106,9 +122,10 @@ export class SyntheticService {
    */
   async createUniversalJob(dto: CreateUniversalJobDto) {
     const batchSize = dto.batchSizePerProfession || 1;
-    const professionKeys = Array.isArray(dto.professionKeys) && dto.professionKeys.length > 0
-      ? dto.professionKeys
-      : ['software_engineer'];
+    const professionKeys =
+      Array.isArray(dto.professionKeys) && dto.professionKeys.length > 0
+        ? dto.professionKeys
+        : ["software_engineer"];
     const totalTarget = professionKeys.length * batchSize;
 
     const jobId = `job-uni-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
@@ -125,8 +142,10 @@ export class SyntheticService {
     // 2. Create Job in database
     const jobRecord = {
       id: jobId,
-      jobName: dto.jobName || `Universal ${dto.datasetType} Batch (${dto.industryKey})`,
-      status: 'RUNNING',
+      jobName:
+        dto.jobName ||
+        `Universal ${dto.datasetType} Batch (${dto.industryKey})`,
+      status: "RUNNING",
       targetCount: totalTarget,
       generatedCount: 0,
       generationConfig: dto,
@@ -142,7 +161,7 @@ export class SyntheticService {
         data: {
           id: jobId,
           jobName: jobRecord.jobName,
-          status: 'RUNNING' as any,
+          status: "RUNNING" as any,
           targetCount: totalTarget,
           generatedCount: 0,
           generationConfig: dto as any,
@@ -155,8 +174,14 @@ export class SyntheticService {
     }
 
     // 3. Generate data per profession
-    const aiServiceUrl = this.config.get<string>('AI_SERVICE_URL', 'http://ai-service:8000');
-    const internalKey = this.config.get<string>('INTERNAL_SERVICE_KEY', 'interviewx_internal_service_secret_key_2026');
+    const aiServiceUrl = this.config.get<string>(
+      "AI_SERVICE_URL",
+      "http://ai-service:8000",
+    );
+    const internalKey = this.config.get<string>(
+      "INTERNAL_SERVICE_KEY",
+      "interviewx_internal_service_secret_key_2026",
+    );
     const createdDatasetRecords: any[] = [];
 
     for (const pKey of professionKeys) {
@@ -167,35 +192,41 @@ export class SyntheticService {
         include: { industry: true },
       });
 
-      const profName = profession ? profession.name : pKey.replace(/_/g, ' ');
+      const profName = profession ? profession.name : pKey.replace(/_/g, " ");
       const profIndustryId = profession?.industryId || industry?.id;
 
       try {
-        const res = await fetch(`${aiServiceUrl}/internal/v1/synthetic/generate-universal-batch`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-internal-service-key': internalKey,
+        const res = await fetch(
+          `${aiServiceUrl}/internal/v1/synthetic/generate-universal-batch`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-internal-service-key": internalKey,
+            },
+            body: JSON.stringify({
+              dataset_type: dto.datasetType,
+              industry_key: profession?.industry?.key || dto.industryKey,
+              profession_key: pKey,
+              profession_name: profName,
+              interview_category: dto.interviewCategory,
+              interview_subcategory: dto.interviewSubcategory,
+              seniority: dto.seniority,
+              skills:
+                dto.skills || (profession?.suggestedSkills as string[]) || [],
+              language: dto.language || "en",
+              difficulty: dto.difficulty || "Mid",
+              batch_size: batchSize,
+              custom_parameters: dto.customParameters || {},
+            }),
           },
-          body: JSON.stringify({
-            dataset_type: dto.datasetType,
-            industry_key: profession?.industry?.key || dto.industryKey,
-            profession_key: pKey,
-            profession_name: profName,
-            interview_category: dto.interviewCategory,
-            interview_subcategory: dto.interviewSubcategory,
-            seniority: dto.seniority,
-            skills: dto.skills || (profession?.suggestedSkills as string[]) || [],
-            language: dto.language || 'en',
-            difficulty: dto.difficulty || 'Mid',
-            batch_size: batchSize,
-            custom_parameters: dto.customParameters || {},
-          }),
-        });
+        );
 
         if (!res.ok) {
           const errText = await res.text();
-          this.logger.warn(`AI service batch for profession ${pKey} failed: ${errText}`);
+          this.logger.warn(
+            `AI service batch for profession ${pKey} failed: ${errText}`,
+          );
           continue;
         }
 
@@ -215,10 +246,10 @@ export class SyntheticService {
             interviewCategory: dto.interviewCategory,
             interviewSubcategory: dto.interviewSubcategory || null,
             seniorityLevel: dto.seniority,
-            language: dto.language || 'en',
+            language: dto.language || "en",
             isSynthetic: true,
             content: item,
-            qualityStatus: 'VERIFIED',
+            qualityStatus: "VERIFIED",
             validationResult: {
               schemaCompliant: true,
               piiSafe: true,
@@ -255,10 +286,10 @@ export class SyntheticService {
                 interviewCategory: dto.interviewCategory,
                 interviewSubcategory: dto.interviewSubcategory || null,
                 seniorityLevel: dto.seniority,
-                language: dto.language || 'en',
+                language: dto.language || "en",
                 isSynthetic: true,
                 content: item as any,
-                qualityStatus: 'VERIFIED',
+                qualityStatus: "VERIFIED",
                 validationResult: recordData.validationResult as any,
                 metadata: recordData.metadata as any,
               },
@@ -278,17 +309,25 @@ export class SyntheticService {
           }
 
           // If datasetType is profile or resume, sync with Document entity for backward compatibility
-          if (dto.datasetType === 'profile' || dto.datasetType === 'resume') {
-            await this.syncProfileAsDocument(recId, jobId, profName, dto.seniority, item);
+          if (dto.datasetType === "profile" || dto.datasetType === "resume") {
+            await this.syncProfileAsDocument(
+              recId,
+              jobId,
+              profName,
+              dto.seniority,
+              item,
+            );
           }
         }
       } catch (profErr: any) {
-        this.logger.error(`Error generating for profession ${pKey}: ${profErr.message}`);
+        this.logger.error(
+          `Error generating for profession ${pKey}: ${profErr.message}`,
+        );
       }
     }
 
     // 4. Update Job Status
-    jobRecord.status = 'COMPLETED';
+    jobRecord.status = "COMPLETED";
     jobRecord.generatedCount = createdDatasetRecords.length;
     jobRecord.completedAt = new Date().toISOString();
 
@@ -296,7 +335,7 @@ export class SyntheticService {
       await this.prisma.syntheticJob.update({
         where: { id: jobId },
         data: {
-          status: 'COMPLETED' as any,
+          status: "COMPLETED" as any,
           generatedCount: createdDatasetRecords.length,
           completedAt: new Date(),
         },
@@ -309,32 +348,38 @@ export class SyntheticService {
       success: true,
       jobId,
       jobName: jobRecord.jobName,
-      status: 'COMPLETED',
+      status: "COMPLETED",
       targetCount: totalTarget,
       generatedCount: createdDatasetRecords.length,
       records: createdDatasetRecords,
     };
   }
 
-  private async syncProfileAsDocument(recId: string, jobId: string, profName: string, seniority: string, item: any) {
+  private async syncProfileAsDocument(
+    recId: string,
+    jobId: string,
+    profName: string,
+    seniority: string,
+    item: any,
+  ) {
     try {
       const docId = `doc-syn-${recId}`;
-      const fileName = `synthetic_${profName.toLowerCase().replace(/[^a-z0-9]/g, '_')}_${recId.slice(-4)}.pdf`;
+      const fileName = `synthetic_${profName.toLowerCase().replace(/[^a-z0-9]/g, "_")}_${recId.slice(-4)}.pdf`;
       const rawText = [
         `SYNTHETIC PROFILE: ${profName} (${seniority})`,
-        `Summary: ${item.professional_summary || item.profile_summary || ''}`,
-        `Skills: ${Array.isArray(item.skills) ? item.skills.join(', ') : ''}`,
-      ].join('\n\n');
+        `Summary: ${item.professional_summary || item.profile_summary || ""}`,
+        `Skills: ${Array.isArray(item.skills) ? item.skills.join(", ") : ""}`,
+      ].join("\n\n");
 
       const docItem = {
         id: docId,
         fileName,
-        fileType: 'PDF',
+        fileType: "PDF",
         fileSizeBytes: 150000,
         storagePath: `raw-documents/synthetic/${fileName}`,
-        sourceType: 'SYNTHETIC',
+        sourceType: "SYNTHETIC",
         isSynthetic: true,
-        status: 'APPROVED',
+        status: "APPROVED",
         syntheticJobId: jobId,
         consentId: null,
         createdAt: new Date().toISOString(),
@@ -342,7 +387,7 @@ export class SyntheticService {
         parsedProfile: {
           id: `profile-${docId}`,
           confidenceScore: 0.99,
-          extractorVersion: 'universal-synthetic-2.0',
+          extractorVersion: "universal-synthetic-2.0",
           rawText,
           structuredData: item,
         },
@@ -354,19 +399,19 @@ export class SyntheticService {
         data: {
           id: docId,
           fileName,
-          fileType: 'PDF',
+          fileType: "PDF",
           fileSizeBytes: 150000,
           storagePath: docItem.storagePath,
-          sourceType: 'SYNTHETIC' as any,
+          sourceType: "SYNTHETIC" as any,
           isSynthetic: true,
-          status: 'APPROVED' as any,
+          status: "APPROVED" as any,
           syntheticJobId: jobId,
           parsedProfile: {
             create: {
               rawText,
               structuredData: item as any,
               confidenceScore: 0.99,
-              extractorVersion: 'universal-synthetic-2.0',
+              extractorVersion: "universal-synthetic-2.0",
             },
           },
         },
@@ -394,7 +439,8 @@ export class SyntheticService {
 
     const where: any = {};
     if (filters.datasetType) where.datasetType = filters.datasetType;
-    if (filters.interviewCategory) where.interviewCategory = filters.interviewCategory;
+    if (filters.interviewCategory)
+      where.interviewCategory = filters.interviewCategory;
     if (filters.seniorityLevel) where.seniorityLevel = filters.seniorityLevel;
     if (filters.qualityStatus) where.qualityStatus = filters.qualityStatus;
 
@@ -424,7 +470,7 @@ export class SyntheticService {
               select: { id: true, jobName: true, createdAt: true },
             },
           },
-          orderBy: { createdAt: 'desc' },
+          orderBy: { createdAt: "desc" },
           skip,
           take: limit,
         }),
@@ -440,8 +486,14 @@ export class SyntheticService {
     } catch (dbErr: any) {
       this.logger.warn(`Falling back to in-memory records: ${dbErr.message}`);
       let memItems = [...this.inMemoryRecords];
-      if (filters.datasetType) memItems = memItems.filter(r => r.datasetType === filters.datasetType);
-      if (filters.qualityStatus) memItems = memItems.filter(r => r.qualityStatus === filters.qualityStatus);
+      if (filters.datasetType)
+        memItems = memItems.filter(
+          (r) => r.datasetType === filters.datasetType,
+        );
+      if (filters.qualityStatus)
+        memItems = memItems.filter(
+          (r) => r.qualityStatus === filters.qualityStatus,
+        );
       return {
         items: memItems.slice(skip, skip + limit),
         total: memItems.length,
@@ -466,12 +518,49 @@ export class SyntheticService {
     });
 
     if (!record) {
-      const mem = this.inMemoryRecords.find(r => r.id === id);
+      const mem = this.inMemoryRecords.find((r) => r.id === id);
       if (mem) return mem;
       throw new NotFoundException(`Dataset record '${id}' not found`);
     }
 
     return record;
+  }
+
+  /**
+   * Clear dataset records and jobs (useful for resetting dataset before fresh generation)
+   */
+  async clearRecords(datasetType?: string) {
+    if (datasetType) {
+      this.inMemoryRecords = this.inMemoryRecords.filter(
+        (r) => r.datasetType !== datasetType,
+      );
+    } else {
+      this.inMemoryRecords = [];
+      this.inMemoryJobs = [];
+    }
+
+    try {
+      const where: any = {};
+      if (datasetType) {
+        where.datasetType = datasetType;
+      }
+      const res = await this.prisma.datasetRecord.deleteMany({ where });
+      if (!datasetType) {
+        await this.prisma.syntheticJob.deleteMany({});
+      }
+      return {
+        success: true,
+        message: `ลบชุดข้อมูลสังเคราะห์สำเร็จ (${res.count} รายการ)`,
+        count: res.count,
+      };
+    } catch (err: any) {
+      this.logger.error(`clearRecords error: ${err.message}`);
+      return {
+        success: true,
+        message: "ล้างชุดข้อมูลสังเคราะห์ออกจากหน่วยความจำเรียบร้อย",
+        count: 0,
+      };
+    }
   }
 
   /**
@@ -485,7 +574,7 @@ export class SyntheticService {
           qualityStatus: dto.qualityStatus,
           validationResult: {
             updatedAt: new Date().toISOString(),
-            reviewNotes: dto.reviewNotes || 'Reviewed by expert annotator',
+            reviewNotes: dto.reviewNotes || "Reviewed by expert annotator",
             qualityStatus: dto.qualityStatus,
           },
         },
@@ -496,14 +585,16 @@ export class SyntheticService {
       });
 
       // Update in memory if present
-      const memIdx = this.inMemoryRecords.findIndex(r => r.id === id);
+      const memIdx = this.inMemoryRecords.findIndex((r) => r.id === id);
       if (memIdx >= 0) {
         this.inMemoryRecords[memIdx].qualityStatus = dto.qualityStatus;
       }
 
       return updated;
     } catch (err: any) {
-      throw new NotFoundException(`Record '${id}' could not be updated: ${err.message}`);
+      throw new NotFoundException(
+        `Record '${id}' could not be updated: ${err.message}`,
+      );
     }
   }
 
@@ -515,7 +606,7 @@ export class SyntheticService {
     const jobRecord = {
       id: jobId,
       jobName: dto.jobName || `Synthetic ${dto.seniority} ${dto.role} Batch`,
-      status: 'RUNNING',
+      status: "RUNNING",
       targetCount: dto.targetCount,
       generatedCount: 0,
       generationConfig: dto,
@@ -525,27 +616,38 @@ export class SyntheticService {
     };
 
     this.inMemoryJobs.unshift(jobRecord);
-    this.logger.log(`Starting Synthetic Job: ${jobId} (${dto.role}, count=${dto.targetCount})`);
+    this.logger.log(
+      `Starting Synthetic Job: ${jobId} (${dto.role}, count=${dto.targetCount})`,
+    );
 
-    const aiServiceUrl = this.config.get<string>('AI_SERVICE_URL', 'http://ai-service:8000');
-    const internalKey = this.config.get<string>('INTERNAL_SERVICE_KEY', 'interviewx_internal_service_secret_key_2026');
+    const aiServiceUrl = this.config.get<string>(
+      "AI_SERVICE_URL",
+      "http://ai-service:8000",
+    );
+    const internalKey = this.config.get<string>(
+      "INTERNAL_SERVICE_KEY",
+      "interviewx_internal_service_secret_key_2026",
+    );
 
     let generatedProfiles: any[] = [];
     try {
-      const res = await fetch(`${aiServiceUrl}/internal/v1/synthetic/generate-batch`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-internal-service-key': internalKey,
+      const res = await fetch(
+        `${aiServiceUrl}/internal/v1/synthetic/generate-batch`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-internal-service-key": internalKey,
+          },
+          body: JSON.stringify({
+            batch_size: dto.targetCount,
+            role: dto.role,
+            seniority: dto.seniority,
+            tech_stack: dto.techStack,
+            language: dto.language || "en",
+          }),
         },
-        body: JSON.stringify({
-          batch_size: dto.targetCount,
-          role: dto.role,
-          seniority: dto.seniority,
-          tech_stack: dto.techStack,
-          language: dto.language || 'en',
-        }),
-      });
+      );
 
       if (!res.ok) {
         const errorText = await res.text();
@@ -558,11 +660,13 @@ export class SyntheticService {
       }
     } catch (err: any) {
       this.logger.error(`AI Service batch generation failed: ${err.message}`);
-      throw new BadRequestException(`ไม่สามารถเรียก AI Service เพื่อสังเคราะห์ข้อมูลได้: ${err.message}`);
+      throw new BadRequestException(
+        `ไม่สามารถเรียก AI Service เพื่อสังเคราะห์ข้อมูลได้: ${err.message}`,
+      );
     }
 
     const createdDocuments: any[] = [];
-    const roleSlug = dto.role.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    const roleSlug = dto.role.toLowerCase().replace(/[^a-z0-9]/g, "_");
 
     for (let i = 0; i < generatedProfiles.length; i++) {
       const profile = generatedProfiles[i];
@@ -575,32 +679,36 @@ export class SyntheticService {
         `Generated by: InterviewX Synthetic Engine`,
         ``,
         `PROFESSIONAL SUMMARY`,
-        profile.professional_summary || '',
+        profile.professional_summary || "",
         ``,
         `TECHNICAL SKILLS`,
-        Array.isArray(profile.skills) ? profile.skills.join(', ') : '',
+        Array.isArray(profile.skills) ? profile.skills.join(", ") : "",
         ``,
         `WORK EXPERIENCE`,
-        ...(profile.experiences || []).map((exp: any) =>
-          `${exp.company_name} | ${exp.role_title} (${exp.start_date} - ${exp.end_date})\n` +
-          (Array.isArray(exp.responsibilities) ? exp.responsibilities.map((r: string) => `- ${r}`).join('\n') : '')
+        ...(profile.experiences || []).map(
+          (exp: any) =>
+            `${exp.company_name} | ${exp.role_title} (${exp.start_date} - ${exp.end_date})\n` +
+            (Array.isArray(exp.responsibilities)
+              ? exp.responsibilities.map((r: string) => `- ${r}`).join("\n")
+              : ""),
         ),
         ``,
         `EDUCATION`,
-        ...(profile.educations || []).map((edu: any) =>
-          `${edu.institution} - ${edu.degree} (${edu.graduation_year || 2021})`
+        ...(profile.educations || []).map(
+          (edu: any) =>
+            `${edu.institution} - ${edu.degree} (${edu.graduation_year || 2021})`,
         ),
-      ].join('\n');
+      ].join("\n");
 
       const docItem = {
         id: docId,
         fileName,
-        fileType: 'PDF',
+        fileType: "PDF",
         fileSizeBytes: 180000 + Math.floor(Math.random() * 50000),
         storagePath: `raw-documents/synthetic/${fileName}`,
-        sourceType: 'SYNTHETIC',
+        sourceType: "SYNTHETIC",
         isSynthetic: true,
-        status: 'PARSED',
+        status: "PARSED",
         syntheticJobId: jobId,
         consentId: null,
         createdAt: new Date().toISOString(),
@@ -608,7 +716,7 @@ export class SyntheticService {
         parsedProfile: {
           id: `profile-${docId}`,
           confidenceScore: 0.98,
-          extractorVersion: 'synthetic-generator-v1.0',
+          extractorVersion: "synthetic-generator-v1.0",
           rawText,
           structuredData: profile,
         },
@@ -622,18 +730,18 @@ export class SyntheticService {
           data: {
             id: docId,
             fileName,
-            fileType: 'PDF',
+            fileType: "PDF",
             fileSizeBytes: docItem.fileSizeBytes,
             storagePath: docItem.storagePath,
-            sourceType: 'SYNTHETIC' as any,
+            sourceType: "SYNTHETIC" as any,
             isSynthetic: true,
-            status: 'PARSED' as any,
+            status: "PARSED" as any,
             parsedProfile: {
               create: {
                 rawText,
                 structuredData: profile as any,
                 confidenceScore: 0.98,
-                extractorVersion: 'synthetic-generator-v1.0',
+                extractorVersion: "synthetic-generator-v1.0",
               },
             },
           },
@@ -643,7 +751,7 @@ export class SyntheticService {
       }
     }
 
-    jobRecord.status = 'COMPLETED';
+    jobRecord.status = "COMPLETED";
     jobRecord.generatedCount = createdDocuments.length;
     jobRecord.completedAt = new Date().toISOString();
 
@@ -653,7 +761,7 @@ export class SyntheticService {
         data: {
           id: jobId,
           jobName: jobRecord.jobName,
-          status: 'COMPLETED' as any,
+          status: "COMPLETED" as any,
           targetCount: dto.targetCount,
           generatedCount: createdDocuments.length,
           generationConfig: dto as any,
@@ -663,12 +771,14 @@ export class SyntheticService {
         },
       });
     } catch (dbErr: any) {
-      this.logger.debug(`Prisma syntheticJob.create deferred: ${dbErr.message}`);
+      this.logger.debug(
+        `Prisma syntheticJob.create deferred: ${dbErr.message}`,
+      );
     }
 
     return {
       jobId,
-      status: 'COMPLETED',
+      status: "COMPLETED",
       targetCount: dto.targetCount,
       generatedCount: createdDocuments.length,
       documents: createdDocuments,
@@ -678,7 +788,7 @@ export class SyntheticService {
   async listJobs() {
     try {
       const dbJobs = await this.prisma.syntheticJob.findMany({
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         include: {
           createdBy: { select: { id: true, email: true, fullName: true } },
           _count: { select: { documents: true, datasetRecords: true } },

@@ -25,6 +25,13 @@ export class DocumentsController {
     return this.documentsService.findOne(id);
   }
 
+  @Delete('synthetic/clear')
+  @ApiOperation({ summary: 'ลบเอกสารเรซูเมสังเคราะห์ทั้งหมดออกจากระบบเพื่อเตรียมสร้างใหม่' })
+  @ApiResponse({ status: 200, description: 'ล้างเอกสารสังเคราะห์สำเร็จ' })
+  clearSyntheticDocuments(@Query('includeReal') includeReal?: string) {
+    return this.documentsService.clearSyntheticDocuments(includeReal === 'true');
+  }
+
   @Delete(':id')
   @ApiOperation({ summary: 'ลบเอกสารเรซูเมออกจากระบบ (Soft Delete)' })
   @ApiResponse({ status: 200, description: 'ลบเอกสารสำเร็จ' })

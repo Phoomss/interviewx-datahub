@@ -176,6 +176,25 @@ export default function ResumesListPage() {
     }
   };
 
+  const handleClearSynthetic = async () => {
+    if (!confirm("คุณต้องการล้างข้อมูลเรซูเมสังเคราะห์ทั้งหมดออกจากระบบเพื่อเตรียมสร้างใหม่ใช่หรือไม่?")) {
+      return;
+    }
+    try {
+      const res = await fetch(`${apiUrl}/documents/synthetic/clear`, { method: "DELETE" });
+      const json = await res.json();
+      if (res.ok) {
+        showToast(json.message || "ล้างข้อมูลเรซูเมสังเคราะห์เรียบร้อย");
+        localStorage.removeItem("interviewx_resumes_cache");
+        await loadDocs();
+      } else {
+        throw new Error(json.message || "Failed to clear");
+      }
+    } catch (e: any) {
+      showToast(e.message || "เกิดข้อผิดพลาดในการล้างข้อมูล");
+    }
+  };
+
   // Filter & Search Logic
   const filteredDocs = documents.filter((doc) => {
     const matchStatus = filterStatus === "ALL" || doc.status === filterStatus;
@@ -261,6 +280,14 @@ export default function ResumesListPage() {
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={handleClearSynthetic}
+              title="ล้างข้อมูลเรซูเมสังเคราะห์เพื่อเตรียมสร้างใหม่"
+              className="inline-flex items-center gap-1.5 px-3 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold rounded-xl border border-rose-200 transition"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>ล้างเรซูเมสังเคราะห์</span>
+            </button>
             <button
               onClick={loadDocs}
               title="รีเฟรชรายการ"

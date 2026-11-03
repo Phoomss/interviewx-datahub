@@ -28,6 +28,7 @@ import {
   Copy,
   Check,
   FileCheck,
+  Trash2,
 } from "lucide-react";
 
 const DATASET_TYPES = [
@@ -144,6 +145,24 @@ export default function UniversalSyntheticStudioPage() {
       console.warn("Records error:", err);
     } finally {
       setLoadingRecords(false);
+    }
+  };
+
+  const handleClearRecords = async () => {
+    if (!confirm("คุณต้องการล้างประวัติชุดข้อมูลสังเคราะห์ทั้งหมดออกจากระบบเพื่อเตรียมสร้างใหม่ใช่หรือไม่?")) {
+      return;
+    }
+    try {
+      const res = await fetch(`${apiUrl}/synthetic/records/clear`, { method: "DELETE" });
+      const json = await res.json();
+      if (res.ok) {
+        showToast(json.message || "ล้างชุดข้อมูลสังเคราะห์เรียบร้อย");
+        await fetchDatasetRecords();
+      } else {
+        throw new Error(json.message || "Failed to clear");
+      }
+    } catch (e: any) {
+      showToast(e.message || "เกิดข้อผิดพลาดในการล้างข้อมูล");
     }
   };
 
@@ -760,12 +779,25 @@ export default function UniversalSyntheticStudioPage() {
                 บันทึกและจัดหมวดหมู่ข้อมูลสังเคราะห์ข้ามอุตสาหกรรมในฐานข้อมูล พร้อมให้ตรวจสอบคุณภาพ
               </p>
             </div>
-            <button
-              onClick={fetchDatasetRecords}
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 bg-white"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${loadingRecords ? "animate-spin" : ""}`} /> รีเฟรชรายการ
-            </button>
+            <div className="flex items-center gap-2">
+              {records.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleClearRecords}
+                  title="ล้างชุดข้อมูลสังเคราะห์ทั้งหมดเพื่อเริ่มต้นสร้างใหม่"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-700 hover:text-rose-800 px-3 py-1.5 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 transition"
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-rose-600" /> ล้างข้อมูลทั้งหมด
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={fetchDatasetRecords}
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg border border-slate-200 bg-white"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${loadingRecords ? "animate-spin" : ""}`} /> รีเฟรชรายการ
+              </button>
+            </div>
           </div>
 
           {records.length === 0 ? (
