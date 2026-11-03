@@ -337,3 +337,50 @@ def test_contextual_profile_attributes():
     assert "defend" in defense_profile["career_objectives"].lower()
 
 
+def test_comprehensive_universities_banks():
+    from src.services.data_banks.institution_banks import (
+        THAI_UNIVERSITIES,
+        INTERNATIONAL_UNIVERSITIES,
+        UNIVERSITIES,
+        get_institution_education,
+    )
+
+    # 1. Verify Thai Universities coverage (ครบทุกสถาบันอุดมศึกษาในไทย 120+ แห่ง)
+    assert len(THAI_UNIVERSITIES) >= 120
+    assert len(INTERNATIONAL_UNIVERSITIES) >= 50
+    assert len(UNIVERSITIES) == len(THAI_UNIVERSITIES) + len(INTERNATIONAL_UNIVERSITIES)
+
+    # Check key categories
+    categories = {u.get("category") for u in THAI_UNIVERSITIES if u.get("category")}
+    assert "Autonomous Public" in categories
+    assert "Rajamangala University" in categories
+    assert "Rajabhat University" in categories
+    assert "Private University" in categories
+
+    # 2. Verify all universities have name, name_th, and country
+    for u in UNIVERSITIES:
+        assert len(u["name"]) > 0
+        assert len(u["name_th"]) > 0
+        assert len(u["country"]) > 0
+
+    # 3. Test Thai education generation
+    thai_edu = get_institution_education(
+        industry_key="tech",
+        seniority="Senior AI Engineer",
+        language="th",
+    )
+    assert "institution" in thai_edu
+    assert "institution_th" in thai_edu
+    assert len(thai_edu["degree"]) > 0
+    assert thai_edu["graduation_year"] <= 2026
+
+    # 4. Test PhD candidate education level adjustment
+    phd_edu = get_institution_education(
+        industry_key="science",
+        seniority="PhD Candidate",
+        language="en",
+    )
+    assert "Doctor of Philosophy" in phd_edu["degree"] or "Ph.D." in phd_edu["degree"]
+
+
+
