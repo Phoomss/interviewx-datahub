@@ -170,6 +170,7 @@ services:
     volumes:
       - ./apps/frontend:/app/apps/frontend
       - /app/apps/frontend/node_modules
+      - /app/apps/frontend/.next
       - /app/node_modules
     depends_on:
       - backend
