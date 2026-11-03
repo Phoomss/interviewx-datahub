@@ -27,11 +27,15 @@ import {
   Download,
   Copy,
   Check,
+  FileCheck,
 } from "lucide-react";
 
 const DATASET_TYPES = [
   { id: "profile", label: "Professional Profile", labelTh: "โปรไฟล์ประวัติการทำงาน", desc: "ข้อมูลประวัติ ทักษะ การศึกษา และผลงาน", icon: Briefcase },
   { id: "resume", label: "Resume / CV", labelTh: "เรซูเม / ซีวีฉบับเต็ม", desc: "เรซูเมจัดหมวดหมู่ทักษะและผลงาน (ไม่บังคับมีประสบการณ์งาน)", icon: FileText },
+  { id: "academic_cv", label: "Academic CV", labelTh: "ซีวีวิชาการ ทุน และงานวิจัย", desc: "ประวัติวิชาการ ผลงานตีพิมพ์ ทุนวิจัย และการสอน", icon: GraduationCap },
+  { id: "portfolio", label: "Portfolio Case Study", labelTh: "แฟ้มผลงานกรณีศึกษาเชิงลึก", desc: "กรณีศึกษาโครงการจริง ปัญหา ข้อจำกัด ผลลัพธ์เชิงตัวเลข", icon: Sparkles },
+  { id: "supporting_doc", label: "Supporting Document", labelTh: "เอกสารประกอบการสัมภาษณ์", desc: "ใบรับรองการอบรม ใบประกาศ ผลการเรียนจำลองลายน้ำสังเคราะห์", icon: FileCheck },
   { id: "interview_question", label: "Interview Question", labelTh: "คำถามสัมภาษณ์เฉพาะด้าน", desc: "คำถามพร้อมวัตถุประสงค์ เกณฑ์ตรวจ และ Red Flags", icon: HelpCircle },
   { id: "interview_answer", label: "Interview Answer", labelTh: "คำตอบสัมภาษณ์ตามเกรด", desc: "คำตอบจำลอง 6 ระดับ (Excellent ถึง Irrelevant)", icon: MessageSquare },
   { id: "rubric_evaluation", label: "Rubric Evaluation", labelTh: "เกณฑ์การให้คะแนน Rubric", desc: "มิติประเมิน คะแนนพร้อมเหตุผล และคำแนะนำตัดสินใจ", icon: Award },
@@ -55,6 +59,7 @@ export default function UniversalSyntheticStudioPage() {
   const [taxonomyLoading, setTaxonomyLoading] = useState(true);
   const [industries, setIndustries] = useState<any[]>([]);
   const [interviewCategories, setInterviewCategories] = useState<any[]>([]);
+  const [interviewFormats, setInterviewFormats] = useState<any[]>([]);
   const [seniorityLevels, setSeniorityLevels] = useState<any[]>([]);
 
   // Form State
@@ -64,6 +69,7 @@ export default function UniversalSyntheticStudioPage() {
   const [selectedProfessionKeys, setSelectedProfessionKeys] = useState<string[]>(["medical_doctor"]);
   const [selectedInterviewCategory, setSelectedInterviewCategory] = useState("job");
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
+  const [selectedFormat, setSelectedFormat] = useState("behavioral");
   const [seniority, setSeniority] = useState("Licensed Professional");
   const [customSkillsInput, setCustomSkillsInput] = useState("");
   const [language, setLanguage] = useState("en");
@@ -104,6 +110,7 @@ export default function UniversalSyntheticStudioPage() {
       const data = await res.json();
       setIndustries(data.industries || []);
       setInterviewCategories(data.interviewCategories || []);
+      setInterviewFormats(data.interviewFormats || []);
       setSeniorityLevels(data.seniorityLevels || []);
 
       if (data.industries && data.industries.length > 0) {
@@ -145,9 +152,20 @@ export default function UniversalSyntheticStudioPage() {
     fetchDatasetRecords();
   }, []);
 
-  // Update selected professions when industry changes
+  // Update selected professions when industry changes (including Many-to-Many associations)
   const currentIndustry = industries.find((ind) => ind.key === selectedIndustryKey) || industries[0];
-  const availableProfessions = currentIndustry?.professions || [];
+  const availableProfessions = React.useMemo(() => {
+    if (!currentIndustry) return [];
+    const direct = currentIndustry.professions || [];
+    const m2m = (currentIndustry.industryProfessions || []).map((ip: any) => ip.profession).filter(Boolean);
+    const combined = [...direct];
+    for (const p of m2m) {
+      if (!combined.some((item) => item.key === p.key)) {
+        combined.push(p);
+      }
+    }
+    return combined;
+  }, [currentIndustry]);
 
   const toggleProfessionSelection = (key: string) => {
     if (selectedProfessionKeys.includes(key)) {
@@ -239,7 +257,11 @@ export default function UniversalSyntheticStudioPage() {
           skills: skillsArray,
           language,
           difficulty,
-          customParameters: datasetType === "interview_answer" ? { answer_quality: answerQuality } : {},
+          customParameters: {
+            ...(datasetType === "interview_answer" ? { answer_quality: answerQuality } : {}),
+            ...(datasetType === "supporting_doc" ? { document_type: "professional_certification" } : {}),
+            interview_format: selectedFormat,
+          },
         }),
       });
 
@@ -279,7 +301,11 @@ export default function UniversalSyntheticStudioPage() {
           language,
           difficulty,
           batchSizePerProfession: Number(batchSizePerProf),
-          customParameters: datasetType === "interview_answer" ? { answer_quality: answerQuality } : {},
+          customParameters: {
+            ...(datasetType === "interview_answer" ? { answer_quality: answerQuality } : {}),
+            ...(datasetType === "supporting_doc" ? { document_type: "professional_certification" } : {}),
+            interview_format: selectedFormat,
+          },
         }),
       });
 
@@ -350,14 +376,14 @@ export default function UniversalSyntheticStudioPage() {
 
         {/* Studio Form */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-8">
-          {/* Section 1: Dataset Dimension (7 Types) */}
+          {/* Section 1: Dataset Dimension (10 Types) */}
           <div>
             <div className="flex items-center justify-between mb-3">
               <label className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-purple-100 text-purple-700 inline-flex items-center justify-center text-xs font-bold">1</span>
-                เลือกประเภทชุดข้อมูลสัมเคราะห์ (7 มิติข้อมูล)
+                เลือกประเภทชุดข้อมูลสังเคราะห์ (10 มิติข้อมูล - Universal Multi-Context)
               </label>
-              <span className="text-xs text-slate-500">เลือกมิติข้อมูลสำหรับฝึกสอนโมเดล</span>
+              <span className="text-xs text-slate-500">เลือกมิติข้อมูลสำหรับฝึกสอนและประเมิน LLM</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {DATASET_TYPES.map((t) => {
@@ -503,12 +529,12 @@ export default function UniversalSyntheticStudioPage() {
             </div>
           </div>
 
-          {/* Section 3: Interview Category & Subcategory */}
-          <div className="pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Section 3: Interview Category, Subcategory & Format */}
+          <div className="pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label className="text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-purple-100 text-purple-700 inline-flex items-center justify-center text-xs font-bold">3</span>
-                หมวดหมู่การสัมภาษณ์ (Interview Category)
+                หมวดหมู่การสัมภาษณ์ (Interview Context)
               </label>
               <select
                 value={selectedInterviewCategory}
@@ -525,7 +551,7 @@ export default function UniversalSyntheticStudioPage() {
                 ))}
               </select>
               <p className="mt-1.5 text-xs text-slate-500">
-                {currentCategoryObj?.description || "บริบทของการสัมภาษณ์"}
+                {currentCategoryObj?.description || "บริบทของการสัมภาษณ์ (ทุน, เข้าศึกษา, วิทยานิพนธ์, เลื่อนตำแหน่ง ฯลฯ)"}
               </p>
             </div>
 
@@ -547,6 +573,38 @@ export default function UniversalSyntheticStudioPage() {
               </select>
               <p className="mt-1.5 text-xs text-slate-500">
                 จำแนกความเฉพาะเจาะจง เช่น General, Technical, Behavioral, Case Interview
+              </p>
+            </div>
+
+            <div>
+              <label className="text-sm font-bold text-slate-900 mb-2 block">
+                รูปแบบการสัมภาษณ์ (Interview Format)
+              </label>
+              <select
+                value={selectedFormat}
+                onChange={(e) => setSelectedFormat(e.target.value)}
+                className="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-hidden focus:ring-2 focus:ring-purple-600 text-slate-800"
+              >
+                {interviewFormats.length > 0 ? (
+                  interviewFormats.map((fmt: any) => (
+                    <option key={fmt.key} value={fmt.key}>
+                      {fmt.name} ({fmt.nameTh})
+                    </option>
+                  ))
+                ) : (
+                  <>
+                    <option value="behavioral">Behavioral Interview</option>
+                    <option value="technical">Technical Interview</option>
+                    <option value="case">Case Interview</option>
+                    <option value="situational">Situational Interview</option>
+                    <option value="structured">Structured Interview</option>
+                    <option value="presentation">Presentation-Based Interview</option>
+                    <option value="oral_defense">Oral Defense / Examination</option>
+                  </>
+                )}
+              </select>
+              <p className="mt-1.5 text-xs text-slate-500">
+                เลือกรูปแบบสัมภาษณ์ 15 ชนิด (Structured, Panel, Dilemma, Defense)
               </p>
             </div>
           </div>

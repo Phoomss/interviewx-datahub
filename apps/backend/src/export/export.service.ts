@@ -134,6 +134,7 @@ export class ExportService {
       const content = rec.content || rec;
       return {
         id: rec.id || `row_${i + 1}`,
+        split: rec.split || 'train',
         dataset_type: rec.datasetType || content?.metadata?.dataset_type || 'profile',
         industry: rec.industry?.name || content?.metadata?.industry || '',
         profession: rec.profession?.name || content?.metadata?.profession || '',
@@ -148,6 +149,83 @@ export class ExportService {
         is_synthetic: true,
       };
     });
+  }
+
+  /**
+   * Group-based Train/Val/Test Split to prevent Data Contamination/Leakage
+   * Records belonging to the same candidate/project/job are assigned to the same split.
+   */
+  public assignGroupedSplits(records: any[], trainRatio = 0.8, valRatio = 0.1): {
+    train: any[];
+    val: any[];
+    test: any[];
+    leakageStats: { totalCandidates: number; trainGroups: number; valGroups: number; testGroups: number };
+  } {
+    const groups = new Map<string, any[]>();
+
+    for (const rec of records) {
+      const content = rec.sanitizedContent || rec.content || rec;
+      const groupKey =
+        rec.jobId ||
+        content?.metadata?.candidate_id ||
+        content?.personal_info?.candidate_name ||
+        content?.candidate_name ||
+        rec.id ||
+        `group_${Math.random().toString(36).substring(2, 7)}`;
+
+      if (!groups.has(groupKey)) {
+        groups.set(groupKey, []);
+      }
+      groups.get(groupKey)!.push(rec);
+    }
+
+    const train: any[] = [];
+    const val: any[] = [];
+    const test: any[] = [];
+
+    const groupKeys = Array.from(groups.keys());
+    const totalGroups = groupKeys.length;
+    const trainCutoff = Math.max(1, Math.floor(totalGroups * trainRatio));
+    const valCutoff = Math.min(totalGroups, trainCutoff + Math.floor(totalGroups * valRatio));
+
+    let trainGroupCount = 0;
+    let valGroupCount = 0;
+    let testGroupCount = 0;
+
+    groupKeys.forEach((key, idx) => {
+      const groupItems = groups.get(key)!;
+      if (idx < trainCutoff) {
+        groupItems.forEach((item) => {
+          item.split = 'train';
+          train.push(item);
+        });
+        trainGroupCount++;
+      } else if (idx < valCutoff) {
+        groupItems.forEach((item) => {
+          item.split = 'validation';
+          val.push(item);
+        });
+        valGroupCount++;
+      } else {
+        groupItems.forEach((item) => {
+          item.split = 'test';
+          test.push(item);
+        });
+        testGroupCount++;
+      }
+    });
+
+    return {
+      train,
+      val,
+      test,
+      leakageStats: {
+        totalCandidates: totalGroups,
+        trainGroups: trainGroupCount,
+        valGroups: valGroupCount,
+        testGroups: testGroupCount,
+      },
+    };
   }
 
   /**
@@ -257,7 +335,17 @@ export class ExportService {
       ];
     }
 
-    // 4. Generate payload buffer and determine file extension + content type
+    // 4. Group-based Train/Val/Test Leakage Prevention
+    const { train, val, test, leakageStats } = this.assignGroupedSplits(
+      recordsToExport,
+      dto.trainRatio ?? 0.8,
+      dto.valRatio ?? 0.1,
+    );
+    this.logger.log(
+      `Dataset Splitting completed: ${leakageStats.totalCandidates} groups (${leakageStats.trainGroups} train, ${leakageStats.valGroups} val, ${leakageStats.testGroups} test)`,
+    );
+
+    // 5. Generate payload buffer and determine file extension + content type
     let buffer: Buffer;
     let fileExtension = 'jsonl';
     let contentType = 'application/jsonlines';
@@ -332,6 +420,7 @@ export class ExportService {
       filterCriteria: dto,
       dvcHash,
       mlflowRunId,
+      leakageStats,
       createdAt: new Date().toISOString(),
       completedAt: new Date().toISOString(),
     };

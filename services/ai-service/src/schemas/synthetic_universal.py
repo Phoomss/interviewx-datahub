@@ -23,6 +23,10 @@ class ProfessionalProfileData(BaseModel):
     full_name: str
     headline: str
     professional_summary: str
+    career_objectives: Optional[str] = None
+    nationality: Optional[str] = None
+    age_range: Optional[str] = None
+    context_intent_statement: Optional[str] = None
     contact_info: Dict[str, str]
     skills: List[str]
     experience_years: float = 0.0
@@ -121,11 +125,93 @@ class ScenarioBasedData(BaseModel):
     metadata: SyntheticMetadata
 
 
+# Type 8: Academic CV Dataset
+class AcademicCVData(BaseModel):
+    candidate_name: str
+    academic_title: str
+    academic_profile: str
+    research_interests: List[str]
+    education_history: List[Dict[str, Any]]
+    research_experience: List[Dict[str, Any]]
+    peer_reviewed_publications: List[Dict[str, Any]]
+    conference_presentations: List[Dict[str, Any]]
+    teaching_and_mentoring: List[Dict[str, Any]]
+    grants_and_scholarships: List[Dict[str, Any]]
+    academic_honors_and_awards: List[str]
+    professional_memberships: List[str]
+    technical_and_research_skills: List[str]
+    academic_references: Optional[List[Dict[str, str]]] = None
+    metadata: SyntheticMetadata
+
+
+# Type 9: Professional Portfolio Case Study Dataset
+class PortfolioCaseStudyData(BaseModel):
+    project_id: str
+    project_title: str
+    project_category: str
+    overview: str
+    background: str
+    problem_statement: str
+    objectives: List[str]
+    candidate_role: str
+    responsibilities: List[str]
+    team_composition: str
+    project_duration: str
+    timeline_and_milestones: List[Dict[str, str]]
+    tools_and_technologies: List[str]
+    methodology: str
+    implementation_details: List[str]
+    challenges: List[str]
+    solutions: List[str]
+    results_and_impact: List[str]
+    lessons_learned: List[str]
+    supporting_evidence_references: List[str]
+    related_skills: List[str]
+    related_interview_questions: List[str]
+    metadata: SyntheticMetadata
+
+
+# Type 10: Supporting Document Dataset
+class SupportingDocumentData(BaseModel):
+    document_id: str
+    document_type: str  # training_record, certificate, academic_transcript, research_abstract, recommendation_letter, technical_report, presentation_outline
+    document_title: str
+    issuer_organization: str
+    candidate_name: str
+    issue_date: str
+    expiry_or_validity: Optional[str] = None
+    credential_id_or_number: str
+    verification_status: str = "SYNTHETIC_EXAMPLE_VERIFIED"
+    structured_fields: Dict[str, Any]
+    narrative_body: str
+    is_synthetic_watermark: bool = True
+    metadata: SyntheticMetadata
+
+
+# Consistency Engine Schemas
+class ConsistencyValidationRequest(BaseModel):
+    candidate_profile: Optional[Dict[str, Any]] = None
+    resume_or_cv: Optional[Dict[str, Any]] = None
+    portfolio_projects: Optional[List[Dict[str, Any]]] = None
+    interview_answers: Optional[List[Dict[str, Any]]] = None
+    supporting_documents: Optional[List[Dict[str, Any]]] = None
+
+
+class ConsistencyValidationResponse(BaseModel):
+    is_consistent: bool
+    consistency_score: float  # 0.0 - 1.0
+    timeline_checks: Dict[str, Any]
+    skill_alignment_checks: Dict[str, Any]
+    role_responsibility_checks: Dict[str, Any]
+    detected_discrepancies: List[str]
+    recommendations: List[str]
+
+
 # Request / Response Schemas
 class UniversalGenerateBatchRequest(BaseModel):
     dataset_type: str = Field(
         ...,
-        description="profile, resume, interview_question, interview_answer, rubric_evaluation, feedback, scenario",
+        description="profile, resume, academic_cv, portfolio, supporting_doc, interview_question, interview_answer, rubric_evaluation, feedback, scenario",
     )
     industry_key: str
     profession_key: str

@@ -4,13 +4,16 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from src.schemas.synthetic_universal import (
+    AcademicCVData,
     FeedbackData,
     InterviewAnswerData,
     InterviewQuestionData,
+    PortfolioCaseStudyData,
     ProfessionalProfileData,
     ResumeCVData,
     RubricEvaluationData,
     ScenarioBasedData,
+    SupportingDocumentData,
     SyntheticMetadata,
     UniversalGenerateBatchRequest,
 )
@@ -284,6 +287,61 @@ class UniversalSyntheticGenerator:
             language_mode=req.language, origin=identity.cultural_background
         )
 
+        # Age range & nationality
+        nationality = (
+            "Thai" if "Thai" in identity.cultural_background else identity.cultural_background
+        )
+        sen_lower = req.seniority.lower()
+        if no_exp or any(k in sen_lower for k in ["high school", "student", "undergraduate", "fresh"]):
+            age_range = "20-23"
+        elif any(k in sen_lower for k in ["junior", "entry", "intern"]):
+            age_range = "22-26"
+        elif any(k in sen_lower for k in ["phd", "master", "research assistant", "graduate"]):
+            age_range = "24-30"
+        elif any(k in sen_lower for k in ["mid", "specialist"]):
+            age_range = "26-33"
+        elif any(k in sen_lower for k in ["senior", "lead", "researcher", "principal"]):
+            age_range = "32-42"
+        elif any(k in sen_lower for k in ["manager", "director", "executive"]):
+            age_range = "38-54"
+        else:
+            age_range = "25-35"
+
+        # Context-specific Intent and Career Objectives
+        cat_lower = req.interview_category.lower()
+        if "scholarship" in cat_lower or "fellowship" in cat_lower:
+            career_objectives = (
+                f"Dedicated to securing funded fellowship opportunities to advance research in {req.profession_name}, "
+                f"fostering cross-border academic collaboration and solving critical societal challenges."
+            )
+            context_intent = (
+                f"Application for competitive scholarship award supporting specialized research at {education[0]['institution']}."
+            )
+        elif "admission" in cat_lower or "exchange" in cat_lower:
+            career_objectives = (
+                f"Aspiring to master core theoretical paradigms and practical methodologies in {req.profession_name}, "
+                f"leveraging comprehensive academic curriculum for future doctoral and professional impact."
+            )
+            context_intent = (
+                f"Prospective candidate applying for university degree matriculation in {req.profession_name} studies."
+            )
+        elif "defense" in cat_lower:
+            career_objectives = (
+                f"Committed to defending rigorous empirical contributions in {req.profession_name}, "
+                f"publishing in high-impact peer-reviewed journals, and translating academic findings into practice."
+            )
+            context_intent = (
+                f"Candidate preparing for academic thesis / dissertation defense before university examination committee."
+            )
+        else:
+            career_objectives = (
+                f"Seeking to contribute senior domain expertise as {req.seniority} {req.profession_name}, "
+                f"driving technical innovation, business alignment, and team excellence within {req.industry_key}."
+            )
+            context_intent = (
+                f"Professional interview candidate seeking {req.seniority} placement in {req.profession_name}."
+            )
+
         # Persona summary
         if no_exp:
             summary = (
@@ -302,6 +360,10 @@ class UniversalSyntheticGenerator:
             full_name=identity.full_name,
             headline=f"{req.seniority} {req.profession_name} | {req.interview_category.replace('_', ' ').title()}",
             professional_summary=summary,
+            career_objectives=career_objectives,
+            nationality=nationality,
+            age_range=age_range,
+            context_intent_statement=context_intent,
             contact_info={
                 "email": f"{clean_slug}@example.com",
                 "phone": (
@@ -863,6 +925,304 @@ class UniversalSyntheticGenerator:
         )
         return scenario.model_dump()
 
+    # ==========================================================================
+    # Type 8: Academic CV Dataset
+    # ==========================================================================
+    @classmethod
+    def generate_academic_cv(
+        cls, req: UniversalGenerateBatchRequest
+    ) -> Dict[str, Any]:
+        meta = cls._build_metadata(req)
+        identity = generate_candidate_identity(
+            language=req.language,
+            include_nickname=False,
+        )
+        p = req.profession_name
+        ind = req.industry_key
+        edu_data = get_institution_education(
+            industry_key=req.industry_key,
+            seniority="PhD Candidate",
+            language=req.language,
+        )
+
+        academic_cv = AcademicCVData(
+            candidate_name=identity.full_name,
+            academic_title=f"Senior Scholar / Research Fellow in {p}",
+            academic_profile=(
+                f"Distinguished scholar and researcher in {p} with interdisciplinary grounding from {edu_data['institution']}. "
+                f"Specializes in empirical methodology, translational research, and cross-border academic initiatives across Southeast Asia."
+            ),
+            research_interests=[
+                f"Contemporary Paradigms in {p}",
+                "Evidence-Based Epistemology and Modeling",
+                f"Computational Innovations in {ind.title()}",
+                "Ethics and Governance in Emerging Technologies",
+            ],
+            education_history=[
+                {
+                    "institution": edu_data["institution"],
+                    "degree": f"Doctor of Philosophy (Ph.D.) in {p}",
+                    "dissertation_title": f"Novel Theoretical and Empirical Frameworks in {p} Optimization",
+                    "advisor": "Prof. Dr. Kittisuk Siriporn, Ph.D.",
+                    "period": "2019 - 2023",
+                    "honors": "Summa Cum Laude / Outstanding Doctoral Dissertation Award",
+                },
+                {
+                    "institution": edu_data["institution"],
+                    "degree": f"Master of Science (M.Sc.) in Applied {ind.title()} Studies",
+                    "thesis_title": f"Comparative Analytical Methods in {p}",
+                    "period": "2017 - 2019",
+                    "honors": "First Class Honors",
+                },
+            ],
+            research_experience=[
+                {
+                    "institution": edu_data["institution"],
+                    "role": f"Principal Postdoctoral Fellow in {p}",
+                    "period": "2023 - Present",
+                    "focus": f"Directing laboratory investigations into multi-parameter resilience in {ind} systems.",
+                    "grants_administered": "National Science Foundation Grant (15M THB)",
+                },
+                {
+                    "institution": "National University of Singapore / Chulalongkorn Alliance",
+                    "role": "Visiting Research Scholar",
+                    "period": "2021 - 2022",
+                    "focus": "Cross-national comparative data collection and statistical validation.",
+                },
+            ],
+            peer_reviewed_publications=[
+                {
+                    "title": f"Methodological Rigor and Empirical Frontiers in Modern {p}",
+                    "journal": f"International Journal of {ind.title()} Research",
+                    "year": 2024,
+                    "doi": f"10.1016/j.ij{ind[:4]}.2024.04.{random.randint(100, 999)}",
+                    "citation_count": random.randint(15, 85),
+                },
+                {
+                    "title": f"Algorithmic Governance and Quality Assurance in {p} Systems",
+                    "journal": "IEEE Transactions on Professional Systems",
+                    "year": 2023,
+                    "doi": f"10.1109/TPS.2023.{random.randint(1000, 9999)}",
+                    "citation_count": random.randint(40, 160),
+                },
+            ],
+            conference_presentations=[
+                {
+                    "title": f"Keynote: The Next Decade of Innovations in {p}",
+                    "conference": f"World Congress of {ind.title()} Scholars (Singapore)",
+                    "year": 2024,
+                },
+                {
+                    "title": f"Symposium Paper: Addressing Confounding Biases in {p} Datasets",
+                    "conference": "ASEAN Higher Education Academic Summit (Bangkok)",
+                    "year": 2023,
+                },
+            ],
+            teaching_and_mentoring=[
+                {
+                    "course": f"Advanced Graduate Seminar in {p}",
+                    "institution": edu_data["institution"],
+                    "role": "Instructor of Record",
+                    "student_evaluations": "4.92 / 5.00",
+                },
+                {
+                    "activity": "Supervised 4 Master's Theses and 2 Undergraduate Honors Capstones",
+                    "period": "2022 - Present",
+                },
+            ],
+            grants_and_scholarships=[
+                {
+                    "grant_name": f"Strategic Research Innovation Fund in {p}",
+                    "funding_body": "National Science and Technology Development Agency (NSTDA)",
+                    "amount": "8,500,000 THB",
+                    "period": "2023 - 2025",
+                },
+                {
+                    "grant_name": "Royal Golden Jubilee (RGJ) PhD Fellowship",
+                    "funding_body": "Thailand Research Fund",
+                    "amount": "Full Tuition & Overseas Research Stipend",
+                    "period": "2019 - 2023",
+                },
+            ],
+            academic_honors_and_awards=[
+                "National Outstanding Young Researcher Commendation (2024)",
+                "Best Research Paper Award - Academic Forum on Systems Engineering (2023)",
+                "Dean's Distinguished Teaching Honor",
+            ],
+            professional_memberships=[
+                f"Senior Member, Global Association of {p} Scholars",
+                "Editorial Advisory Board Member, Southeast Asian Review of Disciplines",
+            ],
+            technical_and_research_skills=[
+                "Advanced Statistical Modeling (R, Python, SPSS, Stata)",
+                "Structural Equation Modeling (SEM & AMOS)",
+                "High-Throughput Qualitative Interview Thematic Coding (NVivo)",
+                "Double-Blind Peer Review Protocols",
+            ],
+            academic_references=[
+                {
+                    "name": "Prof. Dr. Thanawat Srisuk, Ph.D.",
+                    "title": f"Distinguished Chair Professor of {p}",
+                    "institution": edu_data["institution"],
+                    "email": "t.srisuk@university.ac.th",
+                },
+                {
+                    "name": "Assoc. Prof. Dr. Emily Watson, D.Phil.",
+                    "title": f"Director of International Studies",
+                    "institution": "University of Oxford",
+                    "email": "e.watson@oxford.ac.uk",
+                },
+            ],
+            metadata=meta,
+        )
+        return academic_cv.model_dump()
+
+    # ==========================================================================
+    # Type 9: Professional Portfolio Case Study Dataset
+    # ==========================================================================
+    @classmethod
+    def generate_portfolio(
+        cls, req: UniversalGenerateBatchRequest
+    ) -> Dict[str, Any]:
+        meta = cls._build_metadata(req)
+        p = req.profession_name
+        ind = req.industry_key
+        skills = req.skills if req.skills and len(req.skills) > 0 else [f"{p} Engineering", "Architecture Optimization", "Root Cause Analysis"]
+        proj_id = f"proj-{uuid.uuid4().hex[:8]}"
+
+        portfolio = PortfolioCaseStudyData(
+            project_id=proj_id,
+            project_title=f"Enterprise Scalability & Mission-Critical Transformation in {p}",
+            project_category=f"{ind.title()} Strategic Operations",
+            overview=(
+                f"A high-stakes multi-quarter initiative modernizing legacy {ind} deliverables into an agile, "
+                f"high-throughput operational architecture. Led cross-functional teams in decoupling monolithic dependencies "
+                f"and deploying zero-downtime automated workflows."
+            ),
+            background=(
+                f"Prior to this initiative, the organization's {p} processes experienced 30% turnaround latency delays "
+                f"during high-load quarters, risking critical SLA breaches and escalating operational compute costs."
+            ),
+            problem_statement=(
+                f"How to overhaul legacy {p} workflows to achieve sub-second processing latencies while preserving strict "
+                f"regulatory compliance, auditability, and zero defect leakage under 200% traffic spikes?"
+            ),
+            objectives=[
+                f"De-couple monolithic bottlenecks and implement event-driven {p} streams within 6 months.",
+                f"Reduce p99 operational turnaround time by at least 35%.",
+                f"Achieve 99.99% system availability with automated canary rollback gates.",
+                f"Establish full audit traceability complying with ISO 27001 and PDPA statutory standards.",
+            ],
+            candidate_role=f"Principal Lead Architect & Technical Project Director",
+            responsibilities=[
+                "Formulated end-to-end technical roadmap, architecture decision records (ADRs), and risk mitigation matrices.",
+                f"Chaired weekly engineering sprint reviews across 8 multidisciplinary specialists.",
+                f"Spearheaded core performance optimization and data pipeline refactoring utilizing {skills[0]}.",
+                "Presented bi-weekly executive milestone briefings to the C-suite and commercial stakeholders.",
+            ],
+            team_composition="1 Lead Architect (Candidate), 4 Senior Developers, 2 Data Engineers, 1 QA Specialist, 1 Product Manager",
+            project_duration="9 Months (Q1 - Q3)",
+            timeline_and_milestones=[
+                {"milestone": "Phase 1: Architecture Spikes, Root Cause Profiling & Benchmarking", "period": "Month 1 - 2"},
+                {"milestone": "Phase 2: Alpha Prototyping, Resiliency Gates & Microservice Decoupling", "period": "Month 3 - 5"},
+                {"milestone": "Phase 3: Production Hardening, Load Testing & Security Audit", "period": "Month 6 - 7"},
+                {"milestone": "Phase 4: Phased Multi-Region Rollout & Operational Handover", "period": "Month 8 - 9"},
+            ],
+            tools_and_technologies=skills[:4] + ["Docker", "Kubernetes", "Prometheus", "GitOps", "PostgreSQL"],
+            methodology="Domain-Driven Design (DDD) with Agile Scrum bi-weekly release cycles",
+            implementation_details=[
+                "Designed distributed asynchronous messaging queues to isolate high-throughput operational spikes.",
+                "Implemented automated canary verification and real-time telemetry alerting via Grafana dashboards.",
+                "Enforced strict immutable audit logging for all transactional modifications.",
+                "Authored 45 pages of comprehensive technical documentation and runbooks for Tier-2 engineering support.",
+            ],
+            challenges=[
+                "Tight operational constraint requiring zero customer-facing downtime during database migration.",
+                "Initial stakeholder resistance regarding architectural migration budget allocations.",
+            ],
+            solutions=[
+                "Engineered a dual-write synchronization adapter allowing zero-downtime shadow verification for 30 days.",
+                "Constructed empirical ROI models demonstrating 40% long-term infrastructure cost reductions to secure executive consensus.",
+            ],
+            results_and_impact=[
+                f"Truncated median operational processing latency from 4.2s to 450ms (89% improvement).",
+                f"Trimmed recurring infrastructure expenditures by {random.randint(22, 40)}% annually.",
+                "Achieved zero defect leakage during nationwide public launch events.",
+                "Recognized with Organizational Innovation of the Year Award.",
+            ],
+            lessons_learned=[
+                "Invest early in contract-driven integration tests before decoupling microservice boundaries.",
+                "Psychological safety and clear milestone transparency are paramount when navigating high-pressure migrations.",
+            ],
+            supporting_evidence_references=[
+                f"Architecture Decision Record: ADR-042-{p.lower().replace(' ', '-')}.pdf",
+                "Load Testing Telemetry Benchmark Report (Q3 Validation)",
+            ],
+            related_skills=skills[:5],
+            related_interview_questions=[
+                f"In your {p} initiative, how did you architect the zero-downtime migration without interrupting concurrent client transactions?",
+                "What empirical criteria did you define to decide whether an operational microservice needed refactoring versus horizontal auto-scaling?",
+            ],
+            metadata=meta,
+        )
+        return portfolio.model_dump()
+
+    # ==========================================================================
+    # Type 10: Supporting Document Dataset
+    # ==========================================================================
+    @classmethod
+    def generate_supporting_doc(
+        cls, req: UniversalGenerateBatchRequest
+    ) -> Dict[str, Any]:
+        meta = cls._build_metadata(req)
+        identity = generate_candidate_identity(
+            language=req.language,
+            include_nickname=False,
+        )
+        p = req.profession_name
+        ind = req.industry_key
+        doc_id = f"doc-synth-{uuid.uuid4().hex[:10]}"
+
+        doc_types = [
+            "professional_certification",
+            "academic_transcript",
+            "training_record",
+            "recommendation_letter",
+            "research_abstract",
+        ]
+        chosen_type = (
+            req.custom_parameters.get("document_type")
+            if req.custom_parameters and "document_type" in req.custom_parameters
+            else random.choice(doc_types)
+        )
+
+        doc = SupportingDocumentData(
+            document_id=doc_id,
+            document_type=chosen_type,
+            document_title=f"Synthetic Exemplar: Certified {p} Credential Record ({ind.title()})",
+            issuer_organization=f"National Council of {ind.title()} Professionals & Standards Authority",
+            candidate_name=identity.full_name,
+            issue_date="2024-03-15",
+            expiry_or_validity="2027-03-15",
+            credential_id_or_number=f"REG-TH-{random.randint(100000, 999999)}",
+            verification_status="SYNTHETIC_EXAMPLE_VERIFIED",
+            structured_fields={
+                "candidate_id": identity.clean_email_slug,
+                "accreditation_level": f"{req.seniority} Certified Master Practitioner",
+                "cumulative_score": "94.5 / 100",
+                "issuing_jurisdiction": "Kingdom of Thailand / International Mutual Recognition",
+                "continuing_education_units": 45,
+            },
+            narrative_body=(
+                f"This official synthetic record certifies that {identity.full_name} has satisfactorily demonstrated "
+                f"exceptional theoretical and practical competence in {p} operations. The candidate has met all statutory "
+                f"requirements established by the regulatory governing council under registration protocol {doc_id}."
+            ),
+            is_synthetic_watermark=True,
+            metadata=meta,
+        )
+        return doc.model_dump()
+
     # Dispatcher
     @classmethod
     def generate_batch(
@@ -871,6 +1231,9 @@ class UniversalSyntheticGenerator:
         generators = {
             "profile": cls.generate_profile,
             "resume": cls.generate_resume,
+            "academic_cv": cls.generate_academic_cv,
+            "portfolio": cls.generate_portfolio,
+            "supporting_doc": cls.generate_supporting_doc,
             "interview_question": cls.generate_interview_question,
             "interview_answer": cls.generate_interview_answer,
             "rubric_evaluation": cls.generate_rubric_evaluation,

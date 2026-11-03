@@ -79,24 +79,21 @@
     ```
   - **Response 200 OK**: อัปเดตสถานะของเรซูเมเป็น `APPROVED` หรือ `REJECTED` พร้อมบันทึกประวัติ
 
-### 2.4 การสร้างข้อมูลสังเคราะห์ (Synthetic Data Jobs)
-- `POST /api/v1/synthetic/jobs`:
-  - **Body**:
-    ```json
-    {
-      "job_name": "Senior Backend Engineers Batch 1",
-      "target_count": 50,
-      "config": {
-        "role": "Backend Engineer",
-        "seniority": "Senior",
-        "tech_stack": ["NestJS", "PostgreSQL", "Redis"],
-        "language": "en"
-      }
-    }
-    ```
-  - **Response 202 Accepted**: สร้าง `job_id` และส่งเข้าคิว Background Job
-- `GET /api/v1/synthetic/jobs`: ดูรายการประวัติการสร้าง
-- `GET /api/v1/synthetic/jobs/:id`: ดูสถานะความคืบหน้าของงาน (Progress, Generated Count, Errors)
+### 2.4 การสร้างข้อมูลสังเคราะห์ (Synthetic Data Jobs & Universal Studio)
+- `POST /api/v1/synthetic/universal/preview`:
+  - **Body**: `{ datasetType, industryKey, professionKey, professionName, interviewCategory, interviewSubcategory, seniority, skills, language, difficulty, customParameters }`
+  - **Response 200 OK**: คืนค่าตัวอย่างโครงสร้างข้อมูลสังเคราะห์ (Pydantic validated)
+- `POST /api/v1/synthetic/universal/jobs`:
+  - **Body**: `CreateUniversalJobDto` รองรับการระบุ `professionKeys` หลายตำแหน่งพร้อมกัน และ `datasetType` ทั้ง 10 มิติ
+  - **Response 201 Created**: ดำเนินการสร้างข้อมูลสังเคราะห์และจัดเก็บลงในฐานข้อมูล
+- `GET /api/v1/synthetic/records`:
+  - **Query Parameters**: `datasetType`, `industryId`, `qualityStatus`, `page`, `limit`
+  - **Response 200 OK**: รายการระเบียนข้อมูลสังเคราะห์
+- `PATCH /api/v1/synthetic/records/:id/review`:
+  - **Body**: `{ qualityStatus: 'APPROVED' | 'REJECTED' | 'VERIFIED', reviewNotes, corrections }`
+  - **Response 200 OK**: บันทึกการตรวจสอบของมนุษย์ (Human-in-the-Loop)
+- `GET /api/v1/taxonomy/interview-formats`: รายการรูปแบบการสัมภาษณ์ 15 ชนิด
+- `POST /api/v1/taxonomy/interview-formats`: เพิ่มรูปแบบการสัมภาษณ์ใหม่แบบ Dynamic
 
 ### 2.5 การส่งออกชุดข้อมูลสำหรับ LLM (Dataset Export)
 - `POST /api/v1/datasets/export`:
@@ -174,19 +171,15 @@
     }
     ```
 
-### 3.3 การสร้างข้อมูลสังเคราะห์แบบกลุ่ม (Batch Synthetic Generation)
-- `POST /internal/v1/synthetic/generate-batch`:
-  - **Request Body**:
-    ```json
-    {
-      "batch_size": 10,
-      "role": "Data Scientist",
-      "seniority": "Mid-level",
-      "tech_stack": ["Python", "PyTorch", "SQL"],
-      "language": "en"
-    }
-    ```
-  - **Response 200 OK**: คืนค่า List ของ `structured_data` ที่ผ่านการตรวจสอบตาม Pydantic Schema แล้ว
+### 3.3 การสร้างข้อมูลสังเคราะห์แบบกลุ่ม (Universal Multi-Context Batch Generation)
+- `POST /internal/v1/synthetic/generate-universal-batch`:
+  - **Request Body**: `GenerateUniversalBatchRequest` (dataset_type, industry_key, profession_key, interview_category, interview_subcategory, seniority, skills, language, difficulty, batch_size, custom_parameters)
+  - **Response 200 OK**: `GenerateUniversalBatchResponse` คืนค่ารายการข้อมูลสังเคราะห์ 10 มิติที่ผ่านการตรวจสอบ Pydantic Schema
+
+### 3.4 การตรวจสอบความสอดคล้องข้ามเอกสาร (Cross-Document Consistency Validation)
+- `POST /internal/v1/synthetic/validate-consistency`:
+  - **Request Body**: `ConsistencyValidationRequest` (candidate_profile, resume_or_cv, portfolio_projects, interview_answers, supporting_documents)
+  - **Response 200 OK**: `ConsistencyValidationResponse` (is_consistent, consistency_score, timeline_checks, skill_alignment_checks, role_responsibility_checks, detected_discrepancies, recommendations)
 
 ---
 

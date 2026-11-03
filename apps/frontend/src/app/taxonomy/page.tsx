@@ -22,11 +22,12 @@ import {
 export default function TaxonomyManagerPage() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
 
-  const [activeTab, setActiveTab] = useState<"industries" | "categories" | "seniority" | "skills">("industries");
+  const [activeTab, setActiveTab] = useState<"industries" | "categories" | "formats" | "seniority" | "skills">("industries");
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [industries, setIndustries] = useState<any[]>([]);
   const [interviewCategories, setInterviewCategories] = useState<any[]>([]);
+  const [interviewFormats, setInterviewFormats] = useState<any[]>([]);
   const [seniorityLevels, setSeniorityLevels] = useState<any[]>([]);
   const [skillCategories, setSkillCategories] = useState<any[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -52,6 +53,7 @@ export default function TaxonomyManagerPage() {
       const data = await res.json();
       setIndustries(data.industries || []);
       setInterviewCategories(data.interviewCategories || []);
+      setInterviewFormats(data.interviewFormats || []);
       setSeniorityLevels(data.seniorityLevels || []);
       setSkillCategories(data.skillCategories || []);
     } catch (err: any) {
@@ -179,7 +181,17 @@ export default function TaxonomyManagerPage() {
                   : "text-slate-600 hover:bg-slate-100"
               }`}
             >
-              <HelpCircle className="w-3.5 h-3.5" /> รูปแบบการสัมภาษณ์ ({interviewCategories.length} หมวด)
+              <HelpCircle className="w-3.5 h-3.5" /> บริบทการสัมภาษณ์ ({interviewCategories.length} หมวด)
+            </button>
+            <button
+              onClick={() => setActiveTab("formats")}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition flex items-center gap-2 ${
+                activeTab === "formats"
+                  ? "bg-purple-600 text-white shadow-2xs"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" /> รูปแบบการสัมภาษณ์ ({interviewFormats.length} รูปแบบ)
             </button>
             <button
               onClick={() => setActiveTab("seniority")}
@@ -238,21 +250,36 @@ export default function TaxonomyManagerPage() {
                     <p className="text-xs text-slate-500 mt-1">{ind.description}</p>
                   </div>
                   <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">
-                    {ind.professions?.length || 0} ตำแหน่งงาน
+                    {(() => {
+                      const direct = ind.professions || [];
+                      const m2m = (ind.industryProfessions || []).map((ip: any) => ip.profession).filter(Boolean);
+                      const set = new Set([...direct.map((d: any) => d.key), ...m2m.map((m: any) => m.key)]);
+                      return set.size;
+                    })()} ตำแหน่งงาน
                   </span>
                 </div>
 
                 <div className="pt-3 border-t border-slate-100">
-                  <div className="text-xs font-semibold text-slate-700 mb-2">ตำแหน่งงานในสังกัด:</div>
+                  <div className="text-xs font-semibold text-slate-700 mb-2">ตำแหน่งงานในสังกัด (Direct & Many-to-Many):</div>
                   <div className="flex flex-wrap gap-1.5">
-                    {ind.professions?.map((prof: any) => (
-                      <span
-                        key={prof.id || prof.key}
-                        className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200"
-                      >
-                        {prof.name} {prof.nameTh ? `(${prof.nameTh})` : ""}
-                      </span>
-                    ))}
+                    {(() => {
+                      const direct = ind.professions || [];
+                      const m2m = (ind.industryProfessions || []).map((ip: any) => ip.profession).filter(Boolean);
+                      const combined = [...direct];
+                      for (const p of m2m) {
+                        if (!combined.some((item) => item.key === p.key)) {
+                          combined.push(p);
+                        }
+                      }
+                      return combined.map((prof: any) => (
+                        <span
+                          key={prof.id || prof.key}
+                          className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200"
+                        >
+                          {prof.name} {prof.nameTh ? `(${prof.nameTh})` : ""}
+                        </span>
+                      ));
+                    })()}
                   </div>
                 </div>
               </div>
@@ -290,6 +317,31 @@ export default function TaxonomyManagerPage() {
                       </div>
                     ))}
                   </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Tab: Interview Formats (15 Formats) */}
+        {activeTab === "formats" && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {interviewFormats.map((fmt) => (
+              <div
+                key={fmt.id || fmt.key}
+                className="bg-white rounded-2xl border border-slate-200 shadow-2xs p-5 space-y-3 hover:border-purple-300 transition"
+              >
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                    <h3 className="text-base font-bold text-slate-900">{fmt.name}</h3>
+                  </div>
+                  {fmt.nameTh && <p className="text-xs text-purple-700 font-medium mt-0.5">{fmt.nameTh}</p>}
+                  <p className="text-xs text-slate-600 mt-2 leading-relaxed">{fmt.description}</p>
+                </div>
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+                  <span className="font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-700">key: {fmt.key}</span>
+                  <span className="text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded">Active</span>
                 </div>
               </div>
             ))}

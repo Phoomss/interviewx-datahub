@@ -32,6 +32,8 @@ export default function DatasetsExportPage() {
   const [datasetType, setDatasetType] = useState("");
   const [industryKey, setIndustryKey] = useState("");
   const [isSyntheticOnly, setIsSyntheticOnly] = useState(true);
+  const [trainRatio, setTrainRatio] = useState(0.8);
+  const [valRatio, setValRatio] = useState(0.1);
   const [confirmedPII, setConfirmedPII] = useState(true);
 
   // Taxonomy for filters
@@ -90,8 +92,8 @@ export default function DatasetsExportPage() {
           datasetType: datasetType || undefined,
           industryKey: industryKey || undefined,
           isSyntheticOnly,
-          trainRatio: 0.8,
-          valRatio: 0.1,
+          trainRatio: Number(trainRatio),
+          valRatio: Number(valRatio),
         }),
       });
 
@@ -222,9 +224,12 @@ export default function DatasetsExportPage() {
                   onChange={(e) => setDatasetType(e.target.value)}
                   className="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-indigo-600 bg-white"
                 >
-                  <option value="">-- รวมทุกประเภท (All 7 Dimensions) --</option>
+                  <option value="">-- รวมทุกประเภท (All 10 Dimensions) --</option>
                   <option value="profile">Professional Profile</option>
                   <option value="resume">Resume / CV</option>
+                  <option value="academic_cv">Academic CV (Scholarship / Defense)</option>
+                  <option value="portfolio">Portfolio Case Study</option>
+                  <option value="supporting_doc">Supporting Document</option>
                   <option value="interview_question">Interview Question</option>
                   <option value="interview_answer">Interview Answer</option>
                   <option value="rubric_evaluation">Rubric Evaluation</option>
@@ -249,6 +254,60 @@ export default function DatasetsExportPage() {
                     </option>
                   ))}
                 </select>
+              </div>
+            </div>
+
+            {/* Split Ratio Controls & Anti-Leakage Notice */}
+            <div className="pt-2 p-4 bg-slate-50/80 rounded-xl border border-slate-200 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  การแบ่งชุดข้อมูลฝึกสอน (Train / Validation / Test Splitting)
+                </span>
+                <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                  Candidate-Grouped Leakage-Free Engine
+                </span>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                ระบบใช้การจัดกลุ่มระดับบุคคล (Grouped by Candidate ID / Job) เพื่อป้องกันไม่ให้ข้อมูลของบุคคลเดียวกันข้ามระหว่างชุดฝึกและชุดทดสอบ (Zero Data Contamination)
+              </p>
+              <div className="grid grid-cols-3 gap-4 pt-1">
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-700 block mb-1">
+                    Train Ratio: {Math.round(trainRatio * 100)}%
+                  </label>
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="0.9"
+                    step="0.05"
+                    value={trainRatio}
+                    onChange={(e) => setTrainRatio(parseFloat(e.target.value))}
+                    className="w-full accent-indigo-600 cursor-pointer"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-700 block mb-1">
+                    Val Ratio: {Math.round(valRatio * 100)}%
+                  </label>
+                  <input
+                    type="range"
+                    min="0.05"
+                    max="0.3"
+                    step="0.05"
+                    value={valRatio}
+                    onChange={(e) => setValRatio(parseFloat(e.target.value))}
+                    className="w-full accent-indigo-600 cursor-pointer"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold text-slate-700 block mb-1">
+                    Test Ratio: {Math.max(0, Math.round((1 - trainRatio - valRatio) * 100))}%
+                  </label>
+                  <div className="h-6 flex items-center text-xs font-bold text-indigo-700">
+                    {(1 - trainRatio - valRatio) > 0 ? `${Math.round((1 - trainRatio - valRatio) * 100)}% (อัตโนมัติ)` : "0% (ปรับลด Train/Val)"}
+                  </div>
+                </div>
               </div>
             </div>
 

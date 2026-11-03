@@ -35,4 +35,10 @@ export class CreateProfessionDto {
   @ApiPropertyOptional({ example: { portfolioUrl: 'https://huggingface.co/portfolio' }, description: 'ฟิลด์เฉพาะสำหรับอาชีพนี้' })
   @IsOptional()
   professionSpecificFields?: Record<string, any>;
+
+  @ApiPropertyOptional({ example: ['tech', 'finance'], description: 'รายการอุตสาหกรรมเพิ่มเติม (Many-to-Many)' })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  additionalIndustryIds?: string[];
 }

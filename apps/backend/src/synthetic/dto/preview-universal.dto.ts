@@ -3,9 +3,9 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class PreviewUniversalDto {
   @ApiProperty({
-    description: 'ประเภทชุดข้อมูล (7 มิติ)',
+    description: 'ประเภทชุดข้อมูล (10 มิติ: profile, resume, academic_cv, portfolio, supporting_doc, interview_question, interview_answer, rubric_evaluation, feedback, scenario)',
     example: 'interview_question',
-    enum: ['profile', 'resume', 'interview_question', 'interview_answer', 'rubric_evaluation', 'feedback', 'scenario'],
+    enum: ['profile', 'resume', 'academic_cv', 'portfolio', 'supporting_doc', 'interview_question', 'interview_answer', 'rubric_evaluation', 'feedback', 'scenario'],
   })
   @IsString()
   @IsNotEmpty()

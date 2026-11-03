@@ -8,9 +8,9 @@ export class CreateUniversalJobDto {
   jobName: string;
 
   @ApiProperty({
-    description: 'ประเภทชุดข้อมูล (7 มิติ)',
+    description: 'ประเภทชุดข้อมูล (10 มิติ: profile, resume, academic_cv, portfolio, supporting_doc, interview_question, interview_answer, rubric_evaluation, feedback, scenario)',
     example: 'profile',
-    enum: ['profile', 'resume', 'interview_question', 'interview_answer', 'rubric_evaluation', 'feedback', 'scenario'],
+    enum: ['profile', 'resume', 'academic_cv', 'portfolio', 'supporting_doc', 'interview_question', 'interview_answer', 'rubric_evaluation', 'feedback', 'scenario'],
   })
   @IsString()
   @IsNotEmpty()

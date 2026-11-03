@@ -209,3 +209,131 @@ def test_industry_specific_scenarios():
         assert len(scen["expected_candidate_actions"]) >= 3
         assert "Level 4 (Exemplary)" in scen["rubric_scoring_guide"]
 
+
+def test_academic_cv_generation():
+    req = UniversalGenerateBatchRequest(
+        dataset_type="academic_cv",
+        industry_key="education",
+        profession_key="academic_researcher",
+        profession_name="Senior Research Fellow",
+        interview_category="research_position",
+        seniority="PhD Candidate",
+        batch_size=1,
+    )
+    items = UniversalSyntheticGenerator.generate_batch(req)
+    assert len(items) == 1
+    cv = items[0]
+    assert "candidate_name" in cv
+    assert len(cv["research_interests"]) >= 3
+    assert len(cv["peer_reviewed_publications"]) >= 2
+    assert len(cv["education_history"]) >= 2
+    assert len(cv["grants_and_scholarships"]) >= 1
+
+
+def test_portfolio_case_study_generation():
+    req = UniversalGenerateBatchRequest(
+        dataset_type="portfolio",
+        industry_key="tech",
+        profession_key="ai_engineer",
+        profession_name="Principal AI Architect",
+        interview_category="job",
+        seniority="Lead / Principal",
+        batch_size=1,
+    )
+    items = UniversalSyntheticGenerator.generate_batch(req)
+    assert len(items) == 1
+    port = items[0]
+    assert "project_id" in port
+    assert "problem_statement" in port
+    assert len(port["timeline_and_milestones"]) >= 3
+    assert len(port["results_and_impact"]) >= 2
+    assert len(port["related_interview_questions"]) >= 2
+
+
+def test_supporting_document_generation():
+    req = UniversalGenerateBatchRequest(
+        dataset_type="supporting_doc",
+        industry_key="finance",
+        profession_key="auditor",
+        profession_name="Senior Statutory Auditor",
+        interview_category="professional_certification",
+        seniority="Senior",
+        batch_size=1,
+    )
+    items = UniversalSyntheticGenerator.generate_batch(req)
+    assert len(items) == 1
+    doc = items[0]
+    assert doc["is_synthetic_watermark"] is True
+    assert doc["verification_status"] == "SYNTHETIC_EXAMPLE_VERIFIED"
+    assert "credential_id_or_number" in doc
+
+
+def test_consistency_validation_engine():
+    from src.services.consistency_engine import ConsistencyValidationEngine
+    from src.schemas.synthetic_universal import ConsistencyValidationRequest
+
+    # Valid Profile & Resume
+    req_profile = UniversalGenerateBatchRequest(
+        dataset_type="profile",
+        industry_key="tech",
+        profession_key="software_engineer",
+        profession_name="Software Engineer",
+        interview_category="job",
+        seniority="Senior",
+        batch_size=1,
+    )
+    profile = UniversalSyntheticGenerator.generate_batch(req_profile)[0]
+
+    req_port = UniversalGenerateBatchRequest(
+        dataset_type="portfolio",
+        industry_key="tech",
+        profession_key="software_engineer",
+        profession_name="Software Engineer",
+        interview_category="job",
+        seniority="Senior",
+        batch_size=1,
+    )
+    port = UniversalSyntheticGenerator.generate_batch(req_port)[0]
+
+    val_req = ConsistencyValidationRequest(
+        candidate_profile=profile,
+        portfolio_projects=[port],
+    )
+    res = ConsistencyValidationEngine.validate(val_req)
+    assert res.is_consistent is True
+    assert res.consistency_score >= 0.75
+    assert len(res.recommendations) > 0
+
+
+def test_contextual_profile_attributes():
+    # 1. Scholarship Context Profile
+    req_scholar = UniversalGenerateBatchRequest(
+        dataset_type="profile",
+        industry_key="science_research",
+        profession_key="academic_researcher",
+        profession_name="Academic Researcher",
+        interview_category="scholarship",
+        seniority="Graduate Student",
+        batch_size=1,
+    )
+    scholar_profile = UniversalSyntheticGenerator.generate_batch(req_scholar)[0]
+    assert scholar_profile["nationality"] is not None
+    assert scholar_profile["age_range"] in ["20-23", "24-30", "22-26"]
+    assert "scholarship" in scholar_profile["career_objectives"].lower() or "fellowship" in scholar_profile["career_objectives"].lower()
+    assert scholar_profile["context_intent_statement"] is not None
+
+    # 2. Defense Context Profile
+    req_defense = UniversalGenerateBatchRequest(
+        dataset_type="profile",
+        industry_key="education",
+        profession_key="academic_researcher",
+        profession_name="Academic Researcher",
+        interview_category="thesis_defense",
+        seniority="PhD Candidate",
+        batch_size=1,
+    )
+    defense_profile = UniversalSyntheticGenerator.generate_batch(req_defense)[0]
+    assert "defense" in defense_profile["context_intent_statement"].lower()
+    assert "defend" in defense_profile["career_objectives"].lower()
+
+

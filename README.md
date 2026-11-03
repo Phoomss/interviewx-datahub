@@ -164,26 +164,31 @@ sequenceDiagram
 
 ---
 
-## 5. 🔄 7 มิติชุดข้อมูลสังเคราะห์ (7 Dataset Dimensions)
+## 5. 🔄 10 มิติชุดข้อมูลสังเคราะห์ (10 Universal Dataset Dimensions)
 
 | มิติชุดข้อมูล (Dimension) | รายละเอียดข้อมูล | ประโยชน์สำหรับการฝึกสอน LLM |
 | :--- | :--- | :--- |
-| **1. Professional Profile** | ข้อมูลประวัติการทำงาน การศึกษา ทักษะ (*ประสบการณ์ทำงานเป็น Optional รองรับนักศึกษา/ผู้ขอรับทุน*) | เทรนโมเดลจับคู่โปรไฟล์ผู้สมัครงาน |
-| **2. Resume / CV** | โครงสร้างเรซูเมฉบับเต็ม จำแนกทักษะ 4 มิติ และผลงานเด่น | เทรนโมเดลสกัดและวิเคราะห์เรซูเม |
-| **3. Interview Question** | คำถามสัมภาษณ์เฉพาะด้าน พร้อมวัตถุประสงค์, เกณฑ์วัดผล และ Red Flags | เทรนโมเดลเป็นผู้สัมภาษณ์อัจฉริยะ (AI Interviewer) |
-| **4. Interview Answer** | คำตอบจำลอง 6 ระดับคุณภาพ (*Excellent (STAR), Good, Average, Poor, Incomplete, Irrelevant*) | เทรนโมเดลให้เข้าใจความแตกต่างของคำตอบ |
-| **5. Rubric Evaluation** | เกณฑ์การให้คะแนนหลายมิติ คะแนนที่ได้ พร้อมเหตุผลประกอบและคำตัดสิน | เทรนโมเดลการประเมินผลอย่างเป็นธรรม |
-| **6. Feedback & Coaching** | รายงานสรุปจุดเด่น จุดที่ต้องพัฒนา และคำแนะนำเชิงปฏิบัติการ (Actionable Tips) | เทรนโมเดลให้คำแนะนำและโค้ชชิ่งผู้สมัคร |
-| **7. Scenario-based Dilemma** | สถานการณ์จำลอง ข้อจำกัดขัดแย้ง และโจทย์จริยธรรมวิชาชีพ | เทรนโมเดลจำลองสถานการณ์วัดไหวพริบ |
+| **1. Professional Profile** | ประวัติบุคคลเชิงลึก การศึกษา ทักษะ ลำดับอาวุโส (*ไม่บังคับประสบการณ์งานสำหรับนักศึกษา/ผู้ขอรับทุน*) | เทรนโมเดลจับคู่โปรไฟล์และทำความเข้าใจภูมิหลัง |
+| **2. Resume / CV** | เรซูเมมาตรฐาน 4 โครงสร้าง (Chronological, Functional, Combined, Executive) และแจกแจงทักษะ 4 ด้าน | เทรนโมเดลสกัดและวิเคราะห์เรซูเม |
+| **3. Academic CV** | ประวัติวิชาการ ผลงานวิจัย ตีพิมพ์ ทุนการศึกษา การสอน และรางวัลวิชาการ | เทรนโมเดลสำหรับทุนการศึกษาและการสอบป้องกันวิทยานิพนธ์ |
+| **4. Portfolio Case Study** | แฟ้มผลงานกรณีศึกษาเชิงลึก ปัญหา บริบท ข้อจำกัด โซลูชัน สถาปัตยกรรม และตัวเลขวัดผล (Metrics) | เทรนโมเดลสอบถามเจาะลึกผลงานจริง |
+| **5. Supporting Document** | เอกสารประกอบสังเคราะห์ (ใบประกาศ, ใบประกอบวิชาชีพ, ทรานสคริปต์จำลอง) ลายน้ำสังเคราะห์ | เทรนโมเดลตรวจสอบหลักฐานอ้างอิง |
+| **6. Interview Question** | คำถามสัมภาษณ์จำแนก 16 บริบท และ 15 รูปแบบ พร้อมวัตถุประสงค์ เกณฑ์ตรวจ และ Red Flags | เทรนโมเดลเป็นผู้สัมภาษณ์อัจฉริยะ (AI Interviewer) |
+| **7. Interview Answer** | คำตอบจำลอง 6 ระดับคุณภาพ (*Excellent (STAR/Academic), Good, Average, Poor, Incomplete, Irrelevant*) | เทรนโมเดลจำแนกคุณภาพคำตอบและการใช้เหตุผล |
+| **8. Rubric Evaluation** | เกณฑ์การให้คะแนนหลายมิติ คะแนนที่ได้ พร้อมเหตุผลประกอบและคำตัดสิน (Pass/Borderline/Fail) | เทรนโมเดลประเมินผลอย่างเป็นธรรมและโปร่งใส |
+| **9. Feedback & Coaching** | รายงานสรุปจุดเด่น จุดที่ต้องพัฒนา และคำแนะนำเชิงปฏิบัติการ (Actionable Guidance) | เทรนโมเดลโค้ชชิ่งและพัฒนาศักยภาพผู้สมัคร |
+| **10. Scenario Dilemma** | สถานการณ์จำลอง ข้อจำกัดขัดแย้ง และโจทย์จริยธรรมวิชาชีพข้าม 15 อุตสาหกรรม | เทรนโมเดลประเมินการแก้ปัญหาเฉพาะหน้าและจริยธรรม |
 
 ---
 
-## 6. 🔒 การกำกับดูแลความปลอดภัยและ Zero PII Leakage Gate
+## 6. 🔒 การกำกับดูแลความปลอดภัย, การป้องกัน Data Leakage และ Cross-Document Validation
 
+- **Candidate-Grouped Leakage-Free Splitting**: ป้องกันการปนเปื้อนของข้อมูลฝึกสอนและชุดทดสอบ (Train/Val/Test Contamination) โดยจัดกลุ่มระเบียนข้อมูลตาม Candidate ID / Job ID ไม่ให้ข้อมูลของบุคคลเดียวกันข้ามระหว่างชุดฝึกและชุดทดสอบ
+- **Cross-Document Consistency Engine**: ระบบตรวจสอบความสอดคล้องข้ามเอกสาร 3 มิติ (ลำดับเวลาการศึกษา/งาน, ความสมจริงของทักษะเทียบกับตำแหน่ง, ความสอดคล้องระหว่างคำตอบสัมภาษณ์กับประวัติในเรซูเม)
 - **PII Vault Architecture**: แยกตารางข้อมูลส่วนบุคคล (`pii_vault`) ออกจากตารางข้อมูลฝึกสอน (`parsed_profiles` และ `dataset_records`) อย่างเด็ดขาด
 - **Pre-Export Safety Gate**: ก่อนการส่งออกไฟล์ข้อมูล ระบบจะตัดฟิลด์ชื่อ อีเมล เบอร์โทรศัพท์ และรัน Regex Redaction กรองข้อความส่วนบุคคลทิ้ง 100%
-- **Cryptographic Hash (DVC Lineage)**: ทุกไฟล์ที่ส่งออกจะถูกคำนวณค่า SHA-256 Hash เพื่อยืนยันความถูกต้องและป้องกันการดัดแปลงข้อมูล
-- **MLflow Tracking**: บันทึก Metadata, พารามิเตอร์ และประวัติการ Export ทุกครั้งลงใน MLflow 2.17
+- **High-Fidelity Realistic Data Banks**: คลังข้อมูลชื่อไทยและสากลสมจริง (Thai First names, Surnames, Nicknames, International Banks), สถาบันและองค์กรหลายระดับ (Tier-1, Tier-2, Regional, Global), และ Persona Archetypes
+- **MLflow & DVC Lineage**: บันทึก SHA-256 Hash และประวัติการ Export ทุกครั้งลงใน MLflow เพื่อการทำซ้ำและการตรวจสอบย้อนกลับ
 
 ---
 
@@ -217,10 +222,10 @@ docker compose ps
 
 ### 8.3 การทดสอบชุดการทำงานอัตโนมัติ (Automated Tests)
 ```bash
-# ทดสอบ AI Service Universal Generator (Python pytest - 11 tests)
+# ทดสอบ AI Service Universal Generator & Consistency Engine (Python pytest - 22 tests)
 docker exec interviewx-ai-service python -m pytest tests/
 
-# ทดสอบ Backend Core, Taxonomy & Zero PII Gate (Bun test - 13 tests)
+# ทดสอบ Backend Core, Taxonomy, Candidate-Grouped Export & Zero PII Gate (Bun test - 22 tests)
 docker exec interviewx-backend bun test src/
 ```
 
@@ -232,7 +237,7 @@ docker exec interviewx-backend bun test src/
 | :--- | :---: | :--- |
 | **Frontend Web App** | `3000` | [http://localhost:3000](http://localhost:3000) |
 | **Universal Synthetic Studio** | `3000` | [http://localhost:3000/synthetic](http://localhost:3000/synthetic) |
-| **Taxonomy Manager (10 อุตสาหกรรม)** | `3000` | [http://localhost:3000/taxonomy](http://localhost:3000/taxonomy) |
+| **Taxonomy Manager (15 อุตสาหกรรม)** | `3000` | [http://localhost:3000/taxonomy](http://localhost:3000/taxonomy) |
 | **Resume Repository & QA** | `3000` | [http://localhost:3000/resumes](http://localhost:3000/resumes) |
 | **Dataset Export Hub (JSON/CSV/XLSX)** | `3000` | [http://localhost:3000/datasets](http://localhost:3000/datasets) |
 | **Backend REST API** | `4000` | [http://localhost:4000/api/v1](http://localhost:4000/api/v1) |

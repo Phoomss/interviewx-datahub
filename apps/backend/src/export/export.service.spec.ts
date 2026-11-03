@@ -81,4 +81,32 @@ describe('ExportService - Pre-Export Safety Gate & Formatters', () => {
     expect(parsed.messages[1].role).toBe('user');
     expect(parsed.messages[2].role).toBe('assistant');
   });
+
+  it('should assign candidate-grouped splits without train/test data leakage', () => {
+    // 6 records across 3 distinct candidates
+    const records = [
+      { id: 'rec-1', jobId: 'job-1', content: { candidate_name: 'Alice', metadata: { candidate_id: 'cand-A' } } },
+      { id: 'rec-2', jobId: 'job-1', content: { candidate_name: 'Alice', metadata: { candidate_id: 'cand-A' } } },
+      { id: 'rec-3', jobId: 'job-2', content: { candidate_name: 'Bob', metadata: { candidate_id: 'cand-B' } } },
+      { id: 'rec-4', jobId: 'job-2', content: { candidate_name: 'Bob', metadata: { candidate_id: 'cand-B' } } },
+      { id: 'rec-5', jobId: 'job-3', content: { candidate_name: 'Charlie', metadata: { candidate_id: 'cand-C' } } },
+      { id: 'rec-6', jobId: 'job-3', content: { candidate_name: 'Charlie', metadata: { candidate_id: 'cand-C' } } },
+    ];
+
+    const result = service.assignGroupedSplits(records, 0.7, 0.15);
+    expect(result.leakageStats.totalCandidates).toBe(3);
+    expect(result.train.length + result.val.length + result.test.length).toBe(6);
+
+    // Verify candidate A records are exclusively in one split (no split leakage)
+    const candASplits = new Set(
+      records.filter((r) => r.content.metadata.candidate_id === 'cand-A').map((r: any) => r.split),
+    );
+    expect(candASplits.size).toBe(1);
+
+    // Verify candidate B records are exclusively in one split
+    const candBSplits = new Set(
+      records.filter((r) => r.content.metadata.candidate_id === 'cand-B').map((r: any) => r.split),
+    );
+    expect(candBSplits.size).toBe(1);
+  });
 });

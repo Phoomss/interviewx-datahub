@@ -220,51 +220,72 @@ model AuditLog {
 }
 
 model Industry {
-  id          String       @id @default(uuid())
-  key         String       @unique
-  name        String
-  nameTh      String?      @map("name_th")
-  description String?      @db.Text
-  icon        String?
-  isCustom    Boolean      @default(false) @map("is_custom")
-  createdAt   DateTime     @default(now()) @map("created_at")
+  id                  String               @id @default(uuid())
+  key                 String               @unique
+  name                String
+  nameTh              String?              @map("name_th")
+  description         String?              @db.Text
+  icon                String?
+  isCustom            Boolean              @default(false) @map("is_custom")
+  createdAt           DateTime             @default(now()) @map("created_at")
 
-  professions Profession[]
-  datasetRecords DatasetRecord[]
+  professions         Profession[]
+  industryProfessions IndustryProfession[]
+  datasetRecords      DatasetRecord[]
 
   @@map("industries")
 }
 
 model Profession {
-  id                      String     @id @default(uuid())
-  industryId              String     @map("industry_id")
-  key                     String
-  name                    String
-  nameTh                  String?    @map("name_th")
-  description             String?    @db.Text
-  suggestedSkills         Json?      @map("suggested_skills")
-  professionSpecificFields Json?     @map("profession_specific_fields")
-  isCustom                Boolean    @default(false) @map("is_custom")
-  createdAt               DateTime   @default(now()) @map("created_at")
+  id                       String                        @id @default(uuid())
+  industryId               String?                       @map("industry_id")
+  key                      String
+  name                     String
+  nameTh                   String?                       @map("name_th")
+  description              String?                       @db.Text
+  suggestedSkills          Json?                         @map("suggested_skills")
+  professionSpecificFields Json?                         @map("profession_specific_fields")
+  isCustom                 Boolean                       @default(false) @map("is_custom")
+  createdAt                DateTime                      @default(now()) @map("created_at")
 
-  industry                Industry   @relation(fields: [industryId], references: [id], onDelete: Cascade)
-  datasetRecords          DatasetRecord[]
+  industry                 Industry?                     @relation(fields: [industryId], references: [id], onDelete: SetNull)
+  industryProfessions      IndustryProfession[]
+  professionSkills         ProfessionSkill[]
+  interviewCategories      ProfessionInterviewCategory[]
+  datasetRecords           DatasetRecord[]
 
-  @@unique([industryId, key])
+  @@unique([key])
   @@map("professions")
 }
 
 model InterviewCategory {
-  id           String   @id @default(uuid())
-  key          String   @unique
-  name         String
-  nameTh       String?  @map("name_th")
-  description  String?  @db.Text
-  subcategories Json    // string[] or { key, name, nameTh }[]
-  isCustom     Boolean  @default(false) @map("is_custom")
-  createdAt    DateTime @default(now()) @map("created_at")
+  id                   String                        @id @default(uuid())
+  key                  String                        @unique
+  name                 String
+  nameTh               String?                       @map("name_th")
+  description          String?                       @db.Text
+  subcategories        Json                          // string[] or { key, name, nameTh }[]
+  isCustom             Boolean                       @default(false) @map("is_custom")
+  createdAt            DateTime                      @default(now()) @map("created_at")
+
+  professionCategories ProfessionInterviewCategory[]
+  categoryFormats      InterviewCategoryFormat[]
 
   @@map("interview_categories")
+}
+
+model InterviewFormat {
+  id              String                    @id @default(uuid())
+  key             String                    @unique
+  name            String
+  nameTh          String?                   @map("name_th")
+  description     String?                   @db.Text
+  isCustom        Boolean                   @default(false) @map("is_custom")
+  createdAt       DateTime                  @default(now()) @map("created_at")
+
+  categoryFormats InterviewCategoryFormat[]
+
+  @@map("interview_formats")
 }
 
 model SeniorityLevel {
@@ -294,19 +315,84 @@ model SkillCategory {
 }
 
 model Skill {
-  id                String        @id @default(uuid())
-  categoryId        String        @map("category_id")
+  id                String            @id @default(uuid())
+  categoryId        String            @map("category_id")
   name              String
-  nameTh            String?       @map("name_th")
-  description       String?       @db.Text
-  proficiencyLevels Json?         @map("proficiency_levels")
-  isCustom          Boolean       @default(false) @map("is_custom")
-  createdAt         DateTime      @default(now()) @map("created_at")
+  nameTh            String?           @map("name_th")
+  description       String?           @db.Text
+  proficiencyLevels Json?             @map("proficiency_levels")
+  isCustom          Boolean           @default(false) @map("is_custom")
+  createdAt         DateTime          @default(now()) @map("created_at")
 
-  category          SkillCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category          SkillCategory     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  professionSkills  ProfessionSkill[]
 
   @@unique([categoryId, name])
   @@map("skills")
+}
+
+// ==========================================
+// Many-to-Many Dynamic Taxonomy Join Tables
+// ==========================================
+
+model IndustryProfession {
+  id           String     @id @default(uuid())
+  industryId   String     @map("industry_id")
+  professionId String     @map("profession_id")
+  isPrimary    Boolean    @default(false) @map("is_primary")
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  industry     Industry   @relation(fields: [industryId], references: [id], onDelete: Cascade)
+  profession   Profession @relation(fields: [professionId], references: [id], onDelete: Cascade)
+
+  @@unique([industryId, professionId])
+  @@index([professionId])
+  @@map("industry_professions")
+}
+
+model ProfessionSkill {
+  id           String     @id @default(uuid())
+  professionId String     @map("profession_id")
+  skillId      String     @map("skill_id")
+  isCore       Boolean    @default(true) @map("is_core")
+  relevance    Float      @default(1.0)
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  profession   Profession @relation(fields: [professionId], references: [id], onDelete: Cascade)
+  skill        Skill      @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([professionId, skillId])
+  @@index([skillId])
+  @@map("profession_skills")
+}
+
+model ProfessionInterviewCategory {
+  id                  String            @id @default(uuid())
+  professionId        String            @map("profession_id")
+  interviewCategoryId String            @map("interview_category_id")
+  relevance           Float             @default(1.0)
+  createdAt           DateTime          @default(now()) @map("created_at")
+
+  profession          Profession        @relation(fields: [professionId], references: [id], onDelete: Cascade)
+  interviewCategory   InterviewCategory @relation(fields: [interviewCategoryId], references: [id], onDelete: Cascade)
+
+  @@unique([professionId, interviewCategoryId])
+  @@index([interviewCategoryId])
+  @@map("profession_interview_categories")
+}
+
+model InterviewCategoryFormat {
+  id                  String            @id @default(uuid())
+  interviewCategoryId String            @map("interview_category_id")
+  interviewFormatId   String            @map("interview_format_id")
+  createdAt           DateTime          @default(now()) @map("created_at")
+
+  interviewCategory   InterviewCategory @relation(fields: [interviewCategoryId], references: [id], onDelete: Cascade)
+  interviewFormat     InterviewFormat   @relation(fields: [interviewFormatId], references: [id], onDelete: Cascade)
+
+  @@unique([interviewCategoryId, interviewFormatId])
+  @@index([interviewFormatId])
+  @@map("interview_category_formats")
 }
 
 model DatasetRecord {

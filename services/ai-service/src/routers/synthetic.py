@@ -12,9 +12,12 @@ from src.schemas.profile import (
     WorkExperience,
 )
 from src.schemas.synthetic_universal import (
+    ConsistencyValidationRequest,
+    ConsistencyValidationResponse,
     UniversalGenerateBatchRequest,
     UniversalGenerateBatchResponse,
 )
+from src.services.consistency_engine import ConsistencyValidationEngine
 from src.services.universal_generator import UniversalSyntheticGenerator
 
 router = APIRouter(prefix="/internal/v1/synthetic", tags=["Synthetic"])
@@ -264,4 +267,18 @@ def generate_universal_batch(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Synthetic generation error: {str(e)}",
+        )
+
+
+@router.post("/validate-consistency", response_model=ConsistencyValidationResponse)
+def validate_consistency(
+    request: ConsistencyValidationRequest, x_internal_service_key: str = Header(...)
+):
+    verify_internal_key(x_internal_service_key)
+    try:
+        return ConsistencyValidationEngine.validate(request)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Consistency validation error: {str(e)}",
         )

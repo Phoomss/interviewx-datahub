@@ -139,6 +139,36 @@ erDiagram
         timestamp completed_at
     }
 
+    InterviewFormat {
+        uuid id PK
+        string key UK
+        string name
+        string name_th
+        text description
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    DatasetRecord {
+        uuid id PK
+        uuid job_id FK
+        string dataset_type "profile | resume | academic_cv | portfolio | supporting_doc | interview_question | interview_answer | rubric_evaluation | feedback | scenario"
+        uuid industry_id FK
+        uuid profession_id FK
+        string interview_category
+        string interview_subcategory
+        string seniority_level
+        string language
+        boolean is_synthetic
+        jsonb content
+        string quality_status "VERIFIED | APPROVED | REJECTED"
+        jsonb validation_result
+        jsonb metadata
+        timestamp created_at
+        timestamp updated_at
+    }
+
     AuditLog {
         uuid id PK
         uuid user_id FK
