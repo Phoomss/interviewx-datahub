@@ -82,66 +82,68 @@ export function DocumentViewer({
   };
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col bg-slate-100 border-r border-slate-200 overflow-hidden">
+    <div className="h-full min-h-0 flex flex-col bg-slate-100 border-r border-slate-200 overflow-hidden">
       {/* Top Toolbar */}
-      <div className="h-12 px-4 border-b border-slate-200 bg-white flex items-center justify-between text-xs text-slate-600 gap-2 shrink-0 shadow-2xs">
-        <div className="flex items-center gap-3 font-medium min-w-0">
+      <div className="h-12 px-3 sm:px-4 border-b border-slate-200 bg-white flex items-center justify-between text-xs text-slate-600 gap-2 shrink-0 shadow-2xs">
+        <div className="flex items-center gap-2 sm:gap-3 font-medium min-w-0">
           {/* View Mode Toggle Segmented Control */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 text-xs">
+          <div className="flex items-center bg-slate-100 p-0.5 sm:p-1 rounded-xl border border-slate-200/80 text-xs">
             <button
               type="button"
               onClick={() => setViewMode("pdf")}
-              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1.5 ${
+              className={`px-2 sm:px-3 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1.5 ${
                 viewMode === "pdf"
                   ? "bg-white text-indigo-700 shadow-2xs"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
               <FileText className="w-3.5 h-3.5 text-indigo-600" />
-              <span>ไฟล์ต้นฉบับ (PDF)</span>
+              <span className="hidden sm:inline">ไฟล์ต้นฉบับ (PDF)</span>
+              <span className="sm:hidden">PDF</span>
             </button>
             <button
               type="button"
               onClick={() => setViewMode("text")}
-              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1.5 ${
+              className={`px-2 sm:px-3 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1.5 ${
                 viewMode === "text"
                   ? "bg-white text-indigo-700 shadow-2xs"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
               <FileSearch className="w-3.5 h-3.5 text-indigo-600" />
-              <span>ข้อความที่สกัด (Text)</span>
+              <span className="hidden sm:inline">ข้อความที่สกัด (Text)</span>
+              <span className="sm:hidden">Text</span>
             </button>
           </div>
 
-          <div className="hidden sm:flex items-center gap-1 text-[11px] text-slate-500 font-mono truncate max-w-[160px]">
+          <div className="hidden md:flex items-center gap-1 text-[11px] text-slate-500 font-mono truncate max-w-[160px]">
             <span>{fileName}</span>
           </div>
         </div>
 
         {/* Toolbar Controls Right */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {viewMode === "text" && (
             <>
               {/* Search Bar in Extracted Text */}
               <div className="relative flex items-center">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 pointer-events-none" />
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2 pointer-events-none" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="ค้นหาคำในเอกสาร..."
-                  className="pl-8 pr-14 py-1 text-[11px] bg-slate-100 border border-slate-200 rounded-lg w-36 sm:w-44 focus:w-56 focus:bg-white focus:outline-indigo-500 transition-all"
+                  placeholder="ค้นหา..."
+                  className="pl-7 pr-10 py-1 text-[11px] bg-slate-100 border border-slate-200 rounded-lg w-24 xs:w-32 sm:w-44 focus:w-40 sm:focus:w-56 focus:bg-white focus:outline-indigo-500 transition-all"
                 />
                 {searchQuery && (
-                  <span className="absolute right-2 text-[10px] font-mono text-slate-500 bg-slate-200 px-1 rounded">
+                  <span className="absolute right-1.5 text-[9px] font-mono text-slate-500 bg-slate-200 px-1 rounded">
                     {matchCount}
                   </span>
                 )}
               </div>
 
               {/* Zoom Controls */}
-              <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-[11px]">
+              <div className="hidden sm:flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-[11px]">
                 <button
                   type="button"
                   onClick={() => setZoomLevel((z) => Math.max(75, z - 10))}
@@ -165,7 +167,7 @@ export function DocumentViewer({
               <button
                 type="button"
                 onClick={handleCopy}
-                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg transition shadow-2xs"
+                className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 text-[11px] font-semibold bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg transition shadow-2xs"
                 title="คัดลอกข้อความทั้งหมด"
               >
                 {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
@@ -188,20 +190,21 @@ export function DocumentViewer({
               <a
                 href={effectivePdfUrl}
                 download={fileName}
-                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg transition shadow-2xs"
+                className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg transition shadow-2xs"
                 title="ดาวน์โหลดไฟล์ต้นฉบับ"
               >
                 <Download className="w-3 h-3 text-slate-500" />
-                <span className="hidden sm:inline">ดาวน์โหลด</span>
+                <span>ดาวน์โหลด</span>
               </a>
 
               <a
                 href={effectivePdfUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 rounded-lg transition shadow-2xs"
+                className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 text-[11px] font-semibold bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 rounded-lg transition shadow-2xs"
               >
-                <span>เปิดแท็บใหม่</span>
+                <span className="hidden sm:inline">เปิดแท็บใหม่</span>
+                <span className="sm:hidden">เปิด</span>
                 <ExternalLink className="w-3 h-3 text-indigo-500" />
               </a>
             </>

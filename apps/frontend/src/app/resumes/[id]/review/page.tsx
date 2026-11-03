@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ReviewTopBar, LayoutMode } from "@/components/annotation/ReviewTopBar";
 import { DocumentViewer } from "@/components/annotation/DocumentViewer";
 import { ProfileEditor } from "@/components/annotation/ProfileEditor";
+import { FileText, CheckCircle2, XCircle, AlertTriangle, Save, CheckSquare } from "lucide-react";
 
 export default function ResumeReviewPage() {
   const params = useParams();
@@ -19,6 +20,7 @@ export default function ResumeReviewPage() {
   const [reviewNotes, setReviewNotes] = useState("");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [layoutMode, setLayoutMode] = useState<LayoutMode>("split");
+  const [mobileTab, setMobileTab] = useState<"doc" | "editor">("editor");
 
   // Fetch document details
   useEffect(() => {
@@ -143,18 +145,18 @@ export default function ResumeReviewPage() {
   const rawText = document?.parsedProfile?.rawText || "";
   const structuredData = editedProfile || document?.parsedProfile?.structuredData;
 
-  // Grid column classes based on layout mode
+  // Grid column classes on desktop
   const getGridClasses = () => {
     switch (layoutMode) {
       case "wide-editor":
-        return "flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden";
+        return "flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-0 overflow-hidden";
       case "wide-doc":
-        return "flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden";
+        return "flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-0 overflow-hidden";
       case "editor-only":
-        return "flex-1 flex overflow-hidden";
+        return "flex-1 flex min-h-0 overflow-hidden";
       case "split":
       default:
-        return "flex-1 grid grid-cols-1 lg:grid-cols-2 overflow-hidden";
+        return "flex-1 grid grid-cols-1 lg:grid-cols-2 min-h-0 overflow-hidden";
     }
   };
 
@@ -190,7 +192,7 @@ export default function ResumeReviewPage() {
     <div className="h-screen flex flex-col bg-slate-50 overflow-hidden font-sans">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900/95 backdrop-blur-md text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 animate-in fade-in slide-in-from-bottom-3 duration-200 border border-slate-800">
+        <div className="fixed bottom-16 md:bottom-6 right-4 sm:right-6 z-50 bg-slate-900/95 backdrop-blur-md text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 animate-in fade-in slide-in-from-bottom-3 duration-200 border border-slate-800">
           <span className="text-emerald-400 font-bold">✓</span>
           <span>{toastMessage}</span>
         </div>
@@ -214,11 +216,45 @@ export default function ResumeReviewPage() {
         onSaveDraft={() => showToast("✓ บันทึกฉบับร่างชั่วคราวเรียบร้อยแล้ว")}
       />
 
-      {/* Flagship Side-by-side Workspace */}
-      <div className={getGridClasses()}>
-        {/* Left Side: Document Raw/PDF Viewer with Provenance highlight */}
+      {/* Responsive View Switcher Sub-Bar for Mobile & Tablet (< lg) */}
+      <div className="lg:hidden bg-white border-b border-slate-200 px-3 py-2 flex items-center justify-between gap-2 shrink-0 shadow-2xs z-20">
+        <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 text-xs w-full max-w-md mx-auto">
+          <button
+            type="button"
+            onClick={() => setMobileTab("doc")}
+            className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+              mobileTab === "doc"
+                ? "bg-white text-indigo-700 shadow-2xs"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5 text-indigo-600" />
+            <span>เอกสารต้นฉบับ (Document)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileTab("editor")}
+            className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+              mobileTab === "editor"
+                ? "bg-white text-indigo-700 shadow-2xs"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            <CheckSquare className="w-3.5 h-3.5 text-emerald-600" />
+            <span>ผลการสกัด & แก้ไข (Profile)</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Main Workspace (Side-by-side on desktop, single active tab on mobile/tablet) */}
+      <div className={`${getGridClasses()} pb-16 md:pb-0`}>
+        {/* Left Side: Document Raw/PDF Viewer */}
         {layoutMode !== "editor-only" && (
-          <div className={`h-full overflow-hidden ${getDocViewerSpan()}`}>
+          <div
+            className={`h-full min-h-0 overflow-hidden ${
+              mobileTab === "doc" ? "flex flex-col" : "hidden"
+            } lg:flex lg:flex-col ${getDocViewerSpan()}`}
+          >
             <DocumentViewer
               rawText={rawText}
               activeSection={activeSection}
@@ -231,7 +267,11 @@ export default function ResumeReviewPage() {
         )}
 
         {/* Right Side: Interactive Structured Profile Editor */}
-        <div className={`h-full overflow-hidden ${getEditorSpan()}`}>
+        <div
+          className={`h-full min-h-0 overflow-hidden ${
+            mobileTab === "editor" ? "flex flex-col" : "hidden"
+          } lg:flex lg:flex-col ${getEditorSpan()}`}
+        >
           <ProfileEditor
             initialProfile={structuredData}
             confidenceScore={document?.parsedProfile?.confidenceScore ?? 0.95}
@@ -247,6 +287,54 @@ export default function ResumeReviewPage() {
             onChangeReviewNotes={(notes) => setReviewNotes(notes)}
             onEligibilityChange={handleEligibilityUpdate}
           />
+        </div>
+      </div>
+
+      {/* Mobile Sticky Bottom Action Bar (< md) */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-3 py-2.5 flex items-center justify-between gap-2 shadow-xl safe-area-bottom">
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => showToast("✓ บันทึกฉบับร่างชั่วคราวเรียบร้อยแล้ว")}
+            disabled={submitting}
+            className="p-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl border border-slate-200 transition disabled:opacity-50"
+            title="บันทึกร่าง"
+          >
+            <Save className="w-4 h-4 text-slate-500" />
+          </button>
+          <button
+            type="button"
+            onClick={() => handleReviewAction("REJECTED")}
+            disabled={submitting}
+            className="inline-flex items-center gap-1 px-3 py-2 text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 rounded-xl hover:bg-rose-100 transition disabled:opacity-50"
+            title="ปฏิเสธ"
+          >
+            <XCircle className="w-4 h-4 text-rose-500" />
+            <span>ปฏิเสธ</span>
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => handleReviewAction("NEEDS_CORRECTION")}
+            disabled={submitting}
+            className="inline-flex items-center gap-1 px-3 py-2 text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition disabled:opacity-50"
+            title="ต้องแก้ไข"
+          >
+            <AlertTriangle className="w-4 h-4 text-amber-600" />
+            <span>ต้องแก้ไข</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleReviewAction("APPROVED")}
+            disabled={submitting}
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-black text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl shadow-md transition disabled:opacity-50"
+            title="อนุมัติข้อมูล"
+          >
+            <CheckCircle2 className="w-4 h-4 text-emerald-100" />
+            <span>อนุมัติ</span>
+          </button>
         </div>
       </div>
     </div>

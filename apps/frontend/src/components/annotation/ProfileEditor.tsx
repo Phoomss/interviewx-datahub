@@ -223,9 +223,9 @@ export function ProfileEditor({
   const projectsCount = profile.projects?.length || 0;
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col bg-slate-50/70 overflow-hidden font-sans">
+    <div className="h-full min-h-0 flex flex-col bg-slate-50/70 overflow-hidden font-sans">
       {/* Sleek Horizontal Tab Bar */}
-      <div className="bg-white border-b border-slate-200/90 px-4 sm:px-6 pt-2.5 flex items-center gap-2 overflow-x-auto shrink-0 shadow-2xs">
+      <div className="bg-white border-b border-slate-200/90 px-3 sm:px-6 pt-2.5 flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none shrink-0 shadow-2xs">
         <button
           type="button"
           onClick={() => setActiveTab("overview")}
@@ -349,55 +349,66 @@ export function ProfileEditor({
       {/* Main Tab Content Body */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
         {/* TAB 1: OVERVIEW & SUMMARY */}
-        {activeTab === "overview" && (
-          <div className="space-y-5">
-            {/* Candidate & Metadata Summary Hero */}
-            <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-black text-base flex items-center justify-center shadow-xs">
-                    NP
+        {activeTab === "overview" && (() => {
+          const heroName = profile.full_name || profile.name || "Narongsak Pumpasert";
+          const heroInitials = heroName
+            .split(" ")
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((w: string) => w[0]?.toUpperCase())
+            .join("") || "NP";
+          const heroHeadline = profile.headline || profile.experiences?.[0]?.position || "Software Engineering & Full-Stack Developer";
+          const gpaDisplay = profile.educations?.[0]?.gpa ? `GPA ${profile.educations[0].gpa}` : `${educationsCount} วุฒิ`;
+
+          return (
+            <div className="space-y-5">
+              {/* Candidate & Metadata Summary Hero */}
+              <div className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-2xs space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-black text-sm sm:text-base flex items-center justify-center shadow-xs shrink-0">
+                      {heroInitials}
+                    </div>
+                    <div className="min-w-0">
+                      <h2 className="text-sm sm:text-base font-bold text-slate-900 truncate">
+                        {heroName}
+                      </h2>
+                      <p className="text-xs text-slate-500 font-medium truncate">
+                        {heroHeadline}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-base font-bold text-slate-900">
-                      Narongsak Pumpasert
-                    </h2>
-                    <p className="text-xs text-slate-500 font-medium">
-                      Software Engineering & Full-Stack Developer
-                    </p>
+
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                      {classification} • {(confidenceScore * 100).toFixed(0)}% Match
+                    </span>
+                    <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5" /> PII Vault: Isolated
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                    {classification} • {(confidenceScore * 100).toFixed(0)}% Match
-                  </span>
-                  <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5" /> PII Vault: Isolated
-                  </span>
+                {/* 4 Quick Stat Metric Tiles */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 pt-1 border-t border-slate-100">
+                  <div className="p-2.5 sm:p-3 bg-slate-50/80 rounded-xl border border-slate-200/70">
+                    <div className="text-[10px] sm:text-[11px] font-medium text-slate-500">ทักษะที่สกัดได้</div>
+                    <div className="text-base sm:text-lg font-black text-indigo-700 mt-0.5">{skillsCount} ทักษะ</div>
+                  </div>
+                  <div className="p-2.5 sm:p-3 bg-slate-50/80 rounded-xl border border-slate-200/70">
+                    <div className="text-[10px] sm:text-[11px] font-medium text-slate-500">ประสบการณ์ทำงาน</div>
+                    <div className="text-base sm:text-lg font-black text-slate-800 mt-0.5">{experiencesCount} แห่ง</div>
+                  </div>
+                  <div className="p-2.5 sm:p-3 bg-slate-50/80 rounded-xl border border-slate-200/70">
+                    <div className="text-[10px] sm:text-[11px] font-medium text-slate-500">การศึกษา & GPA</div>
+                    <div className="text-base sm:text-lg font-black text-emerald-700 mt-0.5">{gpaDisplay}</div>
+                  </div>
+                  <div className="p-2.5 sm:p-3 bg-slate-50/80 rounded-xl border border-slate-200/70">
+                    <div className="text-[10px] sm:text-[11px] font-medium text-slate-500">ผลงานและโครงการ</div>
+                    <div className="text-base sm:text-lg font-black text-purple-700 mt-0.5">{projectsCount} โครงการ</div>
+                  </div>
                 </div>
               </div>
-
-              {/* 4 Quick Stat Metric Tiles */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1 border-t border-slate-100">
-                <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-200/70">
-                  <div className="text-[11px] font-medium text-slate-500">ทักษะที่สกัดได้</div>
-                  <div className="text-lg font-black text-indigo-700 mt-0.5">{skillsCount} ทักษะ</div>
-                </div>
-                <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-200/70">
-                  <div className="text-[11px] font-medium text-slate-500">ประสบการณ์ทำงาน</div>
-                  <div className="text-lg font-black text-slate-800 mt-0.5">{experiencesCount} แห่ง</div>
-                </div>
-                <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-200/70">
-                  <div className="text-[11px] font-medium text-slate-500">การศึกษา & GPA</div>
-                  <div className="text-lg font-black text-emerald-700 mt-0.5">GPA 3.89</div>
-                </div>
-                <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-200/70">
-                  <div className="text-[11px] font-medium text-slate-500">ผลงานและโครงการ</div>
-                  <div className="text-lg font-black text-purple-700 mt-0.5">{projectsCount} โครงการ</div>
-                </div>
-              </div>
-            </div>
 
             {/* Professional Summary Section */}
             <div
@@ -472,7 +483,8 @@ export function ProfileEditor({
               />
             </div>
           </div>
-        )}
+        );
+      })()}
 
         {/* TAB 2: WORK EXPERIENCE */}
         {activeTab === "experience" && (
@@ -645,7 +657,7 @@ export function ProfileEditor({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
                     <label className="text-[11px] font-bold text-slate-600 block mb-1">ปีที่สำเร็จการศึกษา</label>
                     <input

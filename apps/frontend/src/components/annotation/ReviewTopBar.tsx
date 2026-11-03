@@ -99,40 +99,40 @@ export function ReviewTopBar({
     .join("") || "CV";
 
   return (
-    <header className="h-16 border-b border-slate-200 bg-white/95 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+    <header className="h-14 sm:h-16 border-b border-slate-200 bg-white/95 backdrop-blur-md px-3 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
       {/* Left: Back & Candidate Meta */}
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         <Link
           href="/resumes"
-          className="p-2 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition shrink-0 group"
+          className="p-1.5 sm:p-2 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition shrink-0 group"
           title="กลับหน้ารายการเอกสาร"
         >
-          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+          <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 group-hover:-translate-x-0.5 transition-transform" />
         </Link>
 
         {/* Candidate Avatar */}
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
+        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
           {initials}
         </div>
 
         <div className="min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="font-bold text-slate-900 text-sm sm:text-base truncate max-w-[240px] sm:max-w-[320px]">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+            <h1 className="font-bold text-slate-900 text-xs sm:text-sm md:text-base truncate max-w-[130px] xs:max-w-[170px] sm:max-w-[240px] md:max-w-[320px]">
               {displayName}
             </h1>
 
             {/* Document Type Badge */}
-            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-slate-100 text-slate-700 border border-slate-200 shrink-0">
+            <span className="hidden sm:inline-block px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-slate-100 text-slate-700 border border-slate-200 shrink-0">
               {classification}
             </span>
 
             {/* Synthetic vs Real Badge */}
             {isSynthetic ? (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 shrink-0">
+              <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 shrink-0">
                 <Sparkles className="w-2.5 h-2.5" /> Synthetic
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 shrink-0">
+              <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 shrink-0">
                 <ShieldCheck className="w-2.5 h-2.5 text-blue-600" /> Real Authorized
               </span>
             )}
@@ -140,10 +140,10 @@ export function ReviewTopBar({
             {getStatusBadge(status)}
           </div>
 
-          <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
-            <span className="truncate max-w-[180px] text-slate-500 font-medium">{fileName}</span>
-            <span>•</span>
-            <span className="font-mono text-[10px] text-slate-400">{documentId}</span>
+          <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-slate-400 mt-0.5">
+            <span className="truncate max-w-[120px] sm:max-w-[180px] text-slate-500 font-medium">{fileName}</span>
+            <span className="hidden sm:inline">•</span>
+            <span className="hidden sm:inline font-mono text-[10px] text-slate-400">{documentId}</span>
           </div>
         </div>
       </div>
@@ -191,51 +191,51 @@ export function ReviewTopBar({
           </button>
         </div>
 
-        <div className="h-5 w-px bg-slate-200 hidden sm:block" />
+        <div className="h-5 w-px bg-slate-200 hidden md:block" />
 
-        {/* Save Draft Button */}
+        {/* Save Draft Button (Desktop / Tablet) */}
         <button
           type="button"
           onClick={onSaveDraft}
           disabled={isSubmitting}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition shadow-2xs disabled:opacity-50"
+          className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition shadow-2xs disabled:opacity-50"
           title="บันทึกข้อมูลร่างไว้ก่อน (Save Draft)"
         >
           <Save className="w-3.5 h-3.5 text-slate-500" />
-          <span className="hidden sm:inline">บันทึกร่าง</span>
+          <span>บันทึกร่าง</span>
         </button>
 
-        {/* Needs Correction Button */}
+        {/* Needs Correction Button (Desktop / Tablet) */}
         <button
           type="button"
           onClick={onNeedsCorrection}
           disabled={isSubmitting}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition shadow-2xs disabled:opacity-50"
+          className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition shadow-2xs disabled:opacity-50"
           title="ระบุว่าข้อมูลต้องแก้ไขเพิ่มเติม"
         >
           <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-          <span className="hidden sm:inline">ต้องแก้ไข</span>
+          <span>ต้องแก้ไข</span>
         </button>
 
-        {/* Reject Button */}
+        {/* Reject Button (Desktop / Tablet) */}
         <button
           type="button"
           onClick={onReject}
           disabled={isSubmitting}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 rounded-xl hover:bg-rose-100 transition shadow-2xs disabled:opacity-50 group"
+          className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 rounded-xl hover:bg-rose-100 transition shadow-2xs disabled:opacity-50 group"
           title="คีย์ลัด: ⌘ + J"
         >
           <XCircle className="w-3.5 h-3.5 text-rose-500 group-hover:scale-110 transition-transform" />
-          <span className="hidden md:inline">ปฏิเสธ</span>
+          <span>ปฏิเสธ</span>
           <kbd className="hidden lg:inline text-[9px] font-mono px-1 py-0.2 bg-rose-100/80 text-rose-600 rounded">⌘J</kbd>
         </button>
 
-        {/* Approve & Next Button */}
+        {/* Approve & Next Button (Desktop / Tablet) */}
         <button
           type="button"
           onClick={onApprove}
           disabled={isSubmitting}
-          className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-xl shadow-sm hover:shadow-md transition disabled:opacity-50 group"
+          className="hidden md:inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-xl shadow-sm hover:shadow-md transition disabled:opacity-50 group"
           title="คีย์ลัด: ⌘ + Enter"
         >
           <CheckCircle2 className="w-4 h-4 text-emerald-100 group-hover:scale-110 transition-transform" />
