@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { BarChart3, Activity, PieChart, ShieldAlert, Layers, ArrowLeft, RefreshCw, Cpu, Server, Clock, CheckCircle2, AlertTriangle, Terminal } from "lucide-react";
+import { BarChart3, Activity, PieChart, ShieldAlert, Layers, ArrowLeft, RefreshCw, Cpu, Server, Clock, CheckCircle2, AlertTriangle, Terminal, Sparkles, Sliders, FileText, Download } from "lucide-react";
 
 export default function AnalyticsGovernancePage() {
   const [metrics, setMetrics] = useState<any>(null);
@@ -44,12 +44,34 @@ export default function AnalyticsGovernancePage() {
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Navigation & Header */}
         <div>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 transition mb-3"
-          >
-            <ArrowLeft className="w-4 h-4" /> กลับสู่หน้าแดชบอร์ดหลัก
-          </Link>
+          <div className="flex items-center justify-between mb-4">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 transition"
+            >
+              <ArrowLeft className="w-4 h-4" /> กลับสู่หน้าแดชบอร์ดหลัก
+            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/synthetic"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-purple-600" /> สตูดิโอสังเคราะห์
+              </Link>
+              <Link
+                href="/taxonomy"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
+              >
+                <Sliders className="w-3.5 h-3.5 text-indigo-600" /> ผังโครงสร้าง Taxonomy
+              </Link>
+              <Link
+                href="/datasets"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition"
+              >
+                <Download className="w-3.5 h-3.5 text-emerald-400" /> ส่งออกชุดข้อมูล
+              </Link>
+            </div>
+          </div>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="text-xs font-semibold uppercase tracking-wider text-indigo-600 mb-1 flex items-center gap-1.5">

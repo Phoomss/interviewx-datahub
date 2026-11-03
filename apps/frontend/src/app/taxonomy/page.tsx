@@ -17,6 +17,8 @@ import {
   Filter,
   RefreshCw,
   FolderPlus,
+  Download,
+  FileText,
 } from "lucide-react";
 
 export default function TaxonomyManagerPage() {
@@ -154,7 +156,19 @@ export default function TaxonomyManagerPage() {
                 href="/synthetic"
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-xs transition"
               >
-                <Sparkles className="w-4 h-4 text-purple-300" /> ไปยัง Synthetic Studio
+                <Sparkles className="w-4 h-4 text-purple-300" /> สตูดิโอสังเคราะห์ข้อมูล
+              </Link>
+              <Link
+                href="/resumes"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs transition hidden sm:inline-flex"
+              >
+                <FileText className="w-4 h-4 text-blue-600" /> คลังเอกสารเรซูเม
+              </Link>
+              <Link
+                href="/datasets"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs transition hidden sm:inline-flex"
+              >
+                <Download className="w-4 h-4 text-emerald-600" /> ส่งออกชุดข้อมูล
               </Link>
             </div>
           </div>

@@ -28,6 +28,7 @@ import {
   Download,
   Copy,
   ChevronRight,
+  Sliders,
 } from "lucide-react";
 
 export default function ResumesListPage() {
@@ -229,10 +230,16 @@ export default function ResumesListPage() {
               <Sparkles className="w-3.5 h-3.5" /> สตูดิโอสังเคราะห์ข้อมูล
             </Link>
             <Link
+              href="/taxonomy"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition hidden sm:inline-flex"
+            >
+              <Sliders className="w-3.5 h-3.5 text-indigo-600" /> ผังโครงสร้าง Taxonomy
+            </Link>
+            <Link
               href="/datasets"
               className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition"
             >
-              <Download className="w-3.5 h-3.5 text-emerald-400" /> ส่งออก Datasets
+              <Download className="w-3.5 h-3.5 text-emerald-400" /> ส่งออกชุดข้อมูล
             </Link>
           </div>
         </div>

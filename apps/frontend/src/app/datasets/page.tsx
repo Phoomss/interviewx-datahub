@@ -145,17 +145,24 @@ export default function DatasetsExportPage() {
             <div className="flex items-center gap-2">
               <Link
                 href="/synthetic"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium text-xs rounded-lg shadow-2xs transition"
+                className="inline-flex items-center gap-2 px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium text-xs rounded-lg shadow-2xs transition"
               >
                 <Sparkles className="w-4 h-4" />
-                <span>ไปที่ Synthetic Studio</span>
+                <span>สตูดิโอสังเคราะห์ข้อมูล</span>
               </Link>
               <Link
                 href="/taxonomy"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium text-xs rounded-lg shadow-2xs transition"
+                className="inline-flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium text-xs rounded-lg shadow-2xs transition"
               >
                 <Sliders className="w-4 h-4 text-indigo-600" />
-                <span>ดู Taxonomy</span>
+                <span>ผังโครงสร้าง Taxonomy</span>
+              </Link>
+              <Link
+                href="/resumes"
+                className="inline-flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium text-xs rounded-lg shadow-2xs transition hidden sm:inline-flex"
+              >
+                <FileText className="w-4 h-4 text-blue-600" />
+                <span>คลังเอกสารเรซูเม</span>
               </Link>
             </div>
           </div>

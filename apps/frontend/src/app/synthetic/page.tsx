@@ -344,18 +344,24 @@ export default function UniversalSyntheticStudioPage() {
             >
               <ArrowLeft className="w-4 h-4" /> กลับสู่หน้าแดชบอร์ดหลัก
             </Link>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <Link
                 href="/taxonomy"
                 className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-lg shadow-2xs transition"
               >
-                <Sliders className="w-3.5 h-3.5 text-indigo-600" /> จัดการ Taxonomy (10 กลุ่มอุตสาหกรรม)
+                <Sliders className="w-3.5 h-3.5 text-indigo-600" /> ผังโครงสร้าง Taxonomy
+              </Link>
+              <Link
+                href="/resumes"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-lg shadow-2xs transition hidden sm:inline-flex"
+              >
+                <FileText className="w-3.5 h-3.5 text-blue-600" /> คลังเอกสารเรซูเม
               </Link>
               <Link
                 href="/datasets"
                 className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 bg-slate-900 text-white hover:bg-slate-800 rounded-lg shadow-2xs transition"
               >
-                <Download className="w-3.5 h-3.5 text-emerald-400" /> ส่งออก Datasets (JSON/CSV/XLSX)
+                <Download className="w-3.5 h-3.5 text-emerald-400" /> ส่งออกชุดข้อมูล
               </Link>
             </div>
           </div>

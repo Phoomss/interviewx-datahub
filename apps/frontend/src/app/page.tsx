@@ -62,9 +62,9 @@ const WORKFLOW_STEPS = [
 
 const QUICK_MODULES = [
   {
-    title: "Synthetic Studio",
-    titleTh: "สตูดิโอสร้างข้อมูลสังเคราะห์",
-    desc: "สร้างข้อมูล 7 มิติ (Profile, Resume, Q&A, Rubric, Feedback, Dilemma) ข้าม 10 อุตสาหกรรม",
+    title: "สตูดิโอสร้างข้อมูลสังเคราะห์",
+    titleTh: "Universal Synthetic Studio",
+    desc: "สร้างข้อมูล 10 มิติ (Profile, Resume, Q&A, Rubric, Feedback, Dilemma) ครอบคลุม 15 อุตสาหกรรมสากล",
     href: "/synthetic",
     icon: Sparkles,
     tag: "แนะนำสำหรับเริ่มต้น",
@@ -72,9 +72,9 @@ const QUICK_MODULES = [
     iconBg: "bg-purple-100 text-purple-600",
   },
   {
-    title: "Taxonomy Manager",
-    titleTh: "ศูนย์จัดการ 10 กลุ่มอุตสาหกรรม",
-    desc: "สำรวจ 80+ อาชีพ, 7 รูปแบบสัมภาษณ์ (งาน/ทุน/ต่อโท-เอก) และเพิ่มตำแหน่งงานใหม่ได้ทันที",
+    title: "ศูนย์จัดการ Taxonomy สากล",
+    titleTh: "Taxonomy & Ontology Manager",
+    desc: "สำรวจ 15 กลุ่มอุตสาหกรรม, 80+ อาชีพ, รูปแบบการสัมภาษณ์ (งาน/ทุน/ต่อโท-เอก) และเพิ่มตำแหน่งงานใหม่ได้ทันที",
     href: "/taxonomy",
     icon: Sliders,
     tag: "ขยายอาชีพได้ Dynamic",
@@ -82,8 +82,8 @@ const QUICK_MODULES = [
     iconBg: "bg-indigo-100 text-indigo-600",
   },
   {
-    title: "Resume Repository",
-    titleTh: "คลังเอกสาร & สกัดข้อมูล AI",
+    title: "คลังเอกสาร & สกัดข้อมูล AI",
+    titleTh: "Resume Repository & Parser",
     desc: "อัปโหลดไฟล์ PDF/DOCX จริง จัดเก็บใน MinIO S3 พร้อมถอดข้อความอัตโนมัติด้วย AI",
     href: "/resumes",
     icon: FileText,
@@ -92,8 +92,8 @@ const QUICK_MODULES = [
     iconBg: "bg-blue-100 text-blue-600",
   },
   {
-    title: "Dataset Exports",
-    titleTh: "ส่งออกชุดข้อมูลฝึกสอน LLM",
+    title: "ส่งออกชุดข้อมูลฝึกสอน LLM",
+    titleTh: "Dataset Exports & Lineage",
     desc: "ส่งออกไฟล์ JSON, CSV, XLSX, Alpaca, ChatML พร้อม SHA-256 DVC และบันทึกเข้าสู่ MLflow",
     href: "/datasets",
     icon: Download,
@@ -102,8 +102,8 @@ const QUICK_MODULES = [
     iconBg: "bg-emerald-100 text-emerald-700",
   },
   {
-    title: "PDPA & Consent Vault",
-    titleTh: "การกำกับดูแลและหนังสือยินยอม",
+    title: "ระบบความยินยอม & PII Vault",
+    titleTh: "PDPA & Data Governance Vault",
     desc: "ระบบบริหารความยินยอม PDPA และ PII Vault แยกเก็บข้อมูลส่วนบุคคลอย่างปลอดภัย",
     href: "/consent",
     icon: ShieldCheck,
@@ -112,8 +112,8 @@ const QUICK_MODULES = [
     iconBg: "bg-amber-100 text-amber-700",
   },
   {
-    title: "Data Bias Analytics",
-    titleTh: "แดชบอร์ดความหลากหลายข้อมูล",
+    title: "วิเคราะห์ความหลากหลายข้อมูล",
+    titleTh: "Data Bias & Governance Analytics",
     desc: "วิเคราะห์การกระจายตัวของทักษะ สัดส่วนเพศ ระดับอาวุโส และป้องกัน Data Imbalance",
     href: "/analytics",
     icon: BarChart3,
@@ -188,25 +188,25 @@ export default function Home() {
               href="/synthetic"
               className="text-xs font-semibold text-slate-700 hover:text-purple-600 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition hidden sm:inline-block"
             >
-              Synthetic Studio
+              สตูดิโอสังเคราะห์
             </Link>
             <Link
               href="/taxonomy"
               className="text-xs font-semibold text-slate-700 hover:text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition hidden sm:inline-block"
             >
-              Taxonomy
+              ผังโครงสร้าง Taxonomy
             </Link>
             <Link
               href="/resumes"
               className="text-xs font-semibold text-slate-700 hover:text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition hidden md:inline-block"
             >
-              Repository
+              คลังเอกสารเรซูเม
             </Link>
             <Link
               href="/datasets"
               className="text-xs font-semibold text-slate-700 hover:text-emerald-600 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition hidden md:inline-block"
             >
-              Exports
+              ส่งออกชุดข้อมูล
             </Link>
             <a
               href="http://localhost:4000/docs"
@@ -214,14 +214,14 @@ export default function Home() {
               rel="noreferrer"
               className="text-xs font-medium text-slate-500 hover:text-slate-800 px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition"
             >
-              API Docs
+              เอกสาร API
             </a>
             <Link
               href="/synthetic"
               className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white shadow-2xs transition"
             >
               <Zap className="w-3.5 h-3.5 text-purple-400" />
-              <span>สร้างข้อมูล</span>
+              <span>สร้างข้อมูลสังเคราะห์</span>
             </Link>
           </div>
         </div>
@@ -506,12 +506,13 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-6 border-t border-slate-200 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
-        <div>InterviewX DataHub • Internal Platform for InterviewX LLM Development</div>
+        <div>InterviewX DataHub • ศูนย์เตรียมชุดข้อมูลสำหรับฝึกสอนโมเดลปัญญาประดิษฐ์ InterviewX</div>
         <div className="flex items-center gap-4">
-          <Link href="/synthetic" className="hover:underline">Synthetic Studio</Link>
-          <Link href="/taxonomy" className="hover:underline">Taxonomy</Link>
-          <Link href="/datasets" className="hover:underline">Exports</Link>
-          <a href="http://localhost:4000/docs" target="_blank" rel="noreferrer" className="hover:underline">API Docs</a>
+          <Link href="/synthetic" className="hover:underline">สตูดิโอสังเคราะห์</Link>
+          <Link href="/taxonomy" className="hover:underline">ผังโครงสร้าง Taxonomy</Link>
+          <Link href="/resumes" className="hover:underline">คลังเอกสารเรซูเม</Link>
+          <Link href="/datasets" className="hover:underline">ส่งออกชุดข้อมูล</Link>
+          <a href="http://localhost:4000/docs" target="_blank" rel="noreferrer" className="hover:underline">เอกสาร API</a>
         </div>
       </footer>
     </div>
