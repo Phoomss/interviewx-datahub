@@ -840,8 +840,16 @@ export default function UniversalSyntheticStudioPage() {
                         </span>
                       </td>
                       <td className="py-3.5 px-4 text-slate-700">
-                        <div className="font-semibold text-slate-900">{rec.profession?.name || rec.professionId || "Custom Profession"}</div>
-                        <div className="text-[11px] text-slate-500">{rec.industry?.name || rec.industryId}</div>
+                        <div className="font-semibold text-slate-900">
+                          {typeof rec.profession === "object"
+                            ? (rec.profession?.name || rec.profession?.key || rec.professionId || "Custom Profession")
+                            : (rec.profession || rec.professionId || "Custom Profession")}
+                        </div>
+                        <div className="text-[11px] text-slate-500">
+                          {typeof rec.industry === "object"
+                            ? (rec.industry?.name || rec.industry?.key || rec.industryId || "-")
+                            : (rec.industry || rec.industryId || "-")}
+                        </div>
                       </td>
                       <td className="py-3.5 px-4 text-slate-600">
                         <span className="capitalize">{rec.interviewCategory?.replace(/_/g, " ")}</span>
@@ -861,8 +869,14 @@ export default function UniversalSyntheticStudioPage() {
                           onClick={() => {
                             setPreviewData(rec.content);
                             setPreviewDatasetType(rec.datasetType || datasetType);
-                            setPreviewIndustry(rec.industry || currentIndustry?.nameTh || selectedIndustryKey);
-                            setPreviewProfession(rec.profession || selectedProfessionKeys[0]);
+                            const indStr = typeof rec.industry === "object"
+                              ? (rec.industry?.nameTh || rec.industry?.name || rec.industry?.key || "")
+                              : (rec.industry || currentIndustry?.nameTh || currentIndustry?.name || selectedIndustryKey);
+                            const profStr = typeof rec.profession === "object"
+                              ? (rec.profession?.nameTh || rec.profession?.name || rec.profession?.key || "")
+                              : (rec.profession || selectedProfessionKeys[0]);
+                            setPreviewIndustry(indStr);
+                            setPreviewProfession(profStr);
                             setShowPreviewModal(true);
                           }}
                           className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-800 px-2.5 py-1 rounded-md bg-indigo-50 hover:bg-indigo-100 transition"

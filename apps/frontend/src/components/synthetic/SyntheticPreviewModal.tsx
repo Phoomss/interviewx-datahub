@@ -42,8 +42,8 @@ interface SyntheticPreviewModalProps {
   previewData: any;
   loading: boolean;
   onRegenerate?: () => void;
-  industryName?: string;
-  professionName?: string;
+  industryName?: any;
+  professionName?: any;
 }
 
 export function SyntheticPreviewModal({
@@ -59,6 +59,28 @@ export function SyntheticPreviewModal({
   const [viewMode, setViewMode] = useState<"card" | "json">("card");
   const [copied, setCopied] = useState(false);
   const [jsonSearch, setJsonSearch] = useState("");
+
+  const formatDisplayName = (val: any): string => {
+    if (!val) return "";
+    if (typeof val === "string") return val;
+    if (typeof val === "object") {
+      return val.nameTh || val.name || val.key || val.id || "";
+    }
+    return String(val);
+  };
+
+  const safeStr = (val: any): string => {
+    if (val === null || val === undefined) return "";
+    if (typeof val === "string") return val;
+    if (typeof val === "number" || typeof val === "boolean") return String(val);
+    if (typeof val === "object") {
+      return val.nameTh || val.name || val.title || val.label || val.value || JSON.stringify(val);
+    }
+    return String(val);
+  };
+
+  const displayIndustry = formatDisplayName(industryName) || "Industry";
+  const displayProfession = formatDisplayName(professionName) || "Profession";
 
   const jsonString = useMemo(() => {
     if (!previewData) return "";
@@ -113,9 +135,10 @@ export function SyntheticPreviewModal({
   };
 
   // Helper for initials
-  const getInitials = (name: string) => {
-    if (!name) return "SYN";
-    return name
+  const getInitials = (name: any) => {
+    const s = safeStr(name);
+    if (!s) return "SYN";
+    return s
       .split(" ")
       .filter(Boolean)
       .slice(0, 2)
@@ -147,9 +170,9 @@ export function SyntheticPreviewModal({
               </div>
 
               <div className="text-xs text-slate-500 truncate mt-0.5 font-medium flex items-center gap-1.5">
-                <span>{industryName || "Industry"}</span>
+                <span>{displayIndustry}</span>
                 <span>•</span>
-                <span className="font-semibold text-slate-700">{professionName || "Profession"}</span>
+                <span className="font-semibold text-slate-700">{displayProfession}</span>
               </div>
             </div>
           </div>
@@ -268,20 +291,20 @@ export function SyntheticPreviewModal({
                         </div>
                         <div>
                           <h2 className="text-lg font-black text-slate-900">
-                            {previewData.full_name || previewData.name || "Candidate Name"}
+                            {safeStr(previewData.full_name || previewData.name) || "Candidate Name"}
                           </h2>
                           <p className="text-xs font-semibold text-indigo-700 mt-0.5">
-                            {previewData.headline || `${professionName} (${previewData.seniority_level || "Professional"})`}
+                            {safeStr(previewData.headline) || `${displayProfession} (${safeStr(previewData.seniority_level) || "Professional"})`}
                           </p>
                           <div className="flex items-center gap-3 text-[11px] text-slate-500 mt-1 flex-wrap">
                             {previewData.nationality && (
-                              <span>สัญชาติ: <strong>{previewData.nationality}</strong></span>
+                              <span>สัญชาติ: <strong>{safeStr(previewData.nationality)}</strong></span>
                             )}
                             {previewData.age_range && (
-                              <span>ช่วงอายุ: <strong>{previewData.age_range}</strong></span>
+                              <span>ช่วงอายุ: <strong>{safeStr(previewData.age_range)}</strong></span>
                             )}
                             {previewData.experience_years && (
-                              <span>ประสบการณ์: <strong className="text-slate-800">{previewData.experience_years} ปี</strong></span>
+                              <span>ประสบการณ์: <strong className="text-slate-800">{safeStr(previewData.experience_years)} ปี</strong></span>
                             )}
                           </div>
                         </div>
@@ -291,19 +314,19 @@ export function SyntheticPreviewModal({
                         {previewData.contact_info?.email && (
                           <div className="flex items-center gap-1.5 font-mono text-[11px] text-slate-700">
                             <Mail className="w-3.5 h-3.5 text-slate-400" />
-                            <span>{previewData.contact_info.email}</span>
+                            <span>{safeStr(previewData.contact_info.email)}</span>
                           </div>
                         )}
                         {previewData.contact_info?.phone && (
                           <div className="flex items-center gap-1.5 font-mono text-[11px] text-slate-700">
                             <Phone className="w-3.5 h-3.5 text-slate-400" />
-                            <span>{previewData.contact_info.phone}</span>
+                            <span>{safeStr(previewData.contact_info.phone)}</span>
                           </div>
                         )}
                         {previewData.contact_info?.location && (
                           <div className="flex items-center gap-1.5 text-slate-600">
                             <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                            <span>{previewData.contact_info.location}</span>
+                            <span>{safeStr(previewData.contact_info.location)}</span>
                           </div>
                         )}
                       </div>
@@ -316,7 +339,7 @@ export function SyntheticPreviewModal({
                           <Quote className="w-3.5 h-3.5 text-indigo-600" /> บทคัดย่อประวัติการทำงาน (Professional Summary)
                         </div>
                         <p className="text-xs text-slate-700 leading-relaxed font-normal">
-                          {previewData.professional_summary}
+                          {safeStr(previewData.professional_summary)}
                         </p>
                       </div>
                     )}
@@ -331,14 +354,14 @@ export function SyntheticPreviewModal({
                       </div>
                       <div className="flex flex-wrap gap-1.5 pt-1">
                         {previewData.skills.map((skill: any, idx: number) => {
-                          const skillName = typeof skill === "string" ? skill : skill.name || skill.skill_name;
+                          const skillName = typeof skill === "string" ? skill : (skill?.name || skill?.skill_name || skill?.title || safeStr(skill));
                           return (
                             <span
                               key={idx}
                               className="px-3 py-1 rounded-xl text-xs font-semibold bg-indigo-50/70 text-indigo-800 border border-indigo-200/80 flex items-center gap-1"
                             >
                               <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-                              <span>{skillName}</span>
+                              <span>{safeStr(skillName)}</span>
                             </span>
                           );
                         })}
@@ -360,23 +383,23 @@ export function SyntheticPreviewModal({
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                               <div>
                                 <span className="font-bold text-xs text-slate-900">
-                                  {exp.role_title || exp.title}
+                                  {safeStr(exp.role_title || exp.title)}
                                 </span>
                                 <span className="text-slate-400 mx-1.5">•</span>
                                 <span className="font-semibold text-xs text-indigo-700">
-                                  {exp.company_or_organization || exp.company}
+                                  {safeStr(exp.company_or_organization || exp.company)}
                                 </span>
                               </div>
                               <div className="text-[11px] text-slate-500 font-mono flex items-center gap-1">
                                 <Calendar className="w-3 h-3 text-slate-400" />
-                                <span>{exp.start_date} - {exp.end_date || "Present"}</span>
+                                <span>{safeStr(exp.start_date)} - {safeStr(exp.end_date) || "Present"}</span>
                               </div>
                             </div>
 
                             {Array.isArray(exp.responsibilities) && exp.responsibilities.length > 0 && (
                               <ul className="list-disc list-inside space-y-1 text-xs text-slate-600 leading-relaxed pl-1">
-                                {exp.responsibilities.map((r: string, rIdx: number) => (
-                                  <li key={rIdx}>{r}</li>
+                                {exp.responsibilities.map((r: any, rIdx: number) => (
+                                  <li key={rIdx}>{safeStr(r)}</li>
                                 ))}
                               </ul>
                             )}
@@ -397,19 +420,19 @@ export function SyntheticPreviewModal({
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {previewData.education.map((edu: any, idx: number) => (
                           <div key={idx} className="p-3.5 bg-slate-50/80 rounded-xl border border-slate-200/80 space-y-1">
-                            <div className="font-bold text-xs text-slate-900">{edu.degree}</div>
-                            <div className="text-xs text-slate-600 font-medium">{edu.institution}</div>
+                            <div className="font-bold text-xs text-slate-900">{safeStr(edu.degree)}</div>
+                            <div className="text-xs text-slate-600 font-medium">{safeStr(edu.institution)}</div>
                             <div className="flex items-center gap-2 pt-1 text-[11px]">
                               {edu.gpa && (
                                 <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-bold font-mono">
-                                  GPA {edu.gpa}
+                                  GPA {safeStr(edu.gpa)}
                                 </span>
                               )}
                               {edu.graduation_year && (
-                                <span className="text-slate-500">ปีที่จบ: {edu.graduation_year}</span>
+                                <span className="text-slate-500">ปีที่จบ: {safeStr(edu.graduation_year)}</span>
                               )}
                               {edu.honors && (
-                                <span className="text-purple-700 font-semibold">{edu.honors}</span>
+                                <span className="text-purple-700 font-semibold">{safeStr(edu.honors)}</span>
                               )}
                             </div>
                           </div>
@@ -426,10 +449,10 @@ export function SyntheticPreviewModal({
                         ผลงานวิจัยและบทความตีพิมพ์ทางวิชาการ ({previewData.publications_or_research.length} เรื่อง)
                       </div>
                       <div className="space-y-1.5">
-                        {previewData.publications_or_research.map((pub: string, pIdx: number) => (
+                        {previewData.publications_or_research.map((pub: any, pIdx: number) => (
                           <div key={pIdx} className="p-2.5 bg-purple-50/50 rounded-xl border border-purple-100 text-xs text-purple-950 font-medium flex items-start gap-2">
                             <span className="font-bold text-purple-600">[{pIdx + 1}]</span>
-                            <span>{pub}</span>
+                            <span>{safeStr(pub)}</span>
                           </div>
                         ))}
                       </div>
@@ -450,24 +473,24 @@ export function SyntheticPreviewModal({
                       <div className="flex items-center gap-2">
                         {previewData.difficulty && (
                           <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                            ระดับ: {previewData.difficulty}
+                            ระดับ: {safeStr(previewData.difficulty)}
                           </span>
                         )}
                         {previewData.category && (
                           <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
-                            {previewData.category}
+                            {safeStr(previewData.category)}
                           </span>
                         )}
                       </div>
                     </div>
 
                     <div className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
-                      &quot;{previewData.question}&quot;
+                      &quot;{safeStr(previewData.question)}&quot;
                     </div>
 
                     {previewData.question_th && (
                       <div className="text-xs sm:text-sm text-slate-600 italic pt-1 border-t border-purple-100">
-                        {previewData.question_th}
+                        {safeStr(previewData.question_th)}
                       </div>
                     )}
                   </div>
@@ -480,7 +503,7 @@ export function SyntheticPreviewModal({
                           <Target className="w-3.5 h-3.5 text-indigo-600" /> วัตถุประสงค์การวัดผล (Intent & Objective)
                         </div>
                         <p className="text-xs text-slate-600 leading-relaxed font-normal">
-                          {previewData.intent_and_objective}
+                          {safeStr(previewData.intent_and_objective)}
                         </p>
                       </div>
                     )}
@@ -491,9 +514,9 @@ export function SyntheticPreviewModal({
                           <Award className="w-3.5 h-3.5 text-indigo-600" /> สมรรถนะที่ประเมิน (Competencies)
                         </div>
                         <div className="flex flex-wrap gap-1.5 pt-1">
-                          {previewData.competencies_evaluated.map((comp: string, i: number) => (
+                          {previewData.competencies_evaluated.map((comp: any, i: number) => (
                             <span key={i} className="px-2.5 py-1 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                              {comp}
+                              {safeStr(comp)}
                             </span>
                           ))}
                         </div>
@@ -509,8 +532,8 @@ export function SyntheticPreviewModal({
                           <CheckCircle2 className="w-4 h-4 text-emerald-600" /> จุดเด่นที่ควรมองหา (Key Points to Look For)
                         </div>
                         <ul className="list-disc list-inside space-y-1.5 text-xs text-emerald-950 leading-relaxed pl-1">
-                          {previewData.key_points_to_look_for.map((pt: string, i: number) => (
-                            <li key={i}>{pt}</li>
+                          {previewData.key_points_to_look_for.map((pt: any, i: number) => (
+                            <li key={i}>{safeStr(pt)}</li>
                           ))}
                         </ul>
                       </div>
@@ -522,8 +545,8 @@ export function SyntheticPreviewModal({
                           <XCircle className="w-4 h-4 text-rose-600" /> สัญญาณเตือนที่ต้องระวัง (Red Flags)
                         </div>
                         <ul className="list-disc list-inside space-y-1.5 text-xs text-rose-950 leading-relaxed pl-1">
-                          {previewData.red_flags.map((rf: string, i: number) => (
-                            <li key={i}>{rf}</li>
+                          {previewData.red_flags.map((rf: any, i: number) => (
+                            <li key={i}>{safeStr(rf)}</li>
                           ))}
                         </ul>
                       </div>
@@ -537,10 +560,10 @@ export function SyntheticPreviewModal({
                         <MessageSquare className="w-3.5 h-3.5 text-indigo-600" /> คำถามเจาะลึกเพิ่มเติม (Sample Follow-ups)
                       </div>
                       <div className="space-y-1.5">
-                        {previewData.sample_follow_ups.map((fu: string, i: number) => (
+                        {previewData.sample_follow_ups.map((fu: any, i: number) => (
                           <div key={i} className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-800 font-medium flex items-start gap-2">
                             <span className="font-bold text-indigo-600">Q{i + 1}:</span>
-                            <span>{fu}</span>
+                            <span>{safeStr(fu)}</span>
                           </div>
                         ))}
                       </div>
@@ -561,9 +584,9 @@ export function SyntheticPreviewModal({
                       <div>
                         <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">ระดับคุณภาพคำตอบ</div>
                         <div className="text-base font-black text-slate-900 flex items-center gap-2">
-                          <span>{previewData.answer_quality || "Excellent"}</span>
+                          <span>{safeStr(previewData.answer_quality) || "Excellent"}</span>
                           <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-                            {previewData.candidate_level || "Professional"}
+                            {safeStr(previewData.candidate_level) || "Professional"}
                           </span>
                         </div>
                       </div>
@@ -573,7 +596,7 @@ export function SyntheticPreviewModal({
                       <div className="text-right">
                         <span className="text-[11px] font-semibold text-slate-500 block">โครงสร้างการตอบ:</span>
                         <span className="text-xs font-bold text-purple-700 font-mono">
-                          {previewData.structure_framework_used}
+                          {safeStr(previewData.structure_framework_used)}
                         </span>
                       </div>
                     )}
@@ -583,7 +606,7 @@ export function SyntheticPreviewModal({
                   {previewData.question && (
                     <div className="p-4 bg-slate-100/70 rounded-2xl border border-slate-200 text-xs text-slate-700 space-y-1">
                       <span className="font-bold text-slate-500 uppercase text-[10px] block">คำถามที่ตอบ (Question):</span>
-                      <p className="font-semibold text-slate-900">&quot;{previewData.question}&quot;</p>
+                      <p className="font-semibold text-slate-900">&quot;{safeStr(previewData.question)}&quot;</p>
                     </div>
                   )}
 
@@ -593,12 +616,12 @@ export function SyntheticPreviewModal({
                       <MessageSquare className="w-4 h-4 text-indigo-600" /> คำตอบของผู้สมัคร (Candidate Answer)
                     </div>
                     <div className="text-xs text-slate-800 leading-relaxed font-sans whitespace-pre-wrap p-4 bg-slate-50/60 rounded-xl border border-slate-200/80">
-                      {previewData.answer_text}
+                      {safeStr(previewData.answer_text)}
                     </div>
 
                     {previewData.answer_text_th && (
                       <div className="pt-2 border-t border-slate-100 text-xs text-slate-600 italic">
-                        {previewData.answer_text_th}
+                        {safeStr(previewData.answer_text_th)}
                       </div>
                     )}
                   </div>
@@ -611,8 +634,8 @@ export function SyntheticPreviewModal({
                           <CheckCircle2 className="w-4 h-4 text-emerald-600" /> จุดเด่นของคำตอบ (Key Strengths)
                         </div>
                         <ul className="list-disc list-inside space-y-1 text-xs text-emerald-950">
-                          {previewData.key_strengths.map((str: string, i: number) => (
-                            <li key={i}>{str}</li>
+                          {previewData.key_strengths.map((str: any, i: number) => (
+                            <li key={i}>{safeStr(str)}</li>
                           ))}
                         </ul>
                       </div>
@@ -624,8 +647,8 @@ export function SyntheticPreviewModal({
                           <AlertTriangle className="w-4 h-4 text-amber-600" /> จุดที่ต้องพัฒนา (Gaps / Weaknesses)
                         </div>
                         <ul className="list-disc list-inside space-y-1 text-xs text-amber-950">
-                          {previewData.weaknesses_or_gaps.map((w: string, i: number) => (
-                            <li key={i}>{w}</li>
+                          {previewData.weaknesses_or_gaps.map((w: any, i: number) => (
+                            <li key={i}>{safeStr(w)}</li>
                           ))}
                         </ul>
                       </div>
