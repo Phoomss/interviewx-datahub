@@ -262,6 +262,7 @@ export default function ResumeReviewPage() {
               fileName={document?.fileName || "candidate_resume.pdf"}
               documentId={document?.id || id}
               previewUrl={document?.previewUrl}
+              isSynthetic={document?.isSynthetic ?? false}
             />
           </div>
         )}

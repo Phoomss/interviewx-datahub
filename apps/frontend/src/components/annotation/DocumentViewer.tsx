@@ -23,6 +23,7 @@ interface DocumentViewerProps {
   fileName: string;
   documentId?: string;
   previewUrl?: string;
+  isSynthetic?: boolean;
 }
 
 export function DocumentViewer({
@@ -32,10 +33,14 @@ export function DocumentViewer({
   fileName,
   documentId,
   previewUrl,
+  isSynthetic = false,
 }: DocumentViewerProps) {
-  // If file is PDF, default to PDF viewer for immediate visual fidelity
+  // If file is PDF and not synthetic, default to PDF viewer for immediate visual fidelity
+  // For synthetic records, default to formatted text view where structured data & highlights shine
   const isPdfFile = fileType.toUpperCase().includes("PDF") || fileName.toLowerCase().endsWith(".pdf");
-  const [viewMode, setViewMode] = useState<"pdf" | "text">(isPdfFile ? "pdf" : "text");
+  const [viewMode, setViewMode] = useState<"pdf" | "text">(
+    isSynthetic ? "text" : (isPdfFile ? "pdf" : "text")
+  );
   const [zoomLevel, setZoomLevel] = useState(100);
   const [copied, setCopied] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
