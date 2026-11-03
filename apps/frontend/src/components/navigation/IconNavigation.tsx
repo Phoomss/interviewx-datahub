@@ -8,7 +8,6 @@ import {
   X,
   ChevronDown,
   ExternalLink,
-  Flame,
   LayoutGrid,
   Check,
   Copy,
@@ -16,6 +15,7 @@ import {
 } from "lucide-react";
 import { ROLE_CONFIGS } from "@/config/navigation";
 import { FloatingNavigationMenu, SYSTEM_MODULES } from "./FloatingNavigationMenu";
+import { InterviewXLogo } from "@/components/brand/InterviewXLogo";
 import { useRole, UserRole } from "@/context/RoleContext";
 
 export function IconNavigation() {
@@ -150,20 +150,14 @@ export function IconNavigation() {
     <header className="sticky top-3 z-50 px-3 sm:px-6 w-full max-w-4xl mx-auto font-sans pointer-events-none transition-all duration-200">
       {/* Floating Light Capsule Navbar */}
       <nav className="pointer-events-auto bg-white/90 backdrop-blur-xl border border-slate-200/80 shadow-xl shadow-slate-200/50 rounded-full px-3 py-2 flex items-center justify-between gap-3 text-slate-900">
-        {/* Left: Brand Flame Logo & Name */}
+        {/* Left: Brand InterviewX Logo & Name */}
         <Link
           href="/"
-          className="group shrink-0 flex items-center gap-2.5 pl-1"
+          className="group shrink-0 flex items-center pl-1"
           title="InterviewX DataHub - หน้าแรก"
           aria-label="InterviewX DataHub Home"
         >
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-105 group-hover:bg-blue-700 transition-all duration-200">
-            <Flame className="w-5 h-5 text-white fill-white group-hover:scale-110 transition-transform" />
-          </div>
-          <div className="hidden sm:block">
-            <span className="font-extrabold text-xs text-slate-900 tracking-tight">InterviewX</span>
-            <span className="font-bold text-xs text-blue-600 ml-1">DataHub</span>
-          </div>
+          <InterviewXLogo size="md" showText={true} />
         </Link>
 
         {/* Center: SINGLE MAIN MENU TRIGGER (Hover to reveal all modules together) */}

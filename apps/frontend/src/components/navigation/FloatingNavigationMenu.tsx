@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Flame,
+  LayoutDashboard,
   Sparkles,
   FileText,
   Sliders,
@@ -29,7 +29,7 @@ export const SYSTEM_MODULES = [
     title: "หน้าแรก (Home Dashboard)",
     subtitle: "ภาพรวมระบบ จัดการสถิติ และการนำทางด่วน",
     href: "/",
-    icon: Flame,
+    icon: LayoutDashboard,
     color: "text-blue-600 bg-blue-50 border-blue-200/80",
     activeColor: "bg-blue-600 text-white border-blue-600",
   },
