@@ -1,7 +1,20 @@
 "use client";
 
-import React, { useState } from "react";
-import { ZoomIn, ZoomOut, Copy, Check, FileSearch, Sparkles, FileText, ExternalLink } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import {
+  ZoomIn,
+  ZoomOut,
+  Copy,
+  Check,
+  FileSearch,
+  Sparkles,
+  FileText,
+  ExternalLink,
+  Download,
+  Search,
+  Bookmark,
+  RotateCw,
+} from "lucide-react";
 
 interface DocumentViewerProps {
   rawText: string;
@@ -20,9 +33,13 @@ export function DocumentViewer({
   documentId,
   previewUrl,
 }: DocumentViewerProps) {
+  // If file is PDF, default to PDF viewer for immediate visual fidelity
+  const isPdfFile = fileType.toUpperCase().includes("PDF") || fileName.toLowerCase().endsWith(".pdf");
+  const [viewMode, setViewMode] = useState<"pdf" | "text">(isPdfFile ? "pdf" : "text");
   const [zoomLevel, setZoomLevel] = useState(100);
   const [copied, setCopied] = useState(false);
-  const [viewMode, setViewMode] = useState<"text" | "pdf">("text");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [iframeKey, setIframeKey] = useState(0);
 
   const effectivePdfUrl = previewUrl
     ? (previewUrl.startsWith("http") ? previewUrl : `http://localhost:4000${previewUrl}`)
@@ -35,121 +52,195 @@ export function DocumentViewer({
   };
 
   const getSectionHighlightClass = (sectionName: string) => {
-    if (activeSection === sectionName) {
-      return "bg-amber-100 ring-2 ring-amber-400 rounded px-1 transition duration-200";
+    if (activeSection && activeSection.toLowerCase() === sectionName.toLowerCase()) {
+      return "bg-amber-100 ring-2 ring-amber-400 rounded-lg p-2 transition duration-200 shadow-2xs";
     }
     return "";
   };
 
+  // Text search matches counter
+  const matchCount = useMemo(() => {
+    if (!searchQuery.trim() || !rawText) return 0;
+    const regex = new RegExp(searchQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
+    return (rawText.match(regex) || []).length;
+  }, [searchQuery, rawText]);
+
+  // Highlight matches in text
+  const renderHighlightedText = (content: string) => {
+    if (!searchQuery.trim()) return content;
+    const regex = new RegExp(`(${searchQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
+    const parts = content.split(regex);
+    return parts.map((part, i) =>
+      regex.test(part) ? (
+        <mark key={i} className="bg-yellow-300 text-slate-950 font-bold px-0.5 rounded">
+          {part}
+        </mark>
+      ) : (
+        part
+      ),
+    );
+  };
+
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col bg-slate-100 border-r border-slate-200">
-      {/* Viewer Controls Toolbar */}
-      <div className="h-11 px-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between text-xs text-slate-600">
-        <div className="flex items-center gap-3 font-medium">
-          <div className="flex items-center gap-1.5">
-            <FileSearch className="w-4 h-4 text-indigo-500" />
-            <span className="font-semibold text-slate-800 truncate max-w-[200px]">{fileName}</span>
-            <span className="text-slate-400">({fileType})</span>
+    <div className="h-[calc(100vh-4rem)] flex flex-col bg-slate-100 border-r border-slate-200 overflow-hidden">
+      {/* Top Toolbar */}
+      <div className="h-12 px-4 border-b border-slate-200 bg-white flex items-center justify-between text-xs text-slate-600 gap-2 shrink-0 shadow-2xs">
+        <div className="flex items-center gap-3 font-medium min-w-0">
+          {/* View Mode Toggle Segmented Control */}
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80 text-xs">
+            <button
+              type="button"
+              onClick={() => setViewMode("pdf")}
+              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1.5 ${
+                viewMode === "pdf"
+                  ? "bg-white text-indigo-700 shadow-2xs"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              <FileText className="w-3.5 h-3.5 text-indigo-600" />
+              <span>ไฟล์ต้นฉบับ (PDF)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("text")}
+              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition flex items-center gap-1.5 ${
+                viewMode === "text"
+                  ? "bg-white text-indigo-700 shadow-2xs"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              <FileSearch className="w-3.5 h-3.5 text-indigo-600" />
+              <span>ข้อความที่สกัด (Text)</span>
+            </button>
           </div>
 
-          {/* Toggle between Text View and Original Document */}
-          <div className="flex items-center bg-slate-200 p-0.5 rounded-lg text-[11px]">
-            <button
-              onClick={() => setViewMode("text")}
-              className={`px-2.5 py-0.5 rounded-md transition ${
-                viewMode === "text"
-                  ? "bg-white font-semibold text-slate-900 shadow-2xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              ข้อความสกัด (Text)
-            </button>
-            <button
-              onClick={() => setViewMode("pdf")}
-              className={`px-2.5 py-0.5 rounded-md transition flex items-center gap-1 ${
-                viewMode === "pdf"
-                  ? "bg-white font-semibold text-indigo-700 shadow-2xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              <span>ไฟล์เอกสารต้นฉบับ</span>
-            </button>
+          <div className="hidden sm:flex items-center gap-1 text-[11px] text-slate-500 font-mono truncate max-w-[160px]">
+            <span>{fileName}</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {activeSection && viewMode === "text" && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-100 text-amber-800">
-              <Sparkles className="w-3 h-3" /> Focus: {activeSection.toUpperCase()}
-            </span>
-          )}
-
+        {/* Toolbar Controls Right */}
+        <div className="flex items-center gap-2 shrink-0">
           {viewMode === "text" && (
             <>
-              <div className="h-4 w-px bg-slate-300 mx-1" />
+              {/* Search Bar in Extracted Text */}
+              <div className="relative flex items-center">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="ค้นหาคำในเอกสาร..."
+                  className="pl-8 pr-14 py-1 text-[11px] bg-slate-100 border border-slate-200 rounded-lg w-36 sm:w-44 focus:w-56 focus:bg-white focus:outline-indigo-500 transition-all"
+                />
+                {searchQuery && (
+                  <span className="absolute right-2 text-[10px] font-mono text-slate-500 bg-slate-200 px-1 rounded">
+                    {matchCount}
+                  </span>
+                )}
+              </div>
 
-              <button
-                onClick={() => setZoomLevel((z) => Math.max(75, z - 10))}
-                className="p-1 hover:bg-slate-200 rounded transition"
-                title="ย่อขนาด"
-              >
-                <ZoomOut className="w-3.5 h-3.5" />
-              </button>
-              <span className="w-9 text-center font-mono text-[11px]">{zoomLevel}%</span>
-              <button
-                onClick={() => setZoomLevel((z) => Math.min(150, z + 10))}
-                className="p-1 hover:bg-slate-200 rounded transition"
-                title="ขยายขนาด"
-              >
-                <ZoomIn className="w-3.5 h-3.5" />
-              </button>
+              {/* Zoom Controls */}
+              <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-[11px]">
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel((z) => Math.max(75, z - 10))}
+                  className="p-1 hover:bg-white rounded transition text-slate-600"
+                  title="ย่อขนาด"
+                >
+                  <ZoomOut className="w-3.5 h-3.5" />
+                </button>
+                <span className="w-8 text-center font-mono font-medium text-[10px]">{zoomLevel}%</span>
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel((z) => Math.min(150, z + 10))}
+                  className="p-1 hover:bg-white rounded transition text-slate-600"
+                  title="ขยายขนาด"
+                >
+                  <ZoomIn className="w-3.5 h-3.5" />
+                </button>
+              </div>
 
+              {/* Copy Raw Text Button */}
               <button
+                type="button"
                 onClick={handleCopy}
-                className="inline-flex items-center gap-1 px-2 py-1 hover:bg-slate-200 rounded transition ml-1"
-                title="คัดลอกข้อความดิบ"
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg transition shadow-2xs"
+                title="คัดลอกข้อความทั้งหมด"
               >
                 {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copied ? "คัดลอกแล้ว" : "คัดลอก"}</span>
+                <span className="hidden sm:inline">{copied ? "คัดลอกแล้ว" : "คัดลอก"}</span>
               </button>
             </>
           )}
 
           {viewMode === "pdf" && effectivePdfUrl && (
-            <a
-              href={effectivePdfUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] bg-white border border-slate-300 rounded hover:bg-slate-50 transition text-slate-700"
-            >
-              <span>เปิดในแท็บใหม่</span>
-              <ExternalLink className="w-3 h-3 text-slate-500" />
-            </a>
+            <>
+              <button
+                type="button"
+                onClick={() => setIframeKey((k) => k + 1)}
+                className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition"
+                title="โหลดใหม่ (Reload)"
+              >
+                <RotateCw className="w-3.5 h-3.5" />
+              </button>
+
+              <a
+                href={effectivePdfUrl}
+                download={fileName}
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg transition shadow-2xs"
+                title="ดาวน์โหลดไฟล์ต้นฉบับ"
+              >
+                <Download className="w-3 h-3 text-slate-500" />
+                <span className="hidden sm:inline">ดาวน์โหลด</span>
+              </a>
+
+              <a
+                href={effectivePdfUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 rounded-lg transition shadow-2xs"
+              >
+                <span>เปิดแท็บใหม่</span>
+                <ExternalLink className="w-3 h-3 text-indigo-500" />
+              </a>
+            </>
           )}
         </div>
       </div>
 
-      {/* Main Viewer Body */}
+      {/* Main Content Area */}
       {viewMode === "pdf" ? (
-        <div className="flex-1 w-full h-full bg-slate-200 p-2 overflow-hidden flex flex-col">
+        <div className="flex-1 w-full h-full bg-slate-900/5 p-3 overflow-hidden flex flex-col">
           {effectivePdfUrl ? (
-            <iframe
-              src={effectivePdfUrl}
-              title={fileName}
-              className="w-full h-full rounded-lg border border-slate-300 bg-white shadow-inner"
-            />
+            <div className="w-full h-full rounded-2xl overflow-hidden border border-slate-300 bg-white shadow-sm relative">
+              <iframe
+                key={iframeKey}
+                src={`${effectivePdfUrl}#toolbar=1&navpanes=0`}
+                title={fileName}
+                className="w-full h-full border-0"
+              />
+            </div>
           ) : (
-            <div className="h-full flex items-center justify-center text-slate-500 text-xs">
-              ไม่มี URL สำหรับแสดงผลไฟล์ต้นฉบับ
+            <div className="h-full flex flex-col items-center justify-center text-slate-400 gap-2">
+              <FileText className="w-10 h-10 text-slate-300" />
+              <div className="text-xs font-semibold">ไม่มี URL สำหรับแสดงผลไฟล์ PDF</div>
+              <button
+                type="button"
+                onClick={() => setViewMode("text")}
+                className="text-xs text-indigo-600 hover:underline"
+              >
+                สลับไปดูข้อความสกัดแทน
+              </button>
             </div>
           )}
         </div>
       ) : (
         /* Formatted Extracted Text Sheet */
-        <div className="flex-1 overflow-auto p-6 flex justify-center">
+        <div className="flex-1 overflow-auto p-4 sm:p-6 flex justify-center bg-slate-100/70">
           <div
             style={{ transform: `scale(${zoomLevel / 100})`, transformOrigin: "top center" }}
-            className="w-full max-w-2xl min-h-[840px] bg-white rounded-lg shadow-md border border-slate-200 p-8 text-slate-800 font-mono text-xs leading-relaxed whitespace-pre-wrap transition-transform"
+            className="w-full max-w-2xl min-h-[900px] bg-white rounded-2xl shadow-sm border border-slate-200/90 p-8 sm:p-10 text-slate-800 font-mono text-xs leading-relaxed whitespace-pre-wrap transition-transform space-y-4"
           >
             {rawText ? (
               <div>
@@ -160,20 +251,22 @@ export function DocumentViewer({
                   else if (lower.includes("skill") || lower.includes("technolog")) section = "skills";
                   else if (lower.includes("experience") || lower.includes("employment")) section = "experiences";
                   else if (lower.includes("education") || lower.includes("degree")) section = "educations";
+                  else if (lower.includes("project")) section = "projects";
 
                   return (
                     <div
                       key={idx}
-                      className={`mb-4 p-1.5 transition-colors ${getSectionHighlightClass(section)}`}
+                      className={`mb-4 p-2 transition-colors rounded-lg ${getSectionHighlightClass(section)}`}
                     >
-                      {block}
+                      {renderHighlightedText(block)}
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <div className="h-full flex items-center justify-center text-slate-400 italic font-sans">
-                ไม่มีข้อความดิบที่สกัดได้
+              <div className="h-full flex flex-col items-center justify-center text-slate-400 gap-2 py-20 italic font-sans">
+                <FileSearch className="w-8 h-8 text-slate-300" />
+                <span>ไม่มีข้อความดิบที่สกัดได้</span>
               </div>
             )}
           </div>
