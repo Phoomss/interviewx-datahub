@@ -148,8 +148,8 @@ export function IconNavigation() {
 
   return (
     <header className="sticky top-3 z-50 px-3 sm:px-6 w-full max-w-4xl mx-auto font-sans pointer-events-none transition-all duration-200">
-      {/* Floating Dark Capsule Navbar */}
-      <nav className="pointer-events-auto bg-[#0a0a0a]/95 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/50 rounded-full px-3 py-2 flex items-center justify-between gap-3">
+      {/* Floating Light Capsule Navbar */}
+      <nav className="pointer-events-auto bg-white/90 backdrop-blur-xl border border-slate-200/80 shadow-xl shadow-slate-200/50 rounded-full px-3 py-2 flex items-center justify-between gap-3 text-slate-900">
         {/* Left: Brand Flame Logo & Name */}
         <Link
           href="/"
@@ -157,12 +157,12 @@ export function IconNavigation() {
           title="InterviewX DataHub - หน้าแรก"
           aria-label="InterviewX DataHub Home"
         >
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white text-blue-600 flex items-center justify-center shadow-md group-hover:scale-105 group-hover:bg-blue-50 transition-all duration-200">
-            <Flame className="w-5 h-5 text-blue-600 fill-blue-600 group-hover:text-indigo-600 group-hover:fill-indigo-600 transition-colors" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-105 group-hover:bg-blue-700 transition-all duration-200">
+            <Flame className="w-5 h-5 text-white fill-white group-hover:scale-110 transition-transform" />
           </div>
           <div className="hidden sm:block">
-            <span className="font-extrabold text-xs text-white tracking-tight">InterviewX</span>
-            <span className="font-bold text-xs text-blue-400 ml-1">DataHub</span>
+            <span className="font-extrabold text-xs text-slate-900 tracking-tight">InterviewX</span>
+            <span className="font-bold text-xs text-blue-600 ml-1">DataHub</span>
           </div>
         </Link>
 
@@ -178,30 +178,30 @@ export function IconNavigation() {
             aria-haspopup="true"
             aria-expanded={isMenuOpen}
             onClick={handleMenuToggle}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-blue-400 ${
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
               isMenuOpen
-                ? "bg-white text-black shadow-lg scale-102"
-                : "bg-white/10 text-white hover:bg-white/18 border border-white/10"
+                ? "bg-slate-900 text-white shadow-lg shadow-slate-900/20 scale-102 border border-slate-900"
+                : "bg-slate-100/90 text-slate-800 hover:bg-slate-200/80 border border-slate-200/70"
             }`}
           >
             <LayoutGrid
               className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                isMenuOpen ? "rotate-90 text-black" : "text-blue-400"
+                isMenuOpen ? "rotate-90 text-blue-400" : "text-blue-600"
               }`}
             />
             <span>เมนูระบบทั้งหมด (All Modules)</span>
             <span
-              className={`hidden md:inline-block text-[10px] font-normal px-2 py-0.5 rounded-full ${
+              className={`hidden md:inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors ${
                 isMenuOpen
-                  ? "bg-slate-200 text-slate-900"
-                  : "bg-white/10 text-slate-300"
+                  ? "bg-slate-800 text-slate-200"
+                  : "bg-white text-slate-700 border border-slate-200/50 shadow-xs"
               }`}
             >
               {getActivePageLabel()}
             </span>
             <ChevronDown
               className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                isMenuOpen ? "rotate-180" : ""
+                isMenuOpen ? "rotate-180 text-slate-300" : "text-slate-500"
               }`}
             />
           </button>
@@ -215,7 +215,7 @@ export function IconNavigation() {
           />
         </div>
 
-        {/* Right: Signature White Pill Button (Role & Action Feedback) */}
+        {/* Right: Signature Pill Button (Role & Action Feedback) */}
         <div className="flex items-center gap-2 shrink-0 pr-1">
           <div className="relative" ref={roleDropdownRef}>
             <button
@@ -226,13 +226,17 @@ export function IconNavigation() {
                 setShowRoleDropdown(!showRoleDropdown);
                 setIsMenuOpen(false);
               }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white text-slate-900 text-xs font-bold shadow-md hover:bg-slate-100 transition-all duration-150 active:scale-95 cursor-pointer"
+              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-150 active:scale-95 cursor-pointer shadow-md ${
+                copiedFeedback
+                  ? "bg-emerald-50 text-emerald-700 border border-emerald-300 shadow-xs"
+                  : "bg-slate-900 text-white hover:bg-slate-800 shadow-slate-900/15"
+              }`}
               title="สลับบทบาทสิทธิ์ (Role Switcher & Clearance)"
             >
               {copiedFeedback ? (
                 <>
                   <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" />
-                  <span className="text-emerald-700">Copied ✅</span>
+                  <span className="text-emerald-700 font-bold">Copied ✅</span>
                 </>
               ) : (
                 <>
@@ -241,7 +245,7 @@ export function IconNavigation() {
                     {roleInfo.label.split(" ")[0]}
                   </span>
                   <ChevronDown
-                    className={`w-3 h-3 text-slate-500 transition-transform duration-200 ${
+                    className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${
                       showRoleDropdown ? "rotate-180" : ""
                     }`}
                   />
@@ -253,13 +257,13 @@ export function IconNavigation() {
             {showRoleDropdown && (
               <div
                 role="menu"
-                className="absolute right-0 mt-3 w-72 bg-[#0a0a0a]/98 backdrop-blur-2xl border border-white/10 rounded-[28px] p-3.5 shadow-2xl z-50 text-white animate-in fade-in zoom-in-95 duration-150 ring-1 ring-white/5"
+                className="absolute right-0 mt-3 w-72 bg-white/98 backdrop-blur-2xl border border-slate-200 shadow-2xl shadow-slate-900/15 rounded-[28px] p-3.5 z-50 text-slate-900 animate-in fade-in zoom-in-95 duration-150 ring-1 ring-slate-100"
               >
-                <div className="px-2.5 py-2 border-b border-white/10 mb-2">
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <div className="px-2.5 py-2 border-b border-slate-100 mb-2">
+                  <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                     สลับบทบาทสิทธิ์ (Role Switcher)
                   </div>
-                  <div className="text-[11px] text-slate-300 mt-0.5">
+                  <div className="text-[11px] text-slate-600 mt-0.5">
                     จำลองสิทธิ์การเข้าถึง PII Vault ตามหน้าที่
                   </div>
                 </div>
@@ -280,15 +284,15 @@ export function IconNavigation() {
                         }}
                         className={`w-full text-left p-2.5 rounded-2xl transition flex items-start gap-2.5 cursor-pointer ${
                           isSelected
-                            ? "bg-white text-slate-950 font-bold shadow-xs"
-                            : "hover:bg-white/10 text-slate-300 hover:text-white"
+                            ? "bg-slate-900 text-white font-bold shadow-xs"
+                            : "hover:bg-slate-50 text-slate-700 hover:text-slate-950"
                         }`}
                       >
                         <div
                           className={`p-1.5 rounded-xl shrink-0 mt-0.5 ${
                             isSelected
-                              ? "bg-slate-100 text-slate-950"
-                              : "bg-white/5 border border-white/10 text-slate-300"
+                              ? "bg-slate-800 text-white"
+                              : "bg-slate-100 border border-slate-200/80 text-slate-700"
                           }`}
                         >
                           <Icon className="w-4 h-4" />
@@ -299,8 +303,8 @@ export function IconNavigation() {
                             <span
                               className={`text-[9px] font-mono px-1.5 py-0.5 rounded-full ${
                                 isSelected
-                                  ? "bg-slate-200 text-slate-900"
-                                  : "bg-white/10 text-slate-300"
+                                  ? "bg-slate-800 text-slate-200"
+                                  : "bg-slate-100 text-slate-600 border border-slate-200/60"
                               }`}
                             >
                               {r.piiBadge}
@@ -308,7 +312,7 @@ export function IconNavigation() {
                           </div>
                           <p
                             className={`text-[10px] leading-snug mt-0.5 ${
-                              isSelected ? "text-slate-600 font-normal" : "text-slate-400"
+                              isSelected ? "text-slate-300 font-normal" : "text-slate-500"
                             }`}
                           >
                             {r.subtitle}
@@ -320,11 +324,11 @@ export function IconNavigation() {
                 </div>
 
                 {/* API Endpoint Copy & Swagger Link */}
-                <div className="pt-2 mt-2 border-t border-white/10 px-2 flex items-center justify-between text-[11px] text-slate-400">
+                <div className="pt-2.5 mt-2 border-t border-slate-100 px-2 flex items-center justify-between text-[11px] text-slate-500">
                   <button
                     type="button"
                     onClick={handleCopyEndpoint}
-                    className="text-slate-300 hover:text-white inline-flex items-center gap-1 transition cursor-pointer"
+                    className="text-slate-600 hover:text-slate-950 inline-flex items-center gap-1 transition cursor-pointer font-medium"
                     title="คัดลอก Endpoint API"
                   >
                     <Copy className="w-3 h-3" />
@@ -335,7 +339,7 @@ export function IconNavigation() {
                     href="http://localhost:4000/docs"
                     target="_blank"
                     rel="noreferrer"
-                    className="text-blue-400 hover:text-blue-300 font-semibold flex items-center gap-1 transition"
+                    className="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 transition"
                   >
                     <span>Swagger UI</span>
                     <ExternalLink className="w-3 h-3" />
@@ -345,29 +349,29 @@ export function IconNavigation() {
             )}
           </div>
 
-          {/* Mobile Menu Toggle Button (< md) - matches reference image with X toggle */}
+          {/* Mobile Menu Toggle Button (< md) */}
           <button
             type="button"
             aria-label="Toggle Navigation Drawer"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition active:scale-95 cursor-pointer"
+            className="md:hidden w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition active:scale-95 cursor-pointer border border-slate-200/60"
           >
             {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
         </div>
       </nav>
 
-      {/* Mobile Drawer (Responsive Touch Menu Showing ALL Modules) */}
+      {/* Mobile Drawer (Responsive Touch Menu Showing ALL Modules in Light Theme) */}
       {mobileMenuOpen && (
-        <div className="pointer-events-auto md:hidden bg-[#0a0a0a]/98 backdrop-blur-2xl border border-white/10 shadow-2xl rounded-[28px] p-4 mt-2 space-y-2 animate-in zoom-in-95 duration-200 text-white max-h-[80vh] overflow-y-auto ring-1 ring-white/5">
-          <div className="flex items-center justify-between px-2 pb-2 border-b border-white/10">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+        <div className="pointer-events-auto md:hidden bg-white/98 backdrop-blur-2xl border border-slate-200 shadow-2xl rounded-[28px] p-4 mt-2 space-y-2 animate-in zoom-in-95 duration-200 text-slate-900 max-h-[80vh] overflow-y-auto ring-1 ring-slate-100">
+          <div className="flex items-center justify-between px-2 pb-2 border-b border-slate-100">
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
               ผังระบบและโมดูลทั้งหมด (All Modules)
             </span>
             <button
               type="button"
               onClick={() => setMobileMenuOpen(false)}
-              className="text-slate-400 hover:text-white"
+              className="text-slate-400 hover:text-slate-700"
             >
               <X className="w-4 h-4" />
             </button>
@@ -385,8 +389,8 @@ export function IconNavigation() {
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center justify-between p-2.5 rounded-2xl text-xs font-semibold transition ${
                     isCurrent
-                      ? "bg-white/15 text-white font-bold ring-1 ring-white/20"
-                      : "hover:bg-white/10 text-slate-200"
+                      ? "bg-blue-50 text-blue-950 font-bold ring-1 ring-blue-200"
+                      : "hover:bg-slate-50 text-slate-700"
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -395,13 +399,13 @@ export function IconNavigation() {
                     </div>
                     <div>
                       <div className="text-xs font-semibold">{mod.title}</div>
-                      <div className="text-[10px] text-slate-400 font-normal">{mod.subtitle}</div>
+                      <div className="text-[10px] text-slate-500 font-normal">{mod.subtitle}</div>
                     </div>
                   </div>
                   {isCurrent ? (
-                    <Check className="w-4 h-4 text-blue-400 shrink-0" />
+                    <Check className="w-4 h-4 text-blue-600 shrink-0" />
                   ) : (
-                    <ChevronRight className="w-4 h-4 text-slate-500 shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
                   )}
                 </Link>
               );
@@ -409,13 +413,13 @@ export function IconNavigation() {
           </div>
 
           {/* Quick API link */}
-          <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] px-2 text-slate-400">
+          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] px-2 text-slate-500">
             <span>API Docs:</span>
             <a
               href="http://localhost:4000/docs"
               target="_blank"
               rel="noreferrer"
-              className="text-blue-400 hover:text-blue-300 font-semibold flex items-center gap-1"
+              className="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1"
             >
               <span>Swagger UI (Port 4000)</span>
               <ExternalLink className="w-3 h-3" />
