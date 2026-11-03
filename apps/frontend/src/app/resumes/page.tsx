@@ -46,7 +46,7 @@ export default function ResumesListPage() {
   // Upload modal states
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadFileName, setUploadFileName] = useState("");
   const [uploadType, setUploadType] = useState<"SYNTHETIC" | "REAL_AUTHORIZED">("SYNTHETIC");
   const [uploadConsentId, setUploadConsentId] = useState("consent-demo-9841");
@@ -96,61 +96,104 @@ export default function ResumesListPage() {
   }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      setUploadFileName(file.name);
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles = Array.from(e.target.files);
+      setSelectedFiles((prev) => [...prev, ...newFiles]);
+      if (newFiles.length === 1 && selectedFiles.length === 0) {
+        setUploadFileName(newFiles[0].name);
+      }
     }
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      setUploadFileName(file.name);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const newFiles = Array.from(e.dataTransfer.files);
+      setSelectedFiles((prev) => [...prev, ...newFiles]);
+      if (newFiles.length === 1 && selectedFiles.length === 0) {
+        setUploadFileName(newFiles[0].name);
+      }
     }
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, idx) => idx !== index));
   };
 
   const handleUploadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedFile) {
-      showToast("กรุณาเลือกไฟล์ PDF หรือ DOCX ก่อนเริ่มนำเข้า");
+    if (selectedFiles.length === 0) {
+      showToast("กรุณาเลือกไฟล์เอกสารก่อนเริ่มนำเข้า");
       return;
     }
 
     setIsUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("file", selectedFile);
-      formData.append("sourceType", uploadType);
-      if (uploadType === "REAL_AUTHORIZED" && uploadConsentId) {
-        formData.append("consentId", uploadConsentId);
+      if (selectedFiles.length === 1) {
+        const file = selectedFiles[0];
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("sourceType", uploadType);
+        if (uploadType === "REAL_AUTHORIZED" && uploadConsentId) {
+          formData.append("consentId", uploadConsentId);
+        }
+        if (uploadFileName) {
+          formData.append("fileName", uploadFileName);
+        }
+
+        const res = await fetch(`${apiUrl}/documents/upload`, {
+          method: "POST",
+          body: formData,
+        });
+
+        const json = await res.json();
+        if (!res.ok || !json.success || !json.data) {
+          throw new Error(json.message || "Document upload failed");
+        }
+
+        setDocuments((prev) => {
+          const updated = [json.data, ...prev.filter((doc) => doc.id !== json.data.id)];
+          localStorage.setItem("interviewx_resumes_cache", JSON.stringify(updated));
+          return updated;
+        });
+
+        showToast(`นำเข้าเอกสาร ${uploadFileName || file.name} สำเร็จ! AI ถอดโครงสร้างเรียบร้อย`);
+      } else {
+        // Multi-file bulk upload
+        const formData = new FormData();
+        selectedFiles.forEach((file) => {
+          formData.append("files", file);
+        });
+        formData.append("sourceType", uploadType);
+        if (uploadType === "REAL_AUTHORIZED" && uploadConsentId) {
+          formData.append("consentId", uploadConsentId);
+        }
+
+        const res = await fetch(`${apiUrl}/documents/upload-multiple`, {
+          method: "POST",
+          body: formData,
+        });
+
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+          throw new Error(json.message || "Batch upload failed");
+        }
+
+        if (Array.isArray(json.data) && json.data.length > 0) {
+          setDocuments((prev) => {
+            const newDocIds = new Set(json.data.map((d: any) => d.id));
+            const updated = [...json.data, ...prev.filter((doc) => !newDocIds.has(doc.id))];
+            localStorage.setItem("interviewx_resumes_cache", JSON.stringify(updated));
+            return updated;
+          });
+        }
+
+        showToast(`✓ นำเข้าเอกสารสำเร็จ ${json.uploadedCount}/${json.totalCount} ไฟล์! AI ถอดโครงสร้างเรียบร้อย`);
       }
-      if (uploadFileName) {
-        formData.append("fileName", uploadFileName);
-      }
 
-      const res = await fetch(`${apiUrl}/documents/upload`, {
-        method: "POST",
-        body: formData,
-      });
-
-      const json = await res.json();
-      if (!res.ok || !json.success || !json.data) {
-        throw new Error(json.message || "Document upload failed");
-      }
-
-      setDocuments((prev) => {
-        const updated = [json.data, ...prev.filter((doc) => doc.id !== json.data.id)];
-        localStorage.setItem("interviewx_resumes_cache", JSON.stringify(updated));
-        return updated;
-      });
-
-      showToast(`นำเข้าเอกสาร ${uploadFileName || selectedFile.name} สำเร็จ! AI ถอดโครงสร้างเรียบร้อย`);
       setShowUploadModal(false);
-      setSelectedFile(null);
+      setSelectedFiles([]);
       setUploadFileName("");
     } catch (err: any) {
       console.error("Document upload failed:", err);
@@ -979,7 +1022,7 @@ export default function ResumesListPage() {
               <button
                 onClick={() => {
                   setShowUploadModal(false);
-                  setSelectedFile(null);
+                  setSelectedFiles([]);
                 }}
                 className="text-slate-400 hover:text-slate-700 font-semibold"
               >
@@ -1046,81 +1089,106 @@ export default function ResumesListPage() {
                 </div>
               )}
 
-              {/* Native Hidden File Input */}
+              {/* Native Hidden File Input with multiple attribute */}
               <input
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileChange}
+                multiple
                 accept=".pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.presentationml.presentation,image/png,image/jpeg"
                 className="hidden"
               />
 
               {/* Dropzone */}
-              {!selectedFile ? (
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setIsDragging(true);
-                  }}
-                  onDragLeave={() => setIsDragging(false)}
-                  onDrop={handleDrop}
-                  className={`border-2 border-dashed rounded-2xl p-6 text-center transition cursor-pointer ${
-                    isDragging
-                      ? "border-indigo-600 bg-indigo-50"
-                      : "border-slate-300 bg-slate-50 hover:bg-slate-100 hover:border-slate-400"
-                  }`}
-                >
-                  <Upload className="w-8 h-8 text-indigo-600 mx-auto mb-2" />
-                  <div className="text-xs font-bold text-slate-800">
-                    คลิกเพื่อเลือกไฟล์ หรือลากไฟล์มาวางที่นี่
-                  </div>
-                  <div className="text-[11px] text-slate-500 mt-1">
-                    รองรับเอกสาร <span className="font-semibold text-slate-700">PDF, DOCX, XLSX, PPTX, PNG, JPG</span> (ขนาดไม่เกิน 25MB)
-                  </div>
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragging(true);
+                }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={handleDrop}
+                className={`border-2 border-dashed rounded-2xl p-5 text-center transition cursor-pointer ${
+                  isDragging
+                    ? "border-indigo-600 bg-indigo-50"
+                    : "border-slate-300 bg-slate-50 hover:bg-slate-100 hover:border-slate-400"
+                }`}
+              >
+                <Upload className="w-7 h-7 text-indigo-600 mx-auto mb-1.5" />
+                <div className="text-xs font-bold text-slate-800">
+                  คลิกเพื่อเลือกไฟล์ (รองรับหลายไฟล์พร้อมกัน) หรือลากไฟล์มาวางที่นี่
                 </div>
-              ) : (
-                <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold shrink-0">
-                      <FileText className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-slate-900 flex items-center gap-1">
-                        <span>{selectedFile.name}</span>
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      </div>
-                      <div className="text-[11px] text-slate-500">
-                        ขนาด: {(selectedFile.size / 1024).toFixed(1)} KB • พร้อมเริ่มสกัดข้อมูล
-                      </div>
-                    </div>
+                <div className="text-[11px] text-slate-500 mt-0.5">
+                  รองรับเอกสาร <span className="font-semibold text-slate-700">PDF, DOCX, XLSX, PPTX, PNG, JPG</span> (ขนาดไม่เกิน 25MB ต่อไฟล์)
+                </div>
+              </div>
+
+              {/* Multi-File Selection List */}
+              {selectedFiles.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-slate-700 flex items-center gap-1.5">
+                      <FileText className="w-3.5 h-3.5 text-indigo-600" />
+                      ไฟล์ที่เลือก ({selectedFiles.length} ไฟล์ • {(selectedFiles.reduce((acc, f) => acc + f.size, 0) / 1024).toFixed(1)} KB)
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 hover:underline flex items-center gap-1"
+                    >
+                      <Plus className="w-3 h-3" /> เพิ่มไฟล์อีก
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedFile(null);
-                      if (fileInputRef.current) fileInputRef.current.value = "";
-                    }}
-                    className="text-xs text-rose-600 hover:text-rose-800 font-semibold"
-                  >
-                    เปลี่ยนไฟล์
-                  </button>
+
+                  <div className="max-h-40 overflow-y-auto space-y-1.5 pr-1">
+                    {selectedFiles.map((file, idx) => (
+                      <div
+                        key={idx}
+                        className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-2"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs shrink-0">
+                            {file.name.endsWith(".docx") ? "DOC" : file.name.endsWith(".xlsx") ? "XLS" : file.name.endsWith(".png") || file.name.endsWith(".jpg") ? "IMG" : "PDF"}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-xs font-semibold text-slate-900 truncate max-w-[280px]">
+                              {file.name}
+                            </div>
+                            <div className="text-[10px] text-slate-400">
+                              {(file.size / 1024).toFixed(1)} KB
+                            </div>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(idx)}
+                          className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                          title="ลบไฟล์นี้ออก"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
-              {/* Display File Name */}
-              <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1">
-                  ชื่อที่จะบันทึกแสดงผล (Display Name)
-                </label>
-                <input
-                  type="text"
-                  value={uploadFileName}
-                  onChange={(e) => setUploadFileName(e.target.value)}
-                  placeholder="เช่น candidate_senior_engineer.pdf"
-                  className="w-full text-xs border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-indigo-600"
-                />
-              </div>
+              {/* Display File Name (when 1 file) */}
+              {selectedFiles.length === 1 && (
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">
+                    ชื่อที่จะบันทึกแสดงผล (Display Name)
+                  </label>
+                  <input
+                    type="text"
+                    value={uploadFileName}
+                    onChange={(e) => setUploadFileName(e.target.value)}
+                    placeholder="เช่น candidate_senior_engineer.pdf"
+                    className="w-full text-xs border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-indigo-600"
+                  />
+                </div>
+              )}
 
               {/* Footer Actions */}
               <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
@@ -1128,7 +1196,7 @@ export default function ResumesListPage() {
                   type="button"
                   onClick={() => {
                     setShowUploadModal(false);
-                    setSelectedFile(null);
+                    setSelectedFiles([]);
                   }}
                   className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition"
                 >
@@ -1136,7 +1204,7 @@ export default function ResumesListPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isUploading || !selectedFile}
+                  disabled={isUploading || selectedFiles.length === 0}
                   className="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition disabled:opacity-50 flex items-center gap-1.5"
                 >
                   {isUploading ? (
@@ -1147,7 +1215,7 @@ export default function ResumesListPage() {
                   ) : (
                     <>
                       <Upload className="w-4 h-4" />
-                      <span>เริ่มนำเข้าเอกสาร</span>
+                      <span>{selectedFiles.length > 1 ? `เริ่มนำเข้าทั้ง ${selectedFiles.length} ไฟล์` : "เริ่มนำเข้าเอกสาร"}</span>
                     </>
                   )}
                 </button>

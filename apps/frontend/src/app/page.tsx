@@ -167,67 +167,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-16">
-      {/* Top Navbar */}
-      <nav className="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center font-bold shadow-sm">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="font-extrabold text-base tracking-tight text-slate-900">InterviewX</span>
-              <span className="font-bold text-base text-purple-600 ml-1">DataHub</span>
-              <span className="hidden sm:inline-block ml-2 text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
-                v2.0 Universal
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1 sm:gap-2">
-            <Link
-              href="/synthetic"
-              className="text-xs font-semibold text-slate-700 hover:text-purple-600 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition hidden sm:inline-block"
-            >
-              สตูดิโอสังเคราะห์
-            </Link>
-            <Link
-              href="/taxonomy"
-              className="text-xs font-semibold text-slate-700 hover:text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition hidden sm:inline-block"
-            >
-              ผังโครงสร้าง Taxonomy
-            </Link>
-            <Link
-              href="/resumes"
-              className="text-xs font-semibold text-slate-700 hover:text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition hidden md:inline-block"
-            >
-              คลังเอกสารเรซูเม
-            </Link>
-            <Link
-              href="/datasets"
-              className="text-xs font-semibold text-slate-700 hover:text-emerald-600 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition hidden md:inline-block"
-            >
-              ส่งออกชุดข้อมูล
-            </Link>
-            <a
-              href="http://localhost:4000/docs"
-              target="_blank"
-              rel="noreferrer"
-              className="text-xs font-medium text-slate-500 hover:text-slate-800 px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition"
-            >
-              เอกสาร API
-            </a>
-            <Link
-              href="/synthetic"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white shadow-2xs transition"
-            >
-              <Zap className="w-3.5 h-3.5 text-purple-400" />
-              <span>สร้างข้อมูลสังเคราะห์</span>
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 space-y-12">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 space-y-12">
         {/* Hero Section */}
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 text-white p-8 sm:p-12 shadow-xl border border-slate-800">
           <div className="absolute top-0 right-0 -mr-24 -mt-24 w-96 h-96 rounded-full bg-purple-500/10 blur-3xl pointer-events-none"></div>

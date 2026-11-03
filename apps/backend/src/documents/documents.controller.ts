@@ -9,10 +9,11 @@ import {
   Req,
   Res,
   UploadedFile,
+  UploadedFiles,
   UseInterceptors,
   BadRequestException,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { Response } from 'express';
 import { DocumentsService } from './documents.service';
@@ -162,5 +163,52 @@ export class DocumentsController {
       body.consentId,
       userIp,
     );
+  }
+
+  @Post('upload-multiple')
+  @UseInterceptors(FilesInterceptor('files', 20))
+  @ApiOperation({ summary: 'อัปโหลดเอกสารจริงหรือจำลองหลายไฟล์พร้อมกัน (Bulk Document Ingestion & Deep Extraction)' })
+  @ApiResponse({ status: 201, description: 'อัปโหลดและสกัดข้อมูลชุดเอกสารทั้งหมดสำเร็จ' })
+  async uploadMultipleDocuments(
+    @UploadedFiles() files: any[],
+    @Body() body: { sourceType?: string; consentId?: string },
+    @Req() req: any,
+  ) {
+    if (!files || !files.length) {
+      throw new BadRequestException('กรุณาเลือกไฟล์เอกสารอย่างน้อย 1 ไฟล์');
+    }
+    const userIp = req.ip || req.connection?.remoteAddress || '127.0.0.1';
+    const results: any[] = [];
+    const errors: any[] = [];
+
+    for (const file of files) {
+      try {
+        const doc = await this.documentsService.uploadDocument(
+          {
+            fileName: file?.originalname,
+            fileSizeBytes: file?.size,
+            buffer: file?.buffer,
+          },
+          body.sourceType,
+          body.consentId,
+          userIp,
+        );
+        results.push(doc.data);
+      } catch (err: any) {
+        errors.push({
+          fileName: file?.originalname,
+          error: err.message || 'การสกัดหรืออัปโหลดล้มเหลว',
+        });
+      }
+    }
+
+    return {
+      success: true,
+      totalCount: files.length,
+      uploadedCount: results.length,
+      failedCount: errors.length,
+      data: results,
+      errors: errors.length ? errors : undefined,
+    };
   }
 }

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRole } from "@/context/RoleContext";
 import {
   ShieldCheck,
   Lock,
@@ -70,7 +71,7 @@ export default function ConsentPage() {
   const [roleTitle, setRoleTitle] = useState("Principal AI Systems Architect");
 
   // Vault demo state
-  const [demoRole, setDemoRole] = useState<"ADMIN" | "ANNOTATOR">("ADMIN");
+  const { role, setRole } = useRole();
   const [vaultDocId, setVaultDocId] = useState("doc-001-demo");
   const [vaultData, setVaultData] = useState<any>(null);
   const [vaultLoading, setVaultLoading] = useState(false);
@@ -185,7 +186,7 @@ export default function ConsentPage() {
     try {
       const res = await fetch(`${apiUrl}/consent/pii-vault/${vaultDocId}`, {
         headers: {
-          "x-user-role": demoRole,
+          "x-user-role": role,
         },
       });
       const json = await res.json();
@@ -637,18 +638,20 @@ export default function ConsentPage() {
               <div className="flex items-center gap-4">
                 <div className="flex rounded-lg border border-slate-200 p-1 bg-slate-50">
                   <button
-                    onClick={() => setDemoRole("ADMIN")}
+                    type="button"
+                    onClick={() => setRole("ADMIN")}
                     className={`px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5 ${
-                      demoRole === "ADMIN" ? "bg-white text-indigo-700 shadow-xs" : "text-slate-500"
+                      role === "ADMIN" ? "bg-white text-indigo-700 shadow-xs font-bold" : "text-slate-500 hover:text-slate-800"
                     }`}
                   >
                     <KeyRound className="w-3.5 h-3.5" />
                     ผู้ดูแลระบบ (ADMIN)
                   </button>
                   <button
-                    onClick={() => setDemoRole("ANNOTATOR")}
+                    type="button"
+                    onClick={() => setRole("ANNOTATOR")}
                     className={`px-3 py-1.5 rounded-md text-xs font-medium transition flex items-center gap-1.5 ${
-                      demoRole === "ANNOTATOR" ? "bg-white text-rose-700 shadow-xs" : "text-slate-500"
+                      role === "ANNOTATOR" ? "bg-white text-rose-700 shadow-xs font-bold" : "text-slate-500 hover:text-slate-800"
                     }`}
                   >
                     <UserCheck className="w-3.5 h-3.5" />
