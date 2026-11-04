@@ -111,7 +111,7 @@ export function FloatingNavigationMenu({
       aria-label="All Modules Navigation"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      className="absolute top-full mt-3.5 left-1/2 -translate-x-1/2 z-50 w-[94vw] max-w-lg bg-white/95 backdrop-blur-2xl border border-slate-200/80 shadow-2xl shadow-slate-900/12 rounded-[28px] p-4 text-slate-900 animate-in fade-in zoom-in-95 duration-150 font-sans ring-1 ring-slate-100"
+      className="absolute top-full mt-3.5 left-1/2 -translate-x-1/2 z-50 w-[94vw] max-w-lg bg-white border border-slate-200 shadow-2xl shadow-slate-900/15 rounded-[28px] p-4 text-slate-900 animate-in fade-in zoom-in-95 duration-150 font-sans ring-1 ring-slate-200/80"
     >
       {/* Decorative arrow pointing up to the trigger */}
       <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 bg-white border-t border-l border-slate-200/80" />

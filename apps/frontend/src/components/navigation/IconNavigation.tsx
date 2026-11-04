@@ -251,7 +251,7 @@ export function IconNavigation() {
             {showRoleDropdown && (
               <div
                 role="menu"
-                className="absolute right-0 mt-3 w-72 bg-white/98 backdrop-blur-2xl border border-slate-200 shadow-2xl shadow-slate-900/15 rounded-[28px] p-3.5 z-50 text-slate-900 animate-in fade-in zoom-in-95 duration-150 ring-1 ring-slate-100"
+                className="absolute right-0 mt-3 w-72 bg-white border border-slate-200 shadow-2xl shadow-slate-900/20 rounded-[28px] p-3.5 z-50 text-slate-900 animate-in fade-in zoom-in-95 duration-150 ring-1 ring-slate-200/80"
               >
                 <div className="px-2.5 py-2 border-b border-slate-100 mb-2">
                   <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
@@ -293,12 +293,12 @@ export function IconNavigation() {
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-1">
-                            <span className="text-xs font-bold">{r.title}</span>
+                            <span className={`text-xs font-bold ${isSelected ? "text-white" : "text-slate-900"}`}>{r.title}</span>
                             <span
-                              className={`text-[9px] font-mono px-1.5 py-0.5 rounded-full ${
+                              className={`text-[9px] font-mono px-2 py-0.5 rounded-full font-semibold ${
                                 isSelected
                                   ? "bg-slate-800 text-slate-200"
-                                  : "bg-slate-100 text-slate-600 border border-slate-200/60"
+                                  : `${r.piiColor} border`
                               }`}
                             >
                               {r.piiBadge}
@@ -357,7 +357,7 @@ export function IconNavigation() {
 
       {/* Mobile Drawer (Responsive Touch Menu Showing ALL Modules in Light Theme) */}
       {mobileMenuOpen && (
-        <div className="pointer-events-auto md:hidden bg-white/98 backdrop-blur-2xl border border-slate-200 shadow-2xl rounded-[28px] p-4 mt-2 space-y-2 animate-in zoom-in-95 duration-200 text-slate-900 max-h-[80vh] overflow-y-auto ring-1 ring-slate-100">
+        <div className="pointer-events-auto md:hidden bg-white border border-slate-200 shadow-2xl rounded-[28px] p-4 mt-2 space-y-2 animate-in zoom-in-95 duration-200 text-slate-900 max-h-[80vh] overflow-y-auto ring-1 ring-slate-200/80">
           <div className="flex items-center justify-between px-2 pb-2 border-b border-slate-100">
             <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
               ผังระบบและโมดูลทั้งหมด (All Modules)
