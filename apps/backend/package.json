@@ -14,7 +14,7 @@
     "test": "bun test src/",
     "test:jest": "jest",
     "prisma:generate": "prisma generate",
-    "prisma:push": "prisma db push",
+    "prisma:push": "prisma db push --accept-data-loss",
     "prisma:migrate": "prisma migrate dev"
   },
   "dependencies": {
