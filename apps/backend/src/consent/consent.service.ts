@@ -133,10 +133,24 @@ export class ConsentService implements OnModuleInit {
     const subjectId = dto.subjectIdentifier.trim();
 
     try {
+      // 1. Upsert master Subject entity
+      let subjectRefId: string | null = null;
+      try {
+        const subject = await this.prisma.subject.upsert({
+          where: { pseudonymousId: subjectId },
+          update: { status: 'ACTIVE' },
+          create: { pseudonymousId: subjectId, status: 'ACTIVE' },
+        });
+        subjectRefId = subject.id;
+      } catch (e: any) {
+        this.logger.debug(`Subject entity upsert deferred: ${e.message}`);
+      }
+
       const consent = await this.prisma.consentRecord.create({
         data: {
           id: consentId,
           subjectIdentifier: subjectId,
+          subjectRefId,
           consentVersion: dto.consentVersion || '1.0',
           consentType: dto.consentType,
           legalBasis: (dto.legalBasis as any) || 'CONSENT',
@@ -449,6 +463,18 @@ export class ConsentService implements OnModuleInit {
           },
         });
 
+        // 1.1 อัปเดตสถานะใน Master Subject Entity
+        if (consent?.subjectIdentifier) {
+          try {
+            await tx.subject.updateMany({
+              where: { pseudonymousId: consent.subjectIdentifier },
+              data: { status: 'CONSENT_WITHDRAWN' },
+            });
+          } catch (e: any) {
+            this.logger.debug(`Subject status cascade update deferred: ${e.message}`);
+          }
+        }
+
         // 2. บันทึก Immutable History
         await tx.consentHistory.create({
           data: {
@@ -480,6 +506,13 @@ export class ConsentService implements OnModuleInit {
           });
         }
 
+        // 3.1 ตรวจสอบประวัติ DatasetExport ย้อนหลังเพื่อแจ้งเตือน Retraction Alert
+        const pastExports = await tx.datasetExport.findMany({
+          take: 10,
+          orderBy: { createdAt: 'desc' },
+          select: { id: true, exportName: true, dvcHash: true },
+        });
+
         // 4. บันทึก AuditLog
         await tx.auditLog.create({
           data: {
@@ -492,6 +525,7 @@ export class ConsentService implements OnModuleInit {
               revokedAt: new Date().toISOString(),
               affectedDocumentsCount: docs.length,
               reason,
+              candidateExportsToInspect: pastExports,
             },
           },
         });

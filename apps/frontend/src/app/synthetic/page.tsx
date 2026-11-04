@@ -31,6 +31,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { SyntheticPreviewModal } from "@/components/synthetic/SyntheticPreviewModal";
+import { SkillSelector } from "@/components/taxonomy/SkillSelector";
 
 const DATASET_TYPES = [
   { id: "profile", label: "Professional Profile", labelTh: "โปรไฟล์ประวัติการทำงาน", desc: "ข้อมูลประวัติ ทักษะ การศึกษา และผลงาน", icon: Briefcase },
@@ -63,6 +64,7 @@ export default function UniversalSyntheticStudioPage() {
   const [interviewCategories, setInterviewCategories] = useState<any[]>([]);
   const [interviewFormats, setInterviewFormats] = useState<any[]>([]);
   const [seniorityLevels, setSeniorityLevels] = useState<any[]>([]);
+  const [skillCategories, setSkillCategories] = useState<any[]>([]);
 
   // Form State
   const [jobName, setJobName] = useState("Universal Multi-Industry Generation");
@@ -73,7 +75,7 @@ export default function UniversalSyntheticStudioPage() {
   const [selectedSubcategory, setSelectedSubcategory] = useState("");
   const [selectedFormat, setSelectedFormat] = useState("behavioral");
   const [seniority, setSeniority] = useState("Licensed Professional");
-  const [customSkillsInput, setCustomSkillsInput] = useState("");
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [language, setLanguage] = useState("en");
   const [difficulty, setDifficulty] = useState("Mid");
   const [answerQuality, setAnswerQuality] = useState("Excellent");
@@ -117,6 +119,7 @@ export default function UniversalSyntheticStudioPage() {
       setInterviewCategories(data.interviewCategories || []);
       setInterviewFormats(data.interviewFormats || []);
       setSeniorityLevels(data.seniorityLevels || []);
+      setSkillCategories(data.skillCategories || []);
 
       if (data.industries && data.industries.length > 0) {
         const firstInd = data.industries[0];
@@ -263,8 +266,8 @@ export default function UniversalSyntheticStudioPage() {
     try {
       const activeProfKey = selectedProfessionKeys[0] || "software_engineer";
       const profObj = availableProfessions.find((p: any) => p.key === activeProfKey);
-      const skillsArray = customSkillsInput
-        ? customSkillsInput.split(",").map((s) => s.trim()).filter(Boolean)
+      const skillsArray = selectedSkills.length > 0
+        ? selectedSkills
         : (profObj?.suggestedSkills as string[]) || [];
 
       setPreviewDatasetType(datasetType);
@@ -317,8 +320,8 @@ export default function UniversalSyntheticStudioPage() {
     setGenerating(true);
 
     try {
-      const skillsArray = customSkillsInput
-        ? customSkillsInput.split(",").map((s) => s.trim()).filter(Boolean)
+      const skillsArray = selectedSkills.length > 0
+        ? selectedSkills
         : undefined;
 
       const res = await fetch(`${apiUrl}/synthetic/universal/jobs`, {
@@ -650,8 +653,8 @@ export default function UniversalSyntheticStudioPage() {
             </div>
           </div>
 
-          {/* Section 4: Seniority & Custom Skills */}
-          <div className="pt-4 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Section 4: Seniority & Interactive Skills Taxonomy */}
+          <div className="pt-4 border-t border-slate-100 space-y-5">
             <div>
               <label className="text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-purple-100 text-purple-700 inline-flex items-center justify-center text-xs font-bold">4</span>
@@ -673,20 +676,14 @@ export default function UniversalSyntheticStudioPage() {
               </p>
             </div>
 
-            <div>
-              <label className="text-sm font-bold text-slate-900 mb-2 block">
-                ทักษะที่เกี่ยวข้องเฉพาะ (Optional Skills)
-              </label>
-              <input
-                type="text"
-                value={customSkillsInput}
-                onChange={(e) => setCustomSkillsInput(e.target.value)}
-                placeholder="ระบุคั่นด้วยจุลภาค เช่น Clinical Triage, Emergency Protocol, Bedside Care"
-                className="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-hidden focus:ring-2 focus:ring-purple-600 text-slate-800"
+            <div className="pt-2">
+              <SkillSelector
+                selectedSkills={selectedSkills}
+                onChange={(skills) => setSelectedSkills(skills)}
+                recommendedSkills={(availableProfessions.find((p: any) => p.key === (selectedProfessionKeys[0] || ''))?.suggestedSkills as string[]) || []}
+                professionName={availableProfessions.find((p: any) => p.key === (selectedProfessionKeys[0] || ''))?.name || selectedProfessionKeys[0]}
+                allTaxonomyCategories={skillCategories}
               />
-              <p className="mt-1.5 text-xs text-slate-500">
-                หากเว้นว่าง ระบบจะนำทักษะแนะนำจากฐานข้อมูลของอาชีพมาใช้โดยอัตโนมัติ
-              </p>
             </div>
           </div>
 

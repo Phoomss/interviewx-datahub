@@ -45,6 +45,13 @@ enum TrainingEligibilityStatus {
   DELETED
 }
 
+enum SubjectStatus {
+  ACTIVE
+  CONSENT_WITHDRAWN
+  DELETION_PENDING
+  DELETED
+}
+
 enum ConsentStatus {
   ACTIVE
   WITHDRAWN
@@ -112,28 +119,61 @@ enum ExportFormat {
   XLSX
 }
 
-model User {
-  id            String             @id @default(uuid())
-  email         String             @unique
-  passwordHash  String             @map("password_hash")
-  fullName      String             @map("full_name")
-  role          UserRole           @default(ANNOTATOR)
-  isActive      Boolean            @default(true) @map("is_active")
-  createdAt     DateTime           @default(now()) @map("created_at")
-  updatedAt     DateTime           @updatedAt @map("updated_at")
+enum TrainingMethod {
+  LORA
+  QLORA
+  FULL
+}
 
-  documents     Document[]         @relation("UserDocuments")
-  reviews       AnnotationReview[]
-  syntheticJobs SyntheticJob[]
+enum ModelStatus {
+  CANDIDATE
+  STAGING
+  PRODUCTION
+  ARCHIVED
+}
+
+model User {
+  id             String             @id @default(uuid())
+  email          String             @unique
+  passwordHash   String             @map("password_hash")
+  fullName       String             @map("full_name")
+  role           UserRole           @default(ANNOTATOR)
+  isActive       Boolean            @default(true) @map("is_active")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+
+  documents      Document[]         @relation("UserDocuments")
+  reviews        AnnotationReview[]
+  syntheticJobs  SyntheticJob[]
   datasetExports DatasetExport[]
-  auditLogs     AuditLog[]
+  trainingJobs   TrainingJob[]
+  approvedModels ModelVersion[]     @relation("ModelApprovals")
+  auditLogs      AuditLog[]
 
   @@map("users")
+}
+
+model Subject {
+  id              String          @id @default(uuid())
+  pseudonymousId  String          @unique @map("pseudonymous_id") // SUBJ-YYYY-XXXX
+  status          SubjectStatus   @default(ACTIVE)
+  notes           String?         @db.Text
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  consentRecords  ConsentRecord[]
+  documents       Document[]
+  piiVaults       PiiVault[]
+
+  @@index([pseudonymousId])
+  @@index([status])
+  @@map("subjects")
 }
 
 model ConsentRecord {
   id                            String                       @id @default(uuid())
   subjectIdentifier             String                       @map("subject_identifier")
+  subjectRefId                  String?                      @map("subject_ref_id")
   consentVersion                String                       @default("1.0") @map("consent_version")
   consentType                   String                       @map("consent_type")
   legalBasis                    LegalBasis                   @default(CONSENT) @map("legal_basis")
@@ -152,11 +192,13 @@ model ConsentRecord {
   createdAt                     DateTime                     @default(now()) @map("created_at")
   updatedAt                     DateTime                     @updatedAt @default(now()) @map("updated_at")
 
+  subject                       Subject?                     @relation(fields: [subjectRefId], references: [id], onDelete: SetNull)
   documents                     Document[]
   consentHistories              ConsentHistory[]
   authorizationLogs             ProcessingAuthorizationLog[]
 
   @@index([subjectIdentifier])
+  @@index([subjectRefId])
   @@index([status, isActive])
   @@map("consent_records")
 }
@@ -223,6 +265,7 @@ model Document {
   trainingEligibilityStatus  TrainingEligibilityStatus @default(EXTRACTION_PENDING) @map("training_eligibility_status")
   trainingEligibilityReason  String?                   @map("training_eligibility_reason") @db.Text
   subjectId                  String?                   @map("subject_id") // pseudonymous subject ID (e.g. SUBJ-XXXX)
+  subjectRefId               String?                   @map("subject_ref_id")
 
   consentId                  String?                   @map("consent_id")
   uploadedById               String?                   @map("uploaded_by_id")
@@ -232,6 +275,7 @@ model Document {
   updatedAt                  DateTime                  @updatedAt @map("updated_at")
   deletedAt                  DateTime?                 @map("deleted_at")
 
+  subject                    Subject?                  @relation(fields: [subjectRefId], references: [id], onDelete: SetNull)
   consent                    ConsentRecord?            @relation(fields: [consentId], references: [id], onDelete: SetNull)
   uploadedBy                 User?                     @relation("UserDocuments", fields: [uploadedById], references: [id], onDelete: SetNull)
   syntheticJob               SyntheticJob?             @relation(fields: [syntheticJobId], references: [id], onDelete: SetNull)
@@ -257,13 +301,7 @@ model PiiVault {
   id               String        @id @default(uuid())
   documentId       String        @unique @map("document_id")
   subjectId        String?       @map("subject_id")
-  fullName         String?       @map("full_name")
-  email            String?
-  phoneNumber      String?       @map("phone_number")
-  address          String?
-  nationalId       String?       @map("national_id")
-  dateOfBirth      DateTime?     @map("date_of_birth")
-  passportNumber   String?       @map("passport_number")
+  subjectRefId     String?       @map("subject_ref_id")
   sensitiveData    Json?         @map("sensitive_data") // other sensitive fields classification
   encryptedPayload String?       @map("encrypted_payload") @db.Text // AES-256-GCM ciphertext
   encryptionKeyId  String?       @default("vault-master-k1") @map("encryption_key_id")
@@ -272,10 +310,12 @@ model PiiVault {
   createdAt        DateTime      @default(now()) @map("created_at")
   updatedAt        DateTime      @updatedAt @map("updated_at")
 
+  subject          Subject?      @relation(fields: [subjectRefId], references: [id], onDelete: SetNull)
   document         Document      @relation(fields: [documentId], references: [id], onDelete: Cascade)
   accessLogs       PiiAccessLog[]
 
   @@index([subjectId])
+  @@index([subjectRefId])
   @@map("pii_vault")
 }
 
@@ -376,17 +416,22 @@ model DocumentQualityValidation {
 }
 
 model ParsedProfile {
-  id               String   @id @default(uuid())
-  documentId       String   @unique @map("document_id")
-  rawText          String?  @map("raw_text") @db.Text
-  structuredData   Json     @map("structured_data") // Summary, Skills, Experiences, Education
-  provenance       Json?    // Text offsets and confidence per field
-  confidenceScore  Float?   @map("confidence_score")
-  extractorVersion String?  @map("extractor_version")
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
+  id                    String    @id @default(uuid())
+  documentId            String    @unique @map("document_id")
+  rawText               String?   @map("raw_text") @db.Text
+  structuredData        Json      @map("structured_data") // Effective structured profile
+  originalExtractedData Json?     @map("original_extracted_data") // Immutable original AI extraction
+  humanCorrectedData    Json?     @map("human_corrected_data") // Approved human review modifications
+  isHumanVerified       Boolean   @default(false) @map("is_human_verified")
+  verifiedAt            DateTime? @map("verified_at")
+  verifiedById          String?   @map("verified_by_id")
+  provenance            Json?     // Text offsets and confidence per field
+  confidenceScore       Float?    @map("confidence_score")
+  extractorVersion      String?   @map("extractor_version")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
 
-  document         Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  document              Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@map("parsed_profiles")
 }
@@ -428,22 +473,77 @@ model SyntheticJob {
 }
 
 model DatasetExport {
-  id             String       @id @default(uuid())
-  exportName     String       @map("export_name")
-  createdById    String       @map("created_by_id")
-  exportFormat   ExportFormat @map("export_format")
-  status         JobStatus    @default(QUEUED)
-  recordCount    Int          @default(0) @map("record_count")
-  storagePath    String?      @map("storage_path")
-  filterCriteria Json         @map("filter_criteria")
-  dvcHash        String?      @map("dvc_hash")
-  mlflowRunId    String?      @map("mlflow_run_id")
-  createdAt      DateTime     @default(now()) @map("created_at")
-  completedAt    DateTime?    @map("completed_at")
+  id                  String        @id @default(uuid())
+  exportName          String        @map("export_name")
+  createdById         String        @map("created_by_id")
+  exportFormat        ExportFormat  @map("export_format")
+  status              JobStatus     @default(QUEUED)
+  recordCount         Int           @default(0) @map("record_count")
+  storagePath         String?       @map("storage_path")
+  manifestStoragePath String?       @map("manifest_storage_path")
+  manifestSummary     Json?         @map("manifest_summary")
+  filterCriteria      Json          @map("filter_criteria")
+  dvcHash             String?       @map("dvc_hash")
+  mlflowRunId         String?       @map("mlflow_run_id")
+  createdAt           DateTime      @default(now()) @map("created_at")
+  completedAt         DateTime?     @map("completed_at")
 
-  createdBy      User         @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  createdBy           User          @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  trainingJobs        TrainingJob[]
 
   @@map("dataset_exports")
+}
+
+model TrainingJob {
+  id              String         @id @default(uuid())
+  jobName         String         @map("job_name")
+  baseModel       String         @map("base_model")
+  method          TrainingMethod @default(QLORA)
+  hyperparameters Json           // lr, batch_size, epochs, lora_r, lora_alpha, etc.
+  status          JobStatus      @default(QUEUED)
+  datasetExportId String?        @map("dataset_export_id")
+  checkpointUri   String?        @map("checkpoint_uri")
+  mlflowRunId     String?        @map("mlflow_run_id")
+  evalMetrics     Json?          @map("eval_metrics")
+  createdById     String?        @map("created_by_id")
+  startedAt       DateTime?      @map("started_at")
+  completedAt     DateTime?      @map("completed_at")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  datasetExport   DatasetExport? @relation(fields: [datasetExportId], references: [id], onDelete: SetNull)
+  createdBy       User?          @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  modelVersions   ModelVersion[]
+
+  @@map("training_jobs")
+}
+
+model ModelVersion {
+  id                 String       @id @default(uuid())
+  name               String
+  version            String
+  trainingJobId      String?      @map("training_job_id")
+  baseModel          String       @map("base_model")
+  architecture       String       @default("Transformer-Decoder")
+  artifactUri        String       @map("artifact_uri")
+  status             ModelStatus  @default(CANDIDATE)
+  evaluationMetrics  Json?        @map("evaluation_metrics")
+  benchmarkScore     Float?       @map("benchmark_score")
+  minQualityScore    Float        @default(0.80) @map("min_quality_score")
+  piiScanPassed      Boolean      @default(true) @map("pii_scan_passed")
+  approvedById       String?      @map("approved_by_id")
+  approvedAt         DateTime?    @map("approved_at")
+  publishedAt        DateTime?    @map("published_at")
+  deploymentEndpoint String?      @map("deployment_endpoint")
+  createdAt          DateTime     @default(now()) @map("created_at")
+  updatedAt          DateTime     @updatedAt @map("updated_at")
+
+  trainingJob        TrainingJob? @relation(fields: [trainingJobId], references: [id], onDelete: SetNull)
+  approvedBy         User?        @relation("ModelApprovals", fields: [approvedById], references: [id], onDelete: SetNull)
+
+  @@unique([name, version])
+  @@index([status])
+  @@map("model_versions")
 }
 
 model AuditLog {
@@ -471,6 +571,8 @@ model Industry {
   description         String?              @db.Text
   icon                String?
   isCustom            Boolean              @default(false) @map("is_custom")
+  version             Int                  @default(1)
+  deletedAt           DateTime?            @map("deleted_at")
   createdAt           DateTime             @default(now()) @map("created_at")
 
   professions         Profession[]
@@ -490,6 +592,8 @@ model Profession {
   suggestedSkills          Json?                         @map("suggested_skills")
   professionSpecificFields Json?                         @map("profession_specific_fields")
   isCustom                 Boolean                       @default(false) @map("is_custom")
+  version                  Int                           @default(1)
+  deletedAt                DateTime?                     @map("deleted_at")
   createdAt                DateTime                      @default(now()) @map("created_at")
 
   industry                 Industry?                     @relation(fields: [industryId], references: [id], onDelete: SetNull)
@@ -510,6 +614,8 @@ model InterviewCategory {
   description          String?                       @db.Text
   subcategories        Json                          // string[] or { key, name, nameTh }[]
   isCustom             Boolean                       @default(false) @map("is_custom")
+  version              Int                           @default(1)
+  deletedAt            DateTime?                     @map("deleted_at")
   createdAt            DateTime                      @default(now()) @map("created_at")
 
   professionCategories ProfessionInterviewCategory[]
@@ -525,6 +631,8 @@ model InterviewFormat {
   nameTh          String?                   @map("name_th")
   description     String?                   @db.Text
   isCustom        Boolean                   @default(false) @map("is_custom")
+  version         Int                       @default(1)
+  deletedAt       DateTime?                 @map("deleted_at")
   createdAt       DateTime                  @default(now()) @map("created_at")
 
   categoryFormats InterviewCategoryFormat[]
@@ -541,6 +649,8 @@ model SeniorityLevel {
   minYearsExp Float?   @map("min_years_exp")
   maxYearsExp Float?   @map("max_years_exp")
   isCustom    Boolean  @default(false) @map("is_custom")
+  version     Int      @default(1)
+  deletedAt   DateTime? @map("deleted_at")
   createdAt   DateTime @default(now()) @map("created_at")
 
   @@map("seniority_levels")
@@ -551,6 +661,8 @@ model SkillCategory {
   key       String   @unique
   name      String
   nameTh    String?  @map("name_th")
+  version   Int      @default(1)
+  deletedAt DateTime? @map("deleted_at")
   createdAt DateTime @default(now()) @map("created_at")
 
   skills    Skill[]
@@ -566,6 +678,8 @@ model Skill {
   description       String?           @db.Text
   proficiencyLevels Json?             @map("proficiency_levels")
   isCustom          Boolean           @default(false) @map("is_custom")
+  version           Int               @default(1)
+  deletedAt         DateTime?         @map("deleted_at")
   createdAt         DateTime          @default(now()) @map("created_at")
 
   category          SkillCategory     @relation(fields: [categoryId], references: [id], onDelete: Cascade)

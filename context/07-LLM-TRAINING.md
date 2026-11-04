@@ -86,26 +86,42 @@ flowchart LR
 
 ---
 
-## 5. การจัดการเวอร์ชันและการเชื่อมโยงย้อนกลับ (Versioning & Lineage: MLflow & DVC)
+## 5. การจัดการเวอร์ชันและการเชื่อมโยงย้อนกลับ (Versioning & Lineage: MLflow, DVC & Manifest)
 
-1. **การจัดเก็บ Artifact**: ไฟล์ Dataset สำเร็จรูปจะถูกบีบอัดเป็น `.jsonl.gz` และจัดเก็บใน MinIO Bucket `dataset-exports/{export_id}/dataset.jsonl.gz`
-2. **Data Hash**: คำนวณค่า **SHA-256** ของไฟล์ Export ทั้งหมด และบันทึกลงในคอลัมน์ `dvc_hash` ของตาราง `DatasetExport`
+1. **การจัดเก็บ Artifact & Manifest**:
+   - ไฟล์ชุดข้อมูลแยกตาม Split (`train.jsonl`, `val.jsonl`, `test.jsonl`) จะถูกจัดเก็บใน MinIO
+   - มีการสร้างไฟล์ **`manifest.json`** บันทึกค่า Cryptographic SHA-256 Hash ของแต่ละ Split, สถิติการแบ่งกลุ่ม (Leakage Stats), และ Lineage Trace ย้อนกลับไปยัง Source Document ID และ Consent ID
+2. **DVC Hash**: คำนวณค่า **SHA-256** ของชุดข้อมูลทั้งหมด และบันทึกลงในคอลัมน์ `dvc_hash` ของตาราง `DatasetExport`
 3. **MLflow Tracking Integration**:
    - บันทึก Parameters: Filter criteria, Format, Split ratios, Model target
    - บันทึก Metrics: Total records, Vocabulary size, Distribution per role
-   - บันทึก Artifact URI เพื่อให้กระบวนการ Model Training สามารถดึง Dataset ไปใช้ต่อได้อย่างอัตโนมัติ
+   - บันทึก Artifact URI และ Manifest Path เพื่อให้กระบวนการฝึกสอนโมเดลสามารถดึงไปใช้งานได้อย่างอัตโนมัติ
 
 ---
 
-## 6. ข้อสมมติฐานหลัก (Explicit Assumptions)
+## 6. ท่อประมวลผลการฝึกสอนโมเดล (Fine-Tuning Pipeline: LoRA & QLoRA)
 
-1. **การฝึกสอนอยู่นอกขอบเขตของ DataHub**: InterviewX DataHub มีหน้าที่เตรียม, ตรวจสอบ, และส่งออก Dataset เท่านั้น ตัวกระบวนการรัน Training Job จริงของ LLM จะดำเนินการใน Pipeline ภายนอก (เช่น Kubeflow, Unsloth, หรือ Cloud GPU Cluster)
-2. **พื้นที่จัดเก็บไฟล์ Export**: MinIO มีพื้นที่เพียงพอสำหรับเก็บไฟล์ Dataset Archive ในระยะยาว
+DataHub พัฒนาระบบ Fine-Tuning Orchestrator (`apps/backend/src/training` และ `services/ai-service/src/training`):
+1. **PEFT Configuration Generator**: รองรับการสร้างคอนฟิก LoRA/QLoRA 4-bit ตามมาตรฐาน Hugging Face PEFT สำหรับโมเดลเช่น `Qwen/Qwen2.5-7B-Instruct` และ `meta-llama/Llama-3.1-8B-Instruct`
+2. **Training Job Orchestration**: ตาราง `model TrainingJob` ควบคุมสถานะ `QUEUED`, `RUNNING`, `COMPLETED`, `FAILED` พร้อมบันทึก Loss Curve และคำนวณ Perplexity (`exp(eval_loss)`)
 
 ---
 
-## 7. ประเด็นที่ยังค้างการตัดสินใจ (Unresolved Decisions)
+## 7. ระบบทดสอบวัดผลอัตโนมัติ (Automated Benchmark Evaluation Harness)
 
-1. **DVC Remote Integration**: จะเชื่อมต่อ DVC เข้ากับ MinIO S3 API โดยตรงผ่านคำสั่ง DVC CLI ใน CI/CD หรือจะใช้ API ของ MLflow Tracking เป็นศูนย์กลางเพียงอย่างเดียวใน Phase 1
-   - *ข้อเสนอแนะ*: ใช้ MinIO + MLflow API เป็นหลักก่อนในระยะแรก และเพิ่ม DVC Git Integration ใน Phase 3 ตามแผนงาน
-2. **Dynamic Prompt Template for Export**: ควรมีระบบจัดการ Template ข้อความสำหรับ Instruction / Input / Output ผ่าน UI หรือควรกำหนดเป็น Configuration Code
+ก่อนที่โมเดลจะได้รับการรับรอง ระบบจะประเมินผลผ่านเกณฑ์มาตรฐาน 4 ด้าน:
+1. **Behavioral STAR Criteria (30%)**: โครงสร้างคำตอบถูกต้องตามหลัก Situation, Task, Action, Result
+2. **Technical & Domain Depth (30%)**: ความถูกต้องและความลึกเชิงวิชาชีพตามผัง Taxonomy
+3. **Thai Language Fluency & Nuance (20%)**: ความเป็นธรรมชาติและน้ำเสียงภาษาไทยที่เหมาะสม
+4. **Zero PII & Guardrails (20%)**: ตรวจสอบการไม่รั่วไหลของข้อมูลส่วนบุคคล 100%
+
+---
+
+## 8. ทะเบียนโมเดลและด่านตรวจความปลอดภัย (Model Registry & Publishing Gate)
+
+1. **วงจรชีวิตโมเดล**: จัดเก็บในตาราง `model ModelVersion` ผ่าน 4 สถานะ: `CANDIDATE` ➔ `STAGING` ➔ `PRODUCTION` ➔ `ARCHIVED`
+2. **Integrity Gate ก่อนส่งมอบสู่ PRODUCTION**:
+   - คะแนน Benchmark Score ต้อง >= `minQualityScore` (0.80)
+   - ต้องผ่านการตรวจสอบ Zero PII (`piiScanPassed === true`)
+   - ต้องได้รับการอนุมัติจากผู้ดูแลระบบ (`approvedById`)
+3. **การเชื่อมโยงสู่ InterviewX Core**: ให้บริการ Endpoint `GET /training/models/active` สำหรับส่งต่อ Endpoint URL และ Adapter Path ไปยัง Core Serving Platform ทันที

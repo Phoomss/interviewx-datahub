@@ -39,6 +39,14 @@ describe('ConsentService & Authorization Decision Engine', () => {
       create: mock().mockResolvedValue({}),
       findMany: mock().mockResolvedValue([]),
     },
+    subject: {
+      upsert: mock().mockResolvedValue({ id: 'subj-1', subjectIdentifier: 'SUBJ-2026-9841' }),
+      findUnique: mock(),
+      updateMany: mock().mockResolvedValue({ count: 1 }),
+    },
+    datasetExport: {
+      findMany: mock().mockResolvedValue([]),
+    },
     auditLog: {
       create: mock().mockResolvedValue({}),
     },

@@ -433,8 +433,10 @@ export class TaxonomyService implements OnModuleInit {
 
   async getIndustries() {
     return this.prisma.industry.findMany({
+      where: { deletedAt: null },
       include: {
         professions: {
+          where: { deletedAt: null },
           orderBy: { name: 'asc' },
         },
         industryProfessions: {
@@ -838,8 +840,10 @@ export class TaxonomyService implements OnModuleInit {
 
   async getSkillCategories() {
     return this.prisma.skillCategory.findMany({
+      where: { deletedAt: null },
       include: {
         skills: {
+          where: { deletedAt: null },
           orderBy: { name: 'asc' },
         },
       },
@@ -869,6 +873,73 @@ export class TaxonomyService implements OnModuleInit {
       },
       include: {
         category: true,
+      },
+    });
+  }
+
+  async softDeleteIndustry(keyOrId: string) {
+    const existing = await this.prisma.industry.findFirst({
+      where: { OR: [{ id: keyOrId }, { key: keyOrId }] },
+    });
+    if (!existing) {
+      throw new NotFoundException(`Industry '${keyOrId}' not found.`);
+    }
+    return this.prisma.industry.update({
+      where: { id: existing.id },
+      data: {
+        deletedAt: new Date(),
+        version: { increment: 1 },
+      },
+    });
+  }
+
+  async softDeleteProfession(keyOrId: string) {
+    const existing = await this.prisma.profession.findFirst({
+      where: { OR: [{ id: keyOrId }, { key: keyOrId }] },
+    });
+    if (!existing) {
+      throw new NotFoundException(`Profession '${keyOrId}' not found.`);
+    }
+    return this.prisma.profession.update({
+      where: { id: existing.id },
+      data: {
+        deletedAt: new Date(),
+        version: { increment: 1 },
+      },
+    });
+  }
+
+  async softDeleteSkill(skillIdOrName: string) {
+    const existing = await this.prisma.skill.findFirst({
+      where: { OR: [{ id: skillIdOrName }, { name: skillIdOrName }] },
+    });
+    if (!existing) {
+      throw new NotFoundException(`Skill '${skillIdOrName}' not found.`);
+    }
+    return this.prisma.skill.update({
+      where: { id: existing.id },
+      data: {
+        deletedAt: new Date(),
+        version: { increment: 1 },
+      },
+    });
+  }
+
+  async updateProfession(keyOrId: string, data: Partial<CreateProfessionDto>) {
+    const existing = await this.prisma.profession.findFirst({
+      where: { OR: [{ id: keyOrId }, { key: keyOrId }] },
+    });
+    if (!existing) {
+      throw new NotFoundException(`Profession '${keyOrId}' not found.`);
+    }
+    return this.prisma.profession.update({
+      where: { id: existing.id },
+      data: {
+        name: data.name,
+        nameTh: data.nameTh,
+        description: data.description,
+        suggestedSkills: data.suggestedSkills,
+        version: { increment: 1 },
       },
     });
   }

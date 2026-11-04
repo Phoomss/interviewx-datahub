@@ -19,6 +19,7 @@ from src.services.extractor import (
     deep_parse_document,
     parse_resume,
 )
+from src.services.llm_extractor import LlmExtractorService
 
 router = APIRouter(prefix="/internal/v1/parser", tags=["Parser"])
 
@@ -73,12 +74,24 @@ def extract_text(request: ExtractTextRequest, x_internal_service_key: str = Head
                 ocr_applied = False
                 ocr_conf = 1.0
 
-                # Scanned page detection: if no text found, attempt basic OCR simulation
+                # Scanned page detection: if no text found, attempt PyMuPDF OCR
                 if not page_str:
-                    ocr_applied = True
-                    ocr_conf = 0.88
-                    page_str = f"[OCR Extracted Page {idx+1}] Text extracted via PyMuPDF optical rasterizer."
-                    limitations.append(f"Page {idx+1} appears to be scanned or image-only; OCR was applied.")
+                    try:
+                        # Attempt PyMuPDF OCR (requires Tesseract binaries on system)
+                        tp = page.get_textpage_ocr(language="eng+tha")
+                        ocr_text = tp.extractText().strip()
+                        if ocr_text:
+                            page_str = ocr_text
+                            ocr_applied = True
+                            ocr_conf = 0.85
+                    except Exception as ocr_err:
+                        limitations.append(
+                            f"Page {idx+1} appears to be scanned or image-only. PyMuPDF OCR failed: {ocr_err}"
+                        )
+                    if not page_str:
+                        limitations.append(
+                            f"Page {idx+1} contains no selectable text and optical character recognition was unavailable."
+                        )
 
                 # Table extraction detection
                 tables_data: List[List[List[str]]] = []
@@ -204,19 +217,51 @@ def extract_text(request: ExtractTextRequest, x_internal_service_key: str = Head
                 raw_text = "Extracted data from presentation slide deck."
 
         elif file_type in ["PNG", "JPG", "JPEG", "TIFF"]:
-            # Image OCR parsing
             page_count = 1
-            raw_text = "[Image Document] Text parsed via OCR provider."
+            raw_text = ""
+            ocr_applied = False
+            ocr_conf = 0.0
+            img_meta: Dict[str, Any] = {"image_format": file_type}
+
+            try:
+                # Open image using PyMuPDF to inspect actual dimensions and color space
+                img_doc = fitz.open(stream=content, filetype=file_type.lower())
+                page = img_doc[0]
+                rect = page.rect
+                img_meta["width"] = round(rect.width, 2)
+                img_meta["height"] = round(rect.height, 2)
+
+                # Attempt PyMuPDF OCR
+                try:
+                    tp = page.get_textpage_ocr(language="eng+tha")
+                    extracted_text = tp.extractText().strip()
+                    if extracted_text:
+                        raw_text = extracted_text
+                        ocr_applied = True
+                        ocr_conf = 0.85
+                except Exception as ocr_err:
+                    limitations.append(
+                        f"Optical character recognition unavailable (Tesseract OCR not installed or language pack missing: {ocr_err})."
+                    )
+                img_doc.close()
+            except Exception as e:
+                limitations.append(f"Image raster analysis error: {str(e)}")
+
+            if not raw_text:
+                limitations.append(
+                    "Document is a raster image. No text could be optically recognized without an active OCR engine."
+                )
+
             pages.append(
                 PageExtractionDetail(
                     page_number=1,
                     text=raw_text,
-                    ocr_applied=True,
-                    ocr_confidence=0.92,
+                    ocr_applied=ocr_applied,
+                    ocr_confidence=ocr_conf,
+                    tables=[],
                 )
             )
-            metadata = {"image_format": file_type, "ocr_provider": "tesseract_compatible"}
-            limitations.append("Document is a static raster image; OCR confidence depends on resolution.")
+            metadata = img_meta
 
         else:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Unsupported document type: {file_type}")
@@ -253,8 +298,8 @@ def extract_profile(request: ExtractProfileRequest, x_internal_service_key: str 
     verify_internal_key(x_internal_service_key)
 
     try:
-        # 1. Deep Structured Extraction with Provenance and Classification
-        deep_data, pii_data, confidence = deep_parse_document(request.raw_text, request.document_id)
+        # 1. Deep Structured Extraction with Provenance and Classification via LlmExtractorService
+        deep_data, pii_data, confidence = LlmExtractorService.extract(request.raw_text, request.document_id)
 
         # 2. Classic ResumeProfileData for backward-compatibility
         profile_data, _, _ = parse_resume(request.raw_text)

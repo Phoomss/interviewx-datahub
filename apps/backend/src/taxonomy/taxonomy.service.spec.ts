@@ -11,12 +11,14 @@ describe('TaxonomyService - Multi-Industry & Dynamic Professions', () => {
       industry: {
         count: mock(() => Promise.resolve(0)),
         create: mock((args: any) => Promise.resolve({ id: 'ind-1', ...args.data })),
+        update: mock((args: any) => Promise.resolve({ id: args.where.id, ...args.data })),
         findMany: mock(() => Promise.resolve([{ id: 'ind-1', key: 'healthcare', name: 'Healthcare & Medical', professions: [] }])),
         findFirst: mock((args: any) => Promise.resolve({ id: 'ind-1', key: 'healthcare', name: 'Healthcare & Medical' })),
         findUnique: mock((args: any) => Promise.resolve(null)),
       },
       profession: {
         create: mock((args: any) => Promise.resolve({ id: 'prof-1', ...args.data })),
+        update: mock((args: any) => Promise.resolve({ id: args.where.id, ...args.data })),
         findMany: mock(() => Promise.resolve([{ id: 'prof-1', key: 'medical_doctor', name: 'Medical Doctor' }])),
         findFirst: mock(() => Promise.resolve({
           id: 'prof-1',
@@ -78,6 +80,7 @@ describe('TaxonomyService - Multi-Industry & Dynamic Professions', () => {
       },
       skill: {
         create: mock((args: any) => Promise.resolve({ id: 's-1', ...args.data })),
+        update: mock((args: any) => Promise.resolve({ id: args.where.id, ...args.data })),
         findMany: mock(() => Promise.resolve([{ id: 's-1', name: 'Diagnosis' }])),
         findFirst: mock(() => Promise.resolve({ id: 's-1', name: 'Diagnosis' })),
         findUnique: mock(() => Promise.resolve(null)),
@@ -206,5 +209,31 @@ describe('TaxonomyService - Multi-Industry & Dynamic Professions', () => {
   it('should have cross-industry mappings and context-format mappings configured', () => {
     expect(SEED_CROSS_INDUSTRY_MAPPINGS.length).toBeGreaterThanOrEqual(10);
     expect(SEED_CONTEXT_FORMAT_MAPPINGS.length).toBeGreaterThanOrEqual(10);
+  });
+
+  it('should soft delete industry and set deletedAt with version increment', async () => {
+    const res = await service.softDeleteIndustry('healthcare');
+    expect(res).toBeDefined();
+    expect(mockPrisma.industry.update).toHaveBeenCalled();
+  });
+
+  it('should soft delete profession and set deletedAt with version increment', async () => {
+    const res = await service.softDeleteProfession('medical_doctor');
+    expect(res).toBeDefined();
+    expect(mockPrisma.profession.update).toHaveBeenCalled();
+  });
+
+  it('should update profession and increment version', async () => {
+    const res = await service.updateProfession('medical_doctor', {
+      name: 'Senior Medical Doctor',
+    });
+    expect(res).toBeDefined();
+    expect(mockPrisma.profession.update).toHaveBeenCalled();
+  });
+
+  it('should soft delete skill and set deletedAt with version increment', async () => {
+    const res = await service.softDeleteSkill('Diagnosis');
+    expect(res).toBeDefined();
+    expect(mockPrisma.skill.update).toHaveBeenCalled();
   });
 });

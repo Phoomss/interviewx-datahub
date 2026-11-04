@@ -1250,5 +1250,7 @@ class UniversalSyntheticGenerator:
         items = []
         for _ in range(req.batch_size):
             item = gen_func(req)
+            from src.services.llm_synthetic_enhancer import LlmSyntheticEnhancer
+            item = LlmSyntheticEnhancer.enhance_if_configured(item, req)
             items.append(item)
         return items

@@ -37,12 +37,16 @@ flowchart TD
     CleanExport --> ExportFile["Dataset (.jsonl)\n(100% ปราศจาก PII)"]
 ```
 
-- **PiiVault**: จัดเก็บเฉพาะข้อมูลที่มีความละเอียดอ่อน เข้าถึงได้เฉพาะผู้ดูแลระบบและกระบวนการจัดการสิทธิ์
-- **ParsedProfile**: จัดเก็บเฉพาะเนื้อหาเชิงวิชาชีพ (ทักษะ, ตำแหน่งงาน, ประสบการณ์, การศึกษา) โดยไม่มีข้อมูลติดต่อหรือชื่อจริง
+- **PiiVault**: ข้อมูลส่วนบุคคลทุกรายการ (ชื่อ, นามสกุล, อีเมล, เบอร์โทรศัพท์, เลขบัตรประชาชน, เลขที่หนังสือเดินทาง, วันเดือนปีเกิด) ถูกเข้ารหัสด้วย **AES-256-GCM** จัดเก็บลงในคอลัมน์ `encryptedPayload` โดยไม่มีการเก็บเป็น Plaintext ในคอลัมน์เด็ดขาด
+- **ParsedProfile**: จัดเก็บเฉพาะเนื้อหาเชิงวิชาชีพ (ทักษะ, ตำแหน่งงาน, ประสบการณ์, การศึกษา) โดยแยกคอลัมน์ `originalExtractedData` และ `humanCorrectedData` อย่างชัดเจน
 
 ---
 
-## 3. การควบคุมการเข้าถึงตามบทบาท (Role-Based Access Control: RBAC)
+## 3. การพิสูจน์ตัวตนและการควบคุมการเข้าถึง (Authentication & Server-Side RBAC)
+
+- **JWT Authentication**: บังคับใช้การตรวจสอบตัวตนผ่าน JSON Web Token (HMAC-SHA256) และเข้ารหัสรหัสผ่านผู้ใช้งานด้วย **PBKDF2/SHA-512** พร้อม Salt เฉพาะบุคคล
+- **Server-Side RolesGuard**: ตรวจสอบสิทธิ์ที่ฝั่งเซิร์ฟเวอร์ ไม่อนุญาตให้ Client ปลอมแปลง Header `x-user-role`
+- **ตารางสิทธิ์การใช้งาน (Permissions Matrix)**:
 
 | สิทธิ์การใช้งาน (Permissions) | ADMIN | ML_ENGINEER | ANNOTATOR | VIEWER |
 | :--- | :---: | :---: | :---: | :---: |
@@ -51,24 +55,26 @@ flowchart TD
 | สร้างข้อมูลสังเคราะห์ (Trigger Synthetic Job) | ✅ | ✅ | ❌ | ❌ |
 | เข้าถึงหน้าตรวจสอบข้อมูล (Annotation Workspace) | ✅ | ✅ | ✅ | ❌ |
 | แก้ไขและรับรองข้อมูล (Approve/Reject Profile) | ✅ | ✅ | ✅ | ❌ |
-| ดูข้อมูล PII ต้นฉบับของเรซูเมจริง | ✅ | ❌ | ❌ | ❌ |
+| ดูข้อมูล PII ต้นฉบับที่ถอดรหัสแล้วจาก PiiVault | ✅ | ❌ | ❌ | ❌ |
 | ส่งออก Dataset สำหรับ LLM (Trigger Export) | ✅ | ✅ | ❌ | ❌ |
+| จัดการงานฝึกสอนและทะเบียนโมเดล (Training & Registry) | ✅ | ✅ | ❌ | ❌ |
+| อนุมัติโมเดลสู่ระดับ PRODUCTION (Integrity Gate) | ✅ | ❌ | ❌ | ❌ |
 | จัดการคำขอถอนความยินยอม (Consent Withdrawal) | ✅ | ❌ | ❌ | ❌ |
 | ตรวจสอบบันทึกระบบ (View Audit Logs) | ✅ | ❌ | ❌ | ❌ |
 
 ---
 
-## 4. วงจรการถอนความยินยอมและการลบข้อมูล (Consent Withdrawal Lifecycle)
+## 4. วงจรการถอนความยินยอมและการลบข้อมูลแบบลูกโซ่ (Consent Revocation Cascade)
 
 เมื่อเจ้าของข้อมูลส่วนบุคคล (Data Subject) แจ้งขอถอนความยินยอม (Withdrawal Request):
-1. **รับคำขอและตรวจสอบ**: Admin บันทึกการเพิกถอนในตาราง `ConsentRecord` (ระบุ `revoked_at` และเปลี่ยน `is_active = false`)
-2. **ค้นหาระเบียนที่เกี่ยวข้อง**: ระบบค้นหาเอกสารทั้งหมดที่ผูกกับ `consent_id` นั้น
+1. **ปรับสถานะ Entity `Subject`**: ปรับสถานะเจ้าของข้อมูลในตาราง `model Subject` เป็น `CONSENT_WITHDRAWN`
+2. **สร้างประวัติและ Snapshot**: บันทึกการเพิกถอนใน `ConsentRecord` และคัดลอกประวัติแบบไม่เปลี่ยนแปลงลงใน `ConsentHistory`
 3. **Hard Delete ใน PiiVault และ MinIO**:
-   - ลบไฟล์ต้นฉบับออกจาก MinIO ทันที
-   - ลบระเบียนในตาราง `PiiVault`
-4. **ตัดออกจาก Training Pipeline**:
-   - ปรับสถานะเรซูเมเป็น `REVOKED_DELETED` เพื่อป้องกันไม่ให้นำไปรวมใน Dataset Export ในอนาคต
-   - บันทึกการลบลงใน `AuditLog` เพื่อเป็นหลักฐานทางกฎหมาย
+   - ลบไฟล์เอกสารดิบออกจาก MinIO
+   - ล้างข้อมูลที่เข้ารหัสและกุญแจใน `PiiVault`
+4. **ตัดออกจาก Training Pipeline และแจ้งเตือนอดีต**:
+   - ปรับสถานะเอกสารเป็น `REVOKED_CONSENT_RESTRICTED`
+   - ค้นหาชุดข้อมูลที่เคย Export ในอดีตที่มีเอกสารของ Subject รายนี้ และสร้าง Audit Log เตือนให้ Retract หรือ Re-split Dataset ทันที
 
 ---
 

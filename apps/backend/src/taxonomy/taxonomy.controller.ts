@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query, Param } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Body, Query, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiParam } from '@nestjs/swagger';
 import { TaxonomyService } from './taxonomy.service';
 import { CreateIndustryDto } from './dto/create-industry.dto';
@@ -146,5 +146,29 @@ export class TaxonomyController {
   @ApiOperation({ summary: 'เพิ่มทักษะใหม่เข้าระบบ' })
   createSkill(@Body() dto: CreateSkillDto) {
     return this.taxonomyService.createSkill(dto);
+  }
+
+  @Delete('industries/:keyOrId')
+  @ApiOperation({ summary: 'ระงับ/ลบกลุ่มอุตสาหกรรมชั่วคราว (Soft Delete)' })
+  softDeleteIndustry(@Param('keyOrId') keyOrId: string) {
+    return this.taxonomyService.softDeleteIndustry(keyOrId);
+  }
+
+  @Delete('professions/:keyOrId')
+  @ApiOperation({ summary: 'ระงับ/ลบตำแหน่งงานชั่วคราว (Soft Delete)' })
+  softDeleteProfession(@Param('keyOrId') keyOrId: string) {
+    return this.taxonomyService.softDeleteProfession(keyOrId);
+  }
+
+  @Patch('professions/:keyOrId')
+  @ApiOperation({ summary: 'แก้ไขข้อมูลตำแหน่งงานและอัปเกรดเวอร์ชัน Taxonomy (Version Incremented)' })
+  updateProfession(@Param('keyOrId') keyOrId: string, @Body() dto: Partial<CreateProfessionDto>) {
+    return this.taxonomyService.updateProfession(keyOrId, dto);
+  }
+
+  @Delete('skills/:skillId')
+  @ApiOperation({ summary: 'ระงับ/ลบทักษะชั่วคราว (Soft Delete)' })
+  softDeleteSkill(@Param('skillId') skillId: string) {
+    return this.taxonomyService.softDeleteSkill(skillId);
   }
 }

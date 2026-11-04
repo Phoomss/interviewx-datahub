@@ -44,12 +44,13 @@ describe('PiiVaultService - Isolation, Encryption & Access Control', () => {
   });
 
   it('should allow ADMIN to retrieve unmasked PII and record access log', async () => {
+    const payload = JSON.stringify({ fullName: 'Dr. John Doe', email: 'john.doe@example.com' });
+    const encryptedPayload = service.encrypt(payload);
     mockPrisma.piiVault.findUnique.mockResolvedValue({
       id: 'vault-101',
       documentId: 'doc-101',
       subjectId: 'SUBJ-2026-0001',
-      fullName: 'Dr. John Doe',
-      email: 'john.doe@example.com',
+      encryptedPayload,
       isPurged: false,
     });
 
@@ -57,6 +58,7 @@ describe('PiiVaultService - Isolation, Encryption & Access Control', () => {
 
     expect(result.success).toBe(true);
     expect(result.data.fullName).toBe('Dr. John Doe');
+    expect(result.data.email).toBe('john.doe@example.com');
     expect(mockPrisma.piiAccessLog.create).toHaveBeenCalled();
   });
 

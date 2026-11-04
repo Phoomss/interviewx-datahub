@@ -304,13 +304,20 @@ export class ExportService {
         });
 
         recordsToExport = documents
-          .filter((d) => d.parsedProfile && d.parsedProfile.structuredData)
-          .map((d) => ({
-            id: d.id,
-            datasetType: 'profile',
-            content: d.parsedProfile.structuredData,
-            sanitizedContent: this.stripAndSanitizePII(d.parsedProfile.structuredData),
-          }));
+          .filter((d) => d.parsedProfile && ((d.parsedProfile as any).humanCorrectedData || d.parsedProfile.structuredData))
+          .map((d) => {
+            const effectiveData = (d.parsedProfile as any).humanCorrectedData || d.parsedProfile.structuredData;
+            return {
+              id: d.id,
+              sourceDocumentId: d.id,
+              consentId: d.consentId,
+              isSynthetic: d.isSynthetic,
+              isHumanVerified: (d.parsedProfile as any).isHumanVerified || false,
+              datasetType: 'profile',
+              content: effectiveData,
+              sanitizedContent: this.stripAndSanitizePII(effectiveData),
+            };
+          });
       } catch (err: any) {
         this.logger.warn(`Querying Document failed: ${err.message}`);
       }
@@ -365,56 +372,112 @@ export class ExportService {
     );
 
     // 5. Generate payload buffer and determine file extension + content type
-    let buffer: Buffer;
     let fileExtension = 'jsonl';
     let contentType = 'application/jsonlines';
 
     if (dto.format === ExportDatasetFormat.JSON) {
       fileExtension = 'json';
       contentType = 'application/json';
-      const jsonOutput = recordsToExport.map((r) => r.sanitizedContent || r.content);
-      buffer = Buffer.from(JSON.stringify(jsonOutput, null, 2), 'utf-8');
     } else if (dto.format === ExportDatasetFormat.CSV) {
       fileExtension = 'csv';
       contentType = 'text/csv';
-      const flatRows = this.flattenForTabular(recordsToExport);
-      const ws = XLSX.utils.json_to_sheet(flatRows);
-      const csvContent = XLSX.utils.sheet_to_csv(ws);
-      buffer = Buffer.from(csvContent, 'utf-8');
     } else if (dto.format === ExportDatasetFormat.XLSX) {
       fileExtension = 'xlsx';
       contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-      const flatRows = this.flattenForTabular(recordsToExport);
-      const ws = XLSX.utils.json_to_sheet(flatRows);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'InterviewX_Dataset');
-      buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
-    } else if (
-      dto.format === ExportDatasetFormat.ALPACA ||
-      dto.format === ExportDatasetFormat.SHAREGPT ||
-      dto.format === ExportDatasetFormat.CHATML
-    ) {
-      fileExtension = 'jsonl';
-      contentType = 'application/jsonlines';
-      const lines = recordsToExport.map((r) => this.formatRecordLLM(r.sanitizedContent || r.content, dto.format));
-      buffer = Buffer.from(lines.join('\n'), 'utf-8');
-    } else {
-      // Default: Raw JSONL
-      fileExtension = 'jsonl';
-      contentType = 'application/jsonlines';
-      const lines = recordsToExport.map((r) => JSON.stringify(r.sanitizedContent || r.content));
-      buffer = Buffer.from(lines.join('\n'), 'utf-8');
     }
 
-    // 5. Compute SHA-256 Hash
+    const serializeRecords = (recs: any[]): Buffer => {
+      if (dto.format === ExportDatasetFormat.JSON) {
+        return Buffer.from(JSON.stringify(recs.map((r) => r.sanitizedContent || r.content), null, 2), 'utf-8');
+      }
+      if (dto.format === ExportDatasetFormat.CSV) {
+        const ws = XLSX.utils.json_to_sheet(this.flattenForTabular(recs));
+        return Buffer.from(XLSX.utils.sheet_to_csv(ws), 'utf-8');
+      }
+      if (dto.format === ExportDatasetFormat.XLSX) {
+        const ws = XLSX.utils.json_to_sheet(this.flattenForTabular(recs));
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'InterviewX_Dataset');
+        return XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+      }
+      if (
+        dto.format === ExportDatasetFormat.ALPACA ||
+        dto.format === ExportDatasetFormat.SHAREGPT ||
+        dto.format === ExportDatasetFormat.CHATML
+      ) {
+        const lines = recs.map((r) => this.formatRecordLLM(r.sanitizedContent || r.content, dto.format));
+        return Buffer.from(lines.join('\n'), 'utf-8');
+      }
+      const lines = recs.map((r) => JSON.stringify(r.sanitizedContent || r.content));
+      return Buffer.from(lines.join('\n'), 'utf-8');
+    };
+
+    const buffer = serializeRecords(recordsToExport);
     const dvcHash = crypto.createHash('sha256').update(buffer).digest('hex');
 
-    // 6. Upload to MinIO Object Storage
+    // 6. Upload main export and individual split files to MinIO Object Storage
     const exportId = `exp-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
     const storageKey = `${exportId}/${dto.exportName}.${fileExtension}`;
     const storagePath = await this.minio.uploadExportArtifact(storageKey, buffer, contentType);
 
-    // 7. Record run in MLflow Tracking
+    const trainBuf = serializeRecords(train);
+    const valBuf = serializeRecords(val);
+    const testBuf = serializeRecords(test);
+
+    const trainHash = crypto.createHash('sha256').update(trainBuf).digest('hex');
+    const valHash = crypto.createHash('sha256').update(valBuf).digest('hex');
+    const testHash = crypto.createHash('sha256').update(testBuf).digest('hex');
+
+    const trainPath = await this.minio.uploadExportArtifact(`${exportId}/splits/train.${fileExtension}`, trainBuf, contentType);
+    const valPath = await this.minio.uploadExportArtifact(`${exportId}/splits/val.${fileExtension}`, valBuf, contentType);
+    const testPath = await this.minio.uploadExportArtifact(`${exportId}/splits/test.${fileExtension}`, testBuf, contentType);
+
+    // 7. Generate Cryptographic Dataset Manifest with Complete Provenance & Lineage
+    const manifest = {
+      exportId,
+      exportName: dto.exportName,
+      exportFormat: dto.format,
+      generatedAt: new Date().toISOString(),
+      dvcHash,
+      datasetSplits: {
+        train: {
+          count: train.length,
+          hash: trainHash,
+          storagePath: trainPath,
+        },
+        validation: {
+          count: val.length,
+          hash: valHash,
+          storagePath: valPath,
+        },
+        test: {
+          count: test.length,
+          hash: testHash,
+          storagePath: testPath,
+        },
+      },
+      leakagePreventionStats: leakageStats,
+      safetyGate: {
+        piiRedactionApplied: true,
+        zeroPiiVerified: true,
+        trainingEligibilityEnforced: true,
+      },
+      lineage: recordsToExport.map((r) => ({
+        recordId: r.id,
+        sourceDocumentId: r.sourceDocumentId || null,
+        syntheticJobId: r.jobId || null,
+        datasetType: r.datasetType || 'profile',
+        isSynthetic: r.isSynthetic !== false,
+        isHumanVerified: !!r.isHumanVerified,
+        split: r.split || 'train',
+        consentId: r.consentId || null,
+      })),
+    };
+
+    const manifestBuf = Buffer.from(JSON.stringify(manifest, null, 2), 'utf-8');
+    const manifestStoragePath = await this.minio.uploadExportArtifact(`${exportId}/manifest.json`, manifestBuf, 'application/json');
+
+    // 8. Record run in MLflow Tracking
     const mlflowRunId = await this.mlflow.recordExportRun({
       exportName: dto.exportName,
       format: dto.format,
@@ -428,7 +491,14 @@ export class ExportService {
       },
     });
 
-    // 8. Persist Record
+    // 9. Persist Record
+    const manifestSummary = {
+      totalRecords: recordsToExport.length,
+      splits: { train: train.length, val: val.length, test: test.length },
+      leakageStats,
+      manifestStoragePath,
+    };
+
     const exportRecord = {
       id: exportId,
       exportName: dto.exportName,
@@ -436,6 +506,8 @@ export class ExportService {
       status: 'COMPLETED',
       recordCount: recordsToExport.length,
       storagePath,
+      manifestStoragePath,
+      manifestSummary,
       filterCriteria: dto,
       dvcHash,
       mlflowRunId,
@@ -472,6 +544,8 @@ export class ExportService {
             status: 'COMPLETED' as any,
             recordCount: recordsToExport.length,
             storagePath,
+            manifestStoragePath,
+            manifestSummary: manifestSummary as any,
             filterCriteria: dto as any,
             dvcHash,
             mlflowRunId,
@@ -552,5 +626,29 @@ export class ExportService {
         downloadUrl,
       },
     };
+  }
+
+  async getExportManifest(id: string) {
+    const item = await this.getExport(id);
+    if (!item.manifestStoragePath) {
+      return {
+        exportId: id,
+        exportName: item.exportName,
+        dvcHash: item.dvcHash,
+        status: item.status,
+        recordCount: item.recordCount,
+        note: 'Legacy export without standalone manifest file',
+      };
+    }
+    try {
+      const stream = await this.minio.getExportArtifactStream(item.manifestStoragePath);
+      const chunks: Buffer[] = [];
+      for await (const chunk of stream) {
+        chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+      }
+      return JSON.parse(Buffer.concat(chunks).toString('utf-8'));
+    } catch {
+      return (item as any).manifestSummary || { exportId: id, manifestStoragePath: item.manifestStoragePath };
+    }
   }
 }

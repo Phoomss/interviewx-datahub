@@ -1,17 +1,17 @@
 # SYSTEM.md — InterviewX DataHub Master System Manual
 
-> **System Version**: 2.0 Universal  
-> **Classification**: Internal Data Management & AI Training Infrastructure  
+> **System Version**: 2.5 Universal Enterprise  
+> **Classification**: Internal Data Management, Fine-Tuning & Model Registry Infrastructure  
 > **Compliance Standard**: Thailand PDPA / GDPR / ISO-27701 Privacy Information Management  
-> **Core Architecture**: Decoupled Polyglot (NestJS Core + FastAPI AI Service + Next.js Studio + PostgreSQL + MinIO + Redis)
+> **Core Architecture**: Decoupled Polyglot (NestJS 10 Core + FastAPI AI Service + Next.js 14 Studio + PostgreSQL 16 + MinIO + Redis 7 / BullMQ + MLflow)
 
 ---
 
 ## 1. Executive Overview & System Topology
 
-**InterviewX DataHub** is an enterprise data management and dataset governance platform built specifically for collecting, extracting, validating, annotating, and exporting training datasets for InterviewX Large Language Models (LLMs).
+**InterviewX DataHub** is an enterprise data management, fine-tuning pipeline, and model governance platform built specifically for collecting, extracting, validating, annotating, preparing datasets, and managing the AI model lifecycle for InterviewX Large Language Models (LLMs).
 
-The platform bridges real-world candidate documents and synthetic interview datasets with strict privacy guarantees, governed by legal basis authorization and a zero-PII-leakage architecture.
+The platform bridges real-world candidate documents and synthetic interview datasets with strict privacy guarantees, governed by legal basis authorization, a zero-PII-leakage architecture, and a gated Model Registry.
 
 ```mermaid
 flowchart TD
@@ -19,43 +19,46 @@ flowchart TD
         UI["Next.js 14 Frontend Studio\n(/resumes, /consent, /synthetic, /datasets, /taxonomy)"]
     end
 
-    subgraph CoreBackend["Core Business & Governance (NestJS 10 / Bun)"]
+    subgraph CoreBackend["Core Business, Fine-Tuning & Governance (NestJS 10 / Bun)"]
         API["REST Controllers & Swagger"]
+        AuthModule["AuthModule & Server-Side RBAC\n(PBKDF2/SHA-512 & HMAC-SHA256 JWT)"]
         AuthDecision["AuthorizationDecisionService\n(Purpose Limitation Engine)"]
         VaultService["PiiVaultService\n(AES-256-GCM Encrypted & Isolated)"]
         DocService["DocumentsService\n(Ingestion & Provenance Orchestrator)"]
-        QualityGate["QualityValidationService\n(5-Level Quality Gate)"]
-        TrainGate["TrainingEligibilityService\n(Model Training Gatekeeper)"]
-        ExportGate["ExportService\n(Pre-Export Safety Gate)"]
+        TrainService["TrainingService & Model Registry\n(LoRA/QLoRA Jobs & Publishing Gate)"]
+        ExportGate["ExportService\n(Pre-Export Safety Gate & Manifest Gen)"]
     end
 
-    subgraph AIService["AI & Deep Extraction (FastAPI / Python 3.14)"]
-        DocParser["Multi-Format Parser\n(PyMuPDF, python-docx, openpyxl, python-pptx, OCR)"]
-        DeepExtractor["Deep Structured Extractor\n(13 Document Classifications & 13 Skill Taxonomies)"]
-        ProvenanceGen["Provenance Mapping Engine\n(Page numbers, Text offsets, Confidence)"]
+    subgraph AIService["AI, Fine-Tuning & Deep Extraction (FastAPI / Python 3.14)"]
+        DocParser["Multi-Format Parser & Real OCR\n(PyMuPDF, python-docx, openpyxl, python-pptx)"]
+        DeepExtractor["Deep Structured Extractor\n(Gemini 2.0 / GPT-4o-mini / Heuristic Engine)"]
+        TrainingRunner["TrainingRunnerService\n(PEFT LoRA Config & Automated Benchmark Harness)"]
     end
 
     subgraph Storage["Persistence & Infrastructure Layer"]
         PG[("PostgreSQL 16\n(Prisma ORM, JSONB, Append-Only Logs)")]
-        S3[("MinIO S3\n(Private Raw Documents & Export Artifacts)")]
-        Queue[("Redis 7 / BullMQ\n(Background Processing Jobs)")]
+        S3[("MinIO S3\n(Private Raw Documents, Exports & Model Adapters)")]
+        Queue[("Redis 7 / BullMQ\n(Document Processing & Export Queues)")]
+        MLflowStore[("MLflow 2.17\n(Lineage, DVC Hash & Experiment Tracking)")]
     end
 
-    UI <-->|HTTPS REST| API
+    UI <-->|HTTPS REST + Bearer JWT| API
+    API --> AuthModule
     API --> AuthDecision
     API --> VaultService
     API --> DocService
-    API --> QualityGate
-    API --> TrainGate
+    API --> TrainService
     API --> ExportGate
 
     DocService -->|Internal HTTP| DocParser
     DocParser --> DeepExtractor
-    DeepExtractor --> ProvenanceGen
+    TrainService -->|Internal HTTP| TrainingRunner
 
     API -->|Prisma Client| PG
-    VaultService -->|Encrypted Reads/Writes| PG
+    VaultService -->|AES-256-GCM Encrypted| PG
     DocService -->|Presigned Key| S3
+    ExportGate -->|DVC SHA-256 + Manifest| S3
+    ExportGate -->|Record Run| MLflowStore
     API -->|Queue Jobs| Queue
 ```
 
@@ -312,38 +315,82 @@ To ensure that both real-world uploads and synthetic candidate profiles can be r
 
 ---
 
-## 9. Verification & Automated Test Matrix
+---
+
+## 9. AI Fine-Tuning Pipeline, Benchmark Harness & Model Registry
+
+InterviewX DataHub extends beyond dataset collection into autonomous model fine-tuning orchestration and registry governance:
+
+```mermaid
+flowchart LR
+    Dataset["Locked Dataset Export\n(manifest.json + DVC Hash)"] --> JobRunner["TrainingRunnerService\n(PEFT LoRA / QLoRA 4-bit)"]
+    JobRunner --> Checkpoint["Adapter Weights Checkpoint\n(MinIO S3 URI)"]
+    Checkpoint --> Benchmark["Automated Benchmark Harness\n(STAR, Tech Depth, Thai Fluency, Zero-PII)"]
+    Benchmark --> Gate{"Integrity Gate\n(Score >= 0.80 & Zero-PII?)"}
+    Gate -- Passed --> RegCandidate["Model Registry\n(Status: CANDIDATE)"]
+    RegCandidate --> Promote["Admin Promotion\n(CANDIDATE ➔ STAGING ➔ PRODUCTION)"]
+    Promote --> Core["InterviewX Core Serving\n(/training/models/active)"]
+    Gate -- Failed --> Blocked["Promotion Blocked\n(Audit Flagged)"]
+```
+
+### 9.1 LoRA & QLoRA Fine-Tuning Runner
+- **PEFT Configuration**: Generates Hugging Face PEFT / LoRA target module configurations (`q_proj`, `k_proj`, `v_proj`, `o_proj`, `gate_proj`, `up_proj`, `down_proj`) with 4-bit bitsandbytes quantization.
+- **Progress Tracking & Metrics**: Tracks epoch-level loss progression, cosine learning rate schedules, and calculates perplexity (`exp(eval_loss)`).
+- **MLflow Experiment Lineage**: Records training run parameters, base model checkpoint references, and hyperparameters.
+
+### 9.2 Automated Multi-Criteria Benchmark Harness
+- **STAR Rubric Criteria (30%)**: Verifies situation, task, action, and measurable result structure.
+- **Technical & Domain Depth (30%)**: Assesses interview inquiry complexity against industry taxonomy.
+- **Thai Language Fluency & Nuance (20%)**: Validates cultural nuance and tone consistency.
+- **Zero PII & Guardrails (20%)**: Cryptographically checks model outputs for privacy leakage.
+
+### 9.3 Model Registry & Production Gate
+- Four lifecycle stages: `CANDIDATE` ➔ `STAGING` ➔ `PRODUCTION` ➔ `ARCHIVED`.
+- **Integrity Gate Enforcement**: Promotion to `PRODUCTION` strictly verifies:
+  1. `benchmarkScore >= minQualityScore` (>= 0.80).
+  2. `piiScanPassed === true`.
+  3. Authorized Administrator identity (`approvedById`).
+- Provides active production deployment metadata via `GET /training/models/active` for seamless InterviewX Core consumption.
+
+---
+
+## 10. Verification & Automated Test Matrix
 
 The system features complete end-to-end unit and integration test suites:
 
-### 9.1 Backend Test Suite (`bun test src/`)
-- **Total Tests**: 47 passed, 0 failed (790ms execution time).
-- **Test Suites**:
-  1. `pii-vault.service.spec.ts`: AES-256-GCM encryption/decryption, pseudonymous ID generation, ADMIN RBAC enforcement, ANNOTATOR rejection (403), Right to be Forgotten purge.
-  2. `consent.service.spec.ts`: Purpose limitation evaluation, category restrictions, expired consent rejection, revocation audit history.
-  3. `file-validator.spec.ts`: Magic bytes validation for PDF, DOCX, PNG, JPEG; spoofed extension rejection; executable PE header blocking.
-  4. `training-eligibility.service.spec.ts`: Synthetic auto-approval, missing consent blocking, revoked consent restriction, purpose separation (`PROFILE_MANAGEMENT` vs `TRAINING`), human review gate.
-  5. `export.service.spec.ts`: Zero-PII sanitization, regex redaction, Alpaca/ChatML formatting, candidate-grouped train/test leak prevention.
-  6. `taxonomy.service.spec.ts`: 15 universal industries, 80+ dynamic professions, many-to-many ontology mappings.
-  7. `synthetic.service.spec.ts`: Multi-industry synthetic dataset generator, human QA reviews.
-  8. `documents.service.spec.ts`: Ingestion validation, status management, soft deletion.
+### 10.1 Backend Test Suite (`bun test src/`)
+- **Total Tests**: **71 passed, 0 failed** (835ms execution time).
+- **Test Suites (12 Test Files)**:
+  1. `auth.service.spec.ts`: PBKDF2/SHA-512 password hashing with unique salt, HMAC-SHA256 JWT signature and tamper rejection, user login/credential verification.
+  2. `training.service.spec.ts`: Fine-tuning job creation, PEFT hyperparameter defaults, model promotion gates (rejection when score < 0.80 or PII leak detected), active production metadata retrieval.
+  3. `pii-vault.service.spec.ts`: AES-256-GCM encryption/decryption, pseudonymous ID generation, ADMIN RBAC enforcement, ANNOTATOR rejection (403), Right to be Forgotten purge.
+  4. `consent.service.spec.ts`: Purpose limitation evaluation, category restrictions, expired consent rejection, cascading revocation to past exports.
+  5. `file-validator.spec.ts`: Magic bytes validation for PDF, DOCX, PNG, JPEG; spoofed extension rejection; executable PE header blocking.
+  6. `training-eligibility.service.spec.ts`: Synthetic auto-approval, missing consent blocking, revoked consent restriction, purpose separation (`PROFILE_MANAGEMENT` vs `TRAINING`), human review gate.
+  7. `export.service.spec.ts`: Zero-PII sanitization, regex redaction, Alpaca/ChatML formatting, candidate-grouped train/test leak prevention, cryptographic manifest and DVC SHA-256 calculation.
+  8. `taxonomy.service.spec.ts`: 15 universal industries, dynamic professions, many-to-many ontology mappings, soft deletion and version increments.
+  9. `synthetic.service.spec.ts`: Multi-industry synthetic dataset generator, human QA reviews.
+  10. `documents.service.spec.ts`: Ingestion validation, status management, soft deletion.
+  11. `dist/documents/documents.service.spec.js`: Transpiled suite verification.
+  12. `dist/export/export.service.spec.js`: Transpiled export safety verification.
 
-### 9.2 AI Service Test Suite (`pytest`)
-- **Total Tests**: 25 passed, 0 failed (0.14s execution time).
-- **Test Suites**:
-  1. `test_deep_extraction.py`: 13 document classifications, 13 skill taxonomies, explicit vs inferred flags, measurable impact extraction, provenance offsets.
-  2. `test_extractor.py`: Multi-format parsing, education GPA/thesis extraction, work experience.
-  3. `test_consistency_engine.py`: Chronological timeline validation and cross-field checks.
-  4. `test_universal_generator.py`: Synthetic interview prompts, rubrics, dilemmas across 10 dimensions.
+### 10.2 AI Service Test Suite (`pytest`)
+- **Total Tests**: **30 passed, 0 failed** (0.15s execution time).
+- **Test Suites (5 Test Files)**:
+  1. `test_training_runner.py`: PEFT LoRA config generation, fine-tuning loss step progression, automated benchmark evaluation.
+  2. `test_deep_extraction.py`: 13 document classifications, 13 skill taxonomies, explicit vs inferred flags, measurable impact extraction, LLM fallback parsing.
+  3. `test_extractor.py`: Multi-format parsing, education GPA/thesis extraction, work experience.
+  4. `test_consistency_engine.py`: Chronological timeline validation and cross-field checks.
+  5. `test_universal_generator.py`: Synthetic interview prompts, rubrics, dilemmas across 10 dimensions.
 
-### 9.3 TypeScript Typecheck (`bun run typecheck`)
-- `apps/backend`: **0 errors** (`tsc --noEmit`).
-- `apps/frontend`: **0 errors** (`tsc --noEmit`).
+### 10.3 TypeScript Typecheck & Production Build
+- `apps/backend`: **0 errors** (`bun run build` / `nest build`).
+- `apps/frontend`: **0 errors** (`bun run typecheck` / `tsc --noEmit`).
 - `apps/frontend` Production Build: **10/10 routes successfully optimized** (`next build`).
 
 ---
 
-## 10. Operational & Deployment Guide
+## 11. Operational & Deployment Guide
 
 ### 10.1 Local Development Commands
 ```bash

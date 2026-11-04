@@ -9,6 +9,7 @@ from src.services.extractor import (
     extract_certifications_detailed,
     extract_academic_research,
 )
+from src.services.llm_extractor import LlmExtractorService
 
 SAMPLE_RESEARCH_CV = """DR. ARUNACHALAM VISWANATHAN
 Bangkok, Thailand | arun.v@chula.ac.th | +66891112233
@@ -113,3 +114,13 @@ def test_deep_parse_document_structure():
     # Research extraction
     assert len(deep_data.academic_research) >= 1
     assert deep_data.academic_research[0].doi is not None
+
+
+def test_llm_extractor_fallback():
+    deep_data, pii, conf = LlmExtractorService.extract(SAMPLE_RESEARCH_CV, "DOC-LLM-001")
+    assert conf >= 0.85
+    assert pii.full_name == "DR. ARUNACHALAM VISWANATHAN"
+    assert len(deep_data.educations) >= 1
+    assert len(deep_data.experiences) >= 1
+    assert len(deep_data.extraction_limitations) >= 1
+    assert "GEMINI_API_KEY" in deep_data.extraction_limitations[0]

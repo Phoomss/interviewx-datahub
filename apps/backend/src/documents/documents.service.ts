@@ -379,7 +379,12 @@ export class DocumentsService {
     if (targetDoc) {
       targetDoc.status = status;
       if (corrections && targetDoc.parsedProfile) {
+        if (!targetDoc.parsedProfile.originalExtractedData) {
+          targetDoc.parsedProfile.originalExtractedData = targetDoc.parsedProfile.structuredData;
+        }
+        targetDoc.parsedProfile.humanCorrectedData = corrections;
         targetDoc.parsedProfile.structuredData = corrections;
+        targetDoc.parsedProfile.isHumanVerified = status === 'APPROVED';
       }
     }
 
@@ -396,17 +401,25 @@ export class DocumentsService {
             data: { status: status as any },
           });
 
-          if (corrections && document.parsedProfile) {
-            await tx.parsedProfile.update({
-              where: { documentId: id },
-              data: { structuredData: corrections as any },
-            });
-          }
-
           let assignedReviewerId = reviewerId;
           if (!assignedReviewerId) {
             const defaultUser = await tx.user.findFirst();
             assignedReviewerId = defaultUser?.id;
+          }
+
+          if (document.parsedProfile) {
+            const origData = (document.parsedProfile as any).originalExtractedData || document.parsedProfile.structuredData;
+            await tx.parsedProfile.update({
+              where: { documentId: id },
+              data: {
+                originalExtractedData: origData as any,
+                humanCorrectedData: corrections ? (corrections as any) : undefined,
+                structuredData: corrections ? (corrections as any) : (document.parsedProfile.structuredData as any),
+                isHumanVerified: status === 'APPROVED',
+                verifiedAt: status === 'APPROVED' ? new Date() : null,
+                verifiedById: assignedReviewerId || null,
+              },
+            });
           }
 
           if (assignedReviewerId) {
@@ -778,6 +791,8 @@ export class DocumentsService {
               create: {
                 rawText,
                 structuredData: structuredProfile as any,
+                originalExtractedData: structuredProfile as any,
+                isHumanVerified: false,
                 provenance: { pageCount, metadata: extractedMetadata, classification: finalClassification } as any,
                 confidenceScore,
                 extractorVersion,

@@ -38,6 +38,12 @@ export class ExportController {
     return this.exportService.getDownloadUrl(id);
   }
 
+  @Get('exports/:id/manifest')
+  @ApiOperation({ summary: 'ดึงข้อมูล Cryptographic Dataset Manifest และ Lineage ย้อนกลับ' })
+  getManifest(@Param('id') id: string) {
+    return this.exportService.getExportManifest(id);
+  }
+
   @Get('exports/:id/file')
   @ApiOperation({ summary: 'ดาวน์โหลดไฟล์ Dataset โดยตรงจาก Object Storage (Direct Streaming)' })
   async downloadFile(@Param('id') id: string, @Res() res: Response) {

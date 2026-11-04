@@ -7,8 +7,13 @@ import {
   Req,
   Headers,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiHeader, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiHeader, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import { UserRole } from '@prisma/client';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
 import { ConsentService } from './consent.service';
 import { AuthorizationDecisionService } from './authorization-decision.service';
 import { PiiVaultService } from './pii-vault.service';
@@ -89,15 +94,18 @@ export class ConsentController {
     return this.consentService.revokeConsent(id, reason, req.user?.id, userIp);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiBearerAuth()
   @Get('pii-vault/:documentId')
-  @ApiOperation({ summary: 'เข้าถึงข้อมูลใน PiiVault (จำกัดสิทธิ์เฉพาะ ADMIN เท่านั้น)' })
-  @ApiHeader({ name: 'x-user-role', description: 'บทบาทของผู้ใช้ (เช่น ADMIN, ANNOTATOR)', required: false })
+  @ApiOperation({ summary: 'เข้าถึงข้อมูลใน PiiVault (จำกัดสิทธิ์เฉพาะ ADMIN เท่านั้น ยืนยันผ่าน JWT Bearer Token)' })
   getPiiVault(
     @Param('documentId') documentId: string,
-    @Headers('x-user-role') userRole: string = 'ANNOTATOR',
-    @Req() req?: any,
+    @Req() req: any,
   ) {
     const userIp = req?.ip || req?.connection?.remoteAddress || '127.0.0.1';
-    return this.consentService.getPiiVault(documentId, userRole, req?.user?.id, userIp);
+    const userRole = req.user?.role || 'ANNOTATOR';
+    const userId = req.user?.id;
+    return this.consentService.getPiiVault(documentId, userRole, userId, userIp);
   }
 }

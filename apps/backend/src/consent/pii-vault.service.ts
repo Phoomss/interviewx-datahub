@@ -102,13 +102,6 @@ export class PiiVaultService {
         where: { documentId: payload.documentId },
         update: {
           subjectId: payload.subjectId,
-          fullName: payload.fullName,
-          email: payload.email,
-          phoneNumber: payload.phoneNumber,
-          address: payload.address,
-          nationalId: payload.nationalId,
-          passportNumber: payload.passportNumber,
-          dateOfBirth: payload.dateOfBirth ? new Date(payload.dateOfBirth) : null,
           sensitiveData: payload.sensitiveData || {},
           encryptedPayload,
           encryptionKeyId: this.keyId,
@@ -117,13 +110,6 @@ export class PiiVaultService {
         create: {
           documentId: payload.documentId,
           subjectId: payload.subjectId,
-          fullName: payload.fullName,
-          email: payload.email,
-          phoneNumber: payload.phoneNumber,
-          address: payload.address,
-          nationalId: payload.nationalId,
-          passportNumber: payload.passportNumber,
-          dateOfBirth: payload.dateOfBirth ? new Date(payload.dateOfBirth) : null,
           sensitiveData: payload.sensitiveData || {},
           encryptedPayload,
           encryptionKeyId: this.keyId,
@@ -169,18 +155,7 @@ export class PiiVaultService {
     }
 
     if (!vaultRecord) {
-      // Demo fallback
-      vaultRecord = {
-        id: `vault-demo-${documentId}`,
-        documentId,
-        subjectId: 'SUBJ-2026-9841',
-        fullName: 'นาย สมชาย ประเสริฐ',
-        email: 'somchai.p@example.com',
-        phoneNumber: '+66891234567',
-        address: 'Bangkok, Thailand',
-        nationalId: '1-1004-99887-21-3',
-        isPurged: false,
-      };
+      throw new NotFoundException(`ไม่พบข้อมูลใน PiiVault สำหรับเอกสารรหัส ${documentId}`);
     }
 
     // บันทึกการเข้าถึง PiiAccessLog ทุกครั้ง ไม่ว่าจะได้สิทธิ์หรือไม่
@@ -221,13 +196,16 @@ export class PiiVaultService {
       };
     }
 
-    // ถอดรหัสหากมี encryptedPayload หรือส่ง plaintext unmasked สำหรับ ADMIN
-    let decryptedData: any = null;
+    // ถอดรหัส encryptedPayload สำหรับ ADMIN
+    let decryptedData: any = {};
     if (vaultRecord.encryptedPayload) {
       try {
-        decryptedData = JSON.parse(this.decrypt(vaultRecord.encryptedPayload));
+        const decryptedStr = this.decrypt(vaultRecord.encryptedPayload);
+        if (decryptedStr && decryptedStr !== '*** DECRYPTION_FAILED ***') {
+          decryptedData = JSON.parse(decryptedStr);
+        }
       } catch (e) {
-        // Fallback to table fields
+        this.logger.error(`Error parsing decrypted payload: ${e.message}`);
       }
     }
 
@@ -238,13 +216,14 @@ export class PiiVaultService {
         vaultId: vaultRecord.id,
         documentId: vaultRecord.documentId,
         subjectId: vaultRecord.subjectId,
-        fullName: decryptedData?.fullName || vaultRecord.fullName,
-        email: decryptedData?.email || vaultRecord.email,
-        phoneNumber: decryptedData?.phoneNumber || vaultRecord.phoneNumber,
-        address: decryptedData?.address || vaultRecord.address,
-        nationalId: decryptedData?.nationalId || vaultRecord.nationalId,
-        passportNumber: decryptedData?.passportNumber || vaultRecord.passportNumber,
-        dateOfBirth: decryptedData?.dateOfBirth || vaultRecord.dateOfBirth,
+        fullName: decryptedData.fullName || null,
+        email: decryptedData.email || null,
+        phoneNumber: decryptedData.phoneNumber || null,
+        address: decryptedData.address || null,
+        nationalId: decryptedData.nationalId || null,
+        passportNumber: decryptedData.passportNumber || null,
+        dateOfBirth: decryptedData.dateOfBirth || null,
+        sensitiveData: vaultRecord.sensitiveData || {},
         encryptionKeyId: vaultRecord.encryptionKeyId,
         retentionUntil: vaultRecord.retentionUntil,
         isPurged: vaultRecord.isPurged,
@@ -261,15 +240,8 @@ export class PiiVaultService {
       await this.prisma.piiVault.updateMany({
         where: { documentId },
         data: {
-          fullName: null,
-          email: null,
-          phoneNumber: null,
-          address: null,
-          nationalId: null,
-          passportNumber: null,
-          dateOfBirth: null,
-          sensitiveData: {},
           encryptedPayload: null,
+          sensitiveData: {},
           isPurged: true,
         },
       });

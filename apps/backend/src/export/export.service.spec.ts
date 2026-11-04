@@ -6,7 +6,8 @@ describe('ExportService - Pre-Export Safety Gate & Formatters', () => {
   const mockPrisma: any = {
     document: { findMany: jest.fn() },
     datasetExport: { create: jest.fn(), findMany: jest.fn() },
-    user: { findFirst: jest.fn() },
+    datasetRecord: { findMany: jest.fn().mockResolvedValue([]) },
+    user: { findFirst: jest.fn(), create: jest.fn().mockResolvedValue({ id: 'u-admin' }) },
   };
   const mockMinio: any = {
     uploadExportArtifact: jest.fn().mockResolvedValue('dataset-exports/test/export.jsonl'),
@@ -108,5 +109,20 @@ describe('ExportService - Pre-Export Safety Gate & Formatters', () => {
       records.filter((r) => r.content.metadata.candidate_id === 'cand-B').map((r: any) => r.split),
     );
     expect(candBSplits.size).toBe(1);
+  });
+
+  it('should generate cryptographic manifest and DVC SHA-256 on createExport', async () => {
+    mockPrisma.document.findMany.mockResolvedValue([]);
+    mockPrisma.datasetExport.create.mockResolvedValue({ id: 'exp-test-1' });
+
+    const res = await service.createExport({
+      exportName: 'test-manifest-export',
+      format: ExportDatasetFormat.JSONL,
+    });
+
+    expect(res).toBeDefined();
+    expect(res.data.dvcHash).toBeDefined();
+    expect(res.data.manifestStoragePath).toBeDefined();
+    expect(mockMinio.uploadExportArtifact).toHaveBeenCalled();
   });
 });
