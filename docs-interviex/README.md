@@ -92,8 +92,10 @@ docs-interviex/
 │   ├── 🖼️ InterviewX AI Interview Coach Dashboard.png # ม็อกอัปแดชบอร์ดหลัก AI Interview Coach
 │   └── 📄 README.md                               # ภาพรวมหมวดการออกแบบ UI/UX
 │
-├── 📂 05_Knowledge_Base/                          # คลังข้อมูลสรุปภาพรวมและบริบทระบบ
-│   └── 📄 INTERVIEWX_MASTER_KNOWLEDGE_PACK.md    # Master Knowledge Pack สำหรับอ้างอิง
+├── 📂 07_Development_Documentation/               # เอกสารประกอบการพัฒนาซอฟต์แวร์และมาตรฐานทางเทคนิค
+│   ├── 📄 INTERVIEWX_MASTER_KNOWLEDGE_PACK.md    # Master Knowledge Pack สำหรับอ้างอิง
+│   ├── 📄 REPOSITORY_STRUCTURE.md                # โครงสร้าง Monorepo และการแบ่งขอบเขตโมดูล
+│   └── 📄 README.md                               # ภาพรวมหมวดเอกสารประกอบการพัฒนา
 │
 └── 📄 README.md                                   # คู่มือภาพรวมและสารบัญโครงสร้างเอกสารโครงการ (ไฟล์นี้)
 ```

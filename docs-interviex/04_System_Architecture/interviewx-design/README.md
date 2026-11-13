@@ -8,7 +8,7 @@ Files:
 - `05_Database_Data_Governance/docs/physical-erd.md`: Mermaid ERDs, physical data boundaries, invariants
 - `contracts/public-v1.openapi.yaml`: client REST contract (release-tagged)
 - `contracts/internal-evaluation.openapi.yaml`: worker→AI FastAPI contract
-- `repo/REPOSITORY_STRUCTURE.md`: monorepo tree, ownership, dependency direction
+- `07_Development_Documentation/REPOSITORY_STRUCTURE.md`: monorepo tree, ownership, dependency direction
 
 These are **design starter artifacts, not a complete production-ready implementation**. Add production-grade migration tooling, granular roles and RLS policies, session transaction implementation, data lifecycle workers, exact API gateway/webhook contract, event JSON schemas, exception telemetry, PII encryption KMS, and contract/e2e tests before deployment. The public OpenAPI represents the external gateway contract; R3 billing/research are separate deployables, not shared Prisma modules.
 
