@@ -1,0 +1,96 @@
+flowchart LR
+  subgraph Candidate["ผู้สมัครงาน"]
+    User([👤 Registered User])
+  end
+
+  subgraph SubsystemBoundary["ระบบฝึกสัมภาษณ์และการประเมินผล AI (Interview & AI Evaluation Engine)"]
+    direction TB
+    
+    StartSession(["เริ่มสร้างเซสชันสัมภาษณ์
+(Start Interview Session)"])
+    SelectDifficulty(["เลือกระดับความยากง่าย
+(Difficulty Scaling - FR16)"])
+    SelectPressure(["เปิดโหมดสัมภาษณ์กดดัน
+(Pressure Mode - FR33)"])
+
+    TextPractice(["(UC04) ฝึกสัมภาษณ์แบบข้อเขียน
+(Practice Text Interview) [FR05]"])
+    VoicePractice(["(UC05) ฝึกสัมภาษณ์ด้วยเสียง
+(Practice Voice Interview) [FR05-V]"])
+
+    AutosaveDraft(["บันทึกร่างคำตอบอัตโนมัติ
+(Autosave Draft - FR05)"])
+    VoiceConsent(["ขอความยินยอมเก็บไฟล์เสียง
+(Voice Retention Consent - FR05.1)"])
+    TranscribeAudio(["แปลงเสียงเป็นข้อความ
+(Transcribe Speech to Text)"])
+
+    GenerateQuestion(["ดึงคำถามจากคลังมาตรฐาน
+(Fetch Question - FR03)"])
+    FollowupQuestion(["สร้างคำถามติดตามผลตามบริบท
+(Contextual Follow-up - FR14)"])
+
+    CheckQuota(["ตรวจสอบโควตาสมาชิก
+(Subscription Entitlement - FR13)"])
+    ViewProgress(["ดูสถานะการประมวลผล AI
+(AI Job Processing Status - FR19)"])
+
+    ReviewEval(["(UC06) ตรวจสอบผลประเมินและรูบริก
+(Review AI Evaluation Report) [FR07]"])
+    RubricScore(["คำนวณคะแนนตามเกณฑ์รูบริก
+(Calculate Rubric Scores)"])
+    RelevanceAnalysis(["วิเคราะห์ความตรงประเด็น STAR
+(Answer Relevance Analysis - FR08)"])
+    StrengthWeakness(["รายงานสรุปจุดแข็ง/จุดพัฒนา
+(Strengths & Weaknesses - FR09)"])
+    GrammarAnalysis(["วิเคราะห์ไวยากรณ์ภาษาอังกฤษ
+(Grammar & Language - FR10)"])
+    SpeechRhythm(["วิเคราะห์จังหวะและความเร็วพูด
+(Speech Pace & Rhythm - FR36)"])
+    ImprovementTips(["ดูคำแนะนำปรับปรุงคำตอบ
+(Answer Guidance - FR06)"])
+    AppealScore(["ส่งคำขออุทธรณ์ผลประเมิน
+(Evaluation Appeal - FR17)"])
+    ExportPDF(["ดาวน์โหลดรายงานสรุป PDF
+(Export Feedback Report - FR20)"])
+  end
+
+  subgraph ExternalEngines["ระบบประมวลผลภายนอก"]
+    LLM[[🤖 Hosted LLM Provider]]
+    STT[[🎙️ Speech-to-Text Provider]]
+  end
+
+  User --> StartSession
+  User --> TextPractice
+  User --> VoicePractice
+  User --> ReviewEval
+  User --> ViewProgress
+
+  StartSession -.->|"<<include>>"| GenerateQuestion
+  StartSession -.->|"<<include>>"| CheckQuota
+  SelectDifficulty -.->|"<<extend>>"| StartSession
+  SelectPressure -.->|"<<extend>>"| StartSession
+  FollowupQuestion -.->|"<<extend>>"| GenerateQuestion
+
+  AutosaveDraft -.->|"<<extend>>"| TextPractice
+
+  VoicePractice -.->|"<<include>>"| VoiceConsent
+  VoicePractice -.->|"<<include>>"| TranscribeAudio
+  TranscribeAudio --> STT
+
+  ReviewEval -.->|"<<include>>"| RubricScore
+  ReviewEval -.->|"<<include>>"| RelevanceAnalysis
+  ReviewEval -.->|"<<include>>"| StrengthWeakness
+
+  GrammarAnalysis -.->|"<<extend>>"| ReviewEval
+  SpeechRhythm -.->|"<<extend>>"| ReviewEval
+  ImprovementTips -.->|"<<extend>>"| ReviewEval
+  AppealScore -.->|"<<extend>>"| ReviewEval
+  ExportPDF -.->|"<<extend>>"| ReviewEval
+
+  GenerateQuestion --> LLM
+  FollowupQuestion --> LLM
+  RubricScore --> LLM
+  RelevanceAnalysis --> LLM
+  GrammarAnalysis --> LLM
+  ImprovementTips --> LLM

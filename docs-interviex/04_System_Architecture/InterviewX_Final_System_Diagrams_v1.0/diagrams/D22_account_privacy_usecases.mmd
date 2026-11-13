@@ -1,0 +1,63 @@
+flowchart LR
+  subgraph Actors["ผู้แสดงบทบาท"]
+    Guest([👤 Guest / ผู้เยี่ยมชม])
+    User([👤 Registered User / ผู้ใช้ทั่วไป])
+    Admin([🛡️ System Admin / เจ้าหน้าที่คุ้มครองข้อมูล])
+  end
+
+  subgraph PrivacyBoundary["ระบบการตรวจสอบสิทธิ์และธรรมาภิบาลข้อมูล (Identity & Privacy Governance)"]
+    direction TB
+
+    SignUp(["ลงทะเบียนด้วยอีเมลและรหัสผ่าน
+(Sign Up with Email - FR01)"])
+    VerifyEmail(["ยืนยันอีเมลผ่านลิงก์ปลอดภัย
+(Verify Email Address)"])
+    Login(["เข้าสู่ระบบและรับ JWT Token
+(Authenticate & Issue Tokens - FR01)"])
+    LogoutAll(["ยกเลิกเซสชันทุกอุปกรณ์
+(Logout from All Devices - FR23)"])
+    ChangePassword(["เปลี่ยนรหัสผ่านประจำตัว
+(Change Password - FR23)"])
+
+    ManageProfile(["(UC03) ตั้งค่าโปรไฟล์และเป้าหมาย
+(Manage Profile & Goals - FR02)"])
+
+    ConsentMgmt(["(UC08) จัดการความยินยอม PDPA
+(Manage Consent Preferences - FR18)"])
+    RevokeConsent(["เพิกถอนความยินยอมรายวัตถุประสงค์
+(Revoke Specific Consent)"])
+    ExportData(["ขอรับสำเนาข้อมูลส่วนบุคคล
+(Data Portability Request - FR21)"])
+    DeleteAccount(["ขอลบบัญชีและทำลายข้อมูล
+(Right to Erasure / Deletion - FR22)"])
+
+    ReviewDSR(["พิจารณาคำร้องขอใช้สิทธิ์เจ้าของข้อมูล
+(Process DSR Workflow - FR35)"])
+    AuditLog(["บันทึกหลักฐานความยินยอม
+(Immutable Audit Logging - FR26)"])
+  end
+
+  subgraph MailService["ระบบภายนอก"]
+    EmailGateway[[✉️ Transactional Email]]
+  end
+
+  Guest --> SignUp
+  Guest --> Login
+  SignUp -.->|"<<include>>"| VerifyEmail
+  VerifyEmail --> EmailGateway
+
+  User --> Login
+  User --> ChangePassword
+  User --> LogoutAll
+  User --> ManageProfile
+  User --> ConsentMgmt
+  User --> ExportData
+  User --> DeleteAccount
+
+  ConsentMgmt -.->|"<<extend>>"| RevokeConsent
+  ConsentMgmt -.->|"<<include>>"| AuditLog
+  RevokeConsent -.->|"<<include>>"| AuditLog
+  DeleteAccount -.->|"<<include>>"| ReviewDSR
+  ExportData -.->|"<<include>>"| ReviewDSR
+
+  Admin --> ReviewDSR

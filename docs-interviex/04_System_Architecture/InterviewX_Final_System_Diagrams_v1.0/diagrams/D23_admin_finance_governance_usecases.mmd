@@ -1,0 +1,53 @@
+flowchart LR
+  subgraph InternalUsers["บทบาททีมงานภายใน (Web Only)"]
+    Admin([🛡️ System Admin])
+    Finance([💳 Finance Admin R3])
+    Researcher([🔬 Research Engineer R3])
+  end
+
+  subgraph AdminBoundary["พอร์ทัลการบริหารจัดการระบบและกำกับดูแล (Backoffice & Governance Portal)"]
+    direction TB
+
+    ManageQuestions(["(UC10) จัดการคลังคำถามและหมวดหมู่
+(Question Bank Console - FR24)"])
+    ManageRubrics(["จัดการเกณฑ์รูบริกและเวอร์ชัน
+(Rubric Versioning Console - FR24)"])
+    ConfigAI(["ตั้งค่าโมเดลและทดสอบ Prompt
+(AI Model & Prompt Config - FR34)"])
+
+    ManageUsers(["จัดการรายชื่อผู้ใช้และบทบาท
+(User & Role RBAC Console - FR25)"])
+    SuspendUser(["ระงับการใช้งานและปลดล็อกบัญชี
+(Suspend & Unlock Accounts - FR32)"])
+    ReviewAudit(["ตรวจสอบประวัติความปลอดภัย
+(Security Audit Viewer - FR26)"])
+
+    HandleAppeals(["พิจารณาข้ออุทธรณ์ผลคะแนน
+(Resolve Score Appeals - FR17)"])
+
+    ViewFinances(["(UC09) ดูแดชบอร์ดรายได้และการเงิน
+(Financial & MRR Dashboard - FR31)"])
+    ProcessRefund(["พิจารณาอนุมัติ/ปฏิเสธการคืนเงิน
+(Process Refund Requests - FR30)"])
+
+    ExportResearch(["(UC08.1) ส่งออกชุดข้อมูลวิจัยนิรนาม
+(Export Anonymized Research Dataset - FR18.1)"])
+  end
+
+  subgraph ExtPayment["ระบบภายนอก"]
+    PaymentGW[[🏦 Payment Gateway]]
+  end
+
+  Admin --> ManageQuestions
+  Admin --> ManageRubrics
+  Admin --> ConfigAI
+  Admin --> ManageUsers
+  Admin --> SuspendUser
+  Admin --> ReviewAudit
+  Admin --> HandleAppeals
+
+  Finance --> ViewFinances
+  Finance --> ProcessRefund
+  ProcessRefund --> PaymentGW
+
+  Researcher --> ExportResearch

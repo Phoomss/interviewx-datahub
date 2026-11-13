@@ -760,3 +760,95 @@ Responsive Web, การตรวจสอบตัวตน, ฝึกสั�
 การเปิดตัว Native Mobile Application ถูกจัดสรรไว้ในรอบ R2 (ตามการตัดสินใจ D-M01)
 พอร์ทัลผู้ดูแลระบบและผู้วิจัยสงวนไว้เฉพาะบน Web Application เท่านั้นตลอดไป"] -. "กฎแผนงาน" .-> R1
 ```
+
+---
+
+## D20 แผนภาพกรณีการใช้งานระบบโดยรวม (System Use Case Diagram)
+
+แผนภาพกรณีการใช้งานระดับภาพรวมระบบแสดงความสัมพันธ์ระหว่างผู้แสดงบทบาท (Actors) ทั้ง 5 กลุ่ม (ผู้เยี่ยมชม, ผู้สมัครงาน, ผู้ดูแลระบบ, ผู้ดูแลการเงิน, ผู้วิจัย) กับกรณีการใช้งานหลักทั้ง 10 กรณี (UC01 ถึง UC10) และการเชื่อมโยงกับบริการภายนอก 4 ระบบ:
+
+```mermaid
+flowchart LR
+  subgraph Candidates["กลุ่มผู้ใช้งานทั่วไป (End Users)"]
+    Guest([👤 Guest / ผู้เยี่ยมชม])
+    User([👤 Registered User / ผู้สมัครงาน])
+  end
+
+  subgraph Staff["กลุ่มผู้ดูแลระบบและทีมงานภายใน (Internal Roles)"]
+    Admin([🛡️ System Admin / ผู้ดูแลระบบ])
+    Finance([💳 Finance Admin / ผู้ดูแลการเงิน R3])
+    Researcher([🔬 Research Engineer / ผู้วิจัย R3])
+  end
+
+  subgraph SystemBoundary["กรอบขอบเขตระบบ InterviewX (InterviewX Platform Boundary)"]
+    UC01(["UC01: สำรวจระบบและทดลองทำสัมภาษณ์ตัวอย่าง
+(Explore & Trial Simulation) [R1]"])
+    UC02(["UC02: ลงทะเบียนและเข้าสู่ระบบด้วยอีเมล
+(Register & Authenticate) [R1]"])
+    UC03(["UC03: ตั้งค่าโปรไฟล์และกำหนดเป้าหมาย
+(Manage Profile & Goals) [R1]"])
+    UC04(["UC04: ดำเนินการฝึกสัมภาษณ์แบบข้อเขียน
+(Practice Text Interview) [R1]"])
+    UC05(["UC05: ดำเนินการฝึกสัมภาษณ์ด้วยเสียงพูด
+(Practice Voice Interview) [R2]"])
+    UC06(["UC06: ตรวจสอบผลการประเมินและข้อเสนอแนะ AI
+(Review AI Evaluation & Feedback) [R1]"])
+    UC07(["UC07: ตรวจสอบประวัติการฝึกซ้อมและแดชบอร์ด
+(View History & Dashboard) [R1/R2]"])
+    UC08(["UC08: จัดการความยินยอมและสิทธิ์คุ้มครองข้อมูล
+(Manage PDPA Privacy Rights) [R1]"])
+    UC09(["UC09: บริหารจัดการการเงินและรายการคืนเงิน
+(Manage Billing & Refunds) [R3]"])
+    UC10(["UC10: บริหารระบบ คลังคำถาม และโมเดล AI
+(Administer System & Question Bank) [R1]"])
+  end
+
+  subgraph ExternalServices["ระบบสนับสนุนภายนอก (External Supporting Services)"]
+    EmailGateway[[✉️ Email Service Provider]]
+    LLMService[[🤖 External Hosted LLM]]
+    STTService[[🎙️ Speech-to-Text Provider R2]]
+    PaymentGW[[🏦 Payment Gateway Provider R3]]
+  end
+
+  User -- สืบทอดสิทธิ์ (Generalizes) --> Guest
+
+  Guest --> UC01
+  Guest --> UC02
+
+  User --> UC02
+  User --> UC03
+  User --> UC04
+  User --> UC05
+  User --> UC06
+  User --> UC07
+  User --> UC08
+  User -. "ซื้อสมาชิก" .-> UC09
+
+  Admin --> UC10
+  Admin -. "จัดการสิทธิ์ข้อมูล" .-> UC08
+  Finance --> UC09
+  Researcher -. "สกัดชุดข้อมูลวิจัย" .-> UC08
+
+  UC02 --> EmailGateway
+  UC04 --> LLMService
+  UC05 --> STTService
+  UC05 --> LLMService
+  UC06 --> LLMService
+  UC09 --> PaymentGW
+
+  classDef actorStyle fill:#f0f4f8,stroke:#334155,stroke-width:2px;
+  classDef externalStyle fill:#fef3c7,stroke:#d97706,stroke-width:2px;
+  classDef r1Style fill:#ecfdf5,stroke:#059669,stroke-width:2px;
+  classDef r2Style fill:#eff6ff,stroke:#2563eb,stroke-width:2px;
+  classDef r3Style fill:#fdf4ff,stroke:#9333ea,stroke-width:2px;
+
+  class Guest,User,Admin,Finance,Researcher actorStyle;
+  class EmailGateway,LLMService,STTService,PaymentGW externalStyle;
+  class UC01,UC02,UC03,UC04,UC06,UC07,UC08,UC10 r1Style;
+  class UC05 r2Style;
+  class UC09 r3Style;
+```
+
+> 📖 ดูรายละเอียดโมเดลกรณีการใช้งานฉบับสมบูรณ์ พร้อมแผนภาพเจาะลึกรายระบบย่อย (Subsystems D21–D23) และตาราง Traceability ได้ที่:  
+> 👉 [InterviewX_Use_Case_Diagrams_v1.1.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/InterviewX_Use_Case_Diagrams_v1.1.md)
+
