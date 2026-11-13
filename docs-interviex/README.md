@@ -12,13 +12,13 @@
 
 | เอกสารผลลัพธ์ | ลิงก์เปิดไฟล์ (Clickable Link) | ขนาดไฟล์ | คำอธิบายสาระสำคัญ |
 |---|---|:---:|---|
-| **เอกสารข้อกำหนดระบบ (SRS Word)** | [InterviewX_SRS_v1.1_DRAFT_TH.docx](file:///D:/workspaces/interviewx-datahub/docs-interviex/InterviewX_SRS_v1.1_DRAFT_TH.docx) | 80.7 KB | เอกสารทางการ 14 หมวด พร้อมใบปะหน้า สารบัญ และจัดรูปแบบตามมาตรฐานด้วยฟอนต์ TH Sarabun New |
-| **เอกสารข้อกำหนดระบบ (SRS Markdown)** | [InterviewX_SRS_v1.1_DRAFT_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/InterviewX_SRS_v1.1_DRAFT_TH.md) | 129 KB | เอกสารข้อกำหนดระบบฉบับเต็ม 14 หมวดในรูปแบบมาร์กดาวน์ภาษาไทยเชิงวิชาการ |
-| **เวิร์กบุ๊กข้อกำหนดและสิทธิ์ (Excel)** | [InterviewX_FR_NFR_RBAC_v1.1_DRAFT_TH.xlsx](file:///D:/workspaces/interviewx-datahub/docs-interviex/InterviewX_FR_NFR_RBAC_v1.1_DRAFT_TH.xlsx) | 38.3 KB | รวม 9 แผ่นงานภาษาไทย: FR, NFR, RBAC, Platform Access, Subscription, Mobile Scope, Data Sync, Decisions, Change Log |
+| **เอกสารข้อกำหนดระบบ (SRS Word)** | [InterviewX_SRS_v1.1_DRAFT_TH.docx](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/InterviewX_SRS_v1.1_DRAFT_TH.docx) | 80.7 KB | เอกสารทางการ 14 หมวด พร้อมใบปะหน้า สารบัญ และจัดรูปแบบตามมาตรฐานด้วยฟอนต์ TH Sarabun New |
+| **เอกสารข้อกำหนดระบบ (SRS Markdown)** | [InterviewX_SRS_v1.1_DRAFT_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/InterviewX_SRS_v1.1_DRAFT_TH.md) | 129 KB | เอกสารข้อกำหนดระบบฉบับเต็ม 14 หมวดในรูปแบบมาร์กดาวน์ภาษาไทยเชิงวิชาการ |
+| **เวิร์กบุ๊กข้อกำหนดและสิทธิ์ (Excel)** | [InterviewX_FR_NFR_RBAC_v1.1_DRAFT_TH.xlsx](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/InterviewX_FR_NFR_RBAC_v1.1_DRAFT_TH.xlsx) | 38.3 KB | รวม 9 แผ่นงานภาษาไทย: FR, NFR, RBAC, Platform Access, Subscription, Mobile Scope, Data Sync, Decisions, Change Log |
 | **แผนภาพสถาปัตยกรรมระบบทั้งหมด** | [ALL_DIAGRAMS_v1.1_DRAFT_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/ALL_DIAGRAMS_v1.1_DRAFT_TH.md) | 59.3 KB | แผนภาพ Mermaid ทั้งหมด 19 แผนภาพ (D01–D19) พร้อมคำอธิบายและป้ายกำกับภาษาไทย |
-| **เมทริกซ์การตรวจสอบย้อนกลับ** | [InterviewX_Phase1_Requirement_Traceability_TH.xlsx](file:///D:/workspaces/interviewx-datahub/docs-interviex/InterviewX_Phase1_Requirement_Traceability_TH.xlsx) | 17.8 KB | ตารางเชื่อมโยงข้อกำหนด 64 รายการ (FR 40, NFR 24) เข้ากับ Survey, RBAC, แผนภาพ และวิธีการทดสอบ |
-| **ทะเบียนการตัดสินใจสถาปัตยกรรม** | [InterviewX_Phase1_Decision_Register_TH.xlsx](file:///D:/workspaces/interviewx-datahub/docs-interviex/InterviewX_Phase1_Decision_Register_TH.xlsx) | 11.0 KB | ทะเบียนการตัดสินใจ D-M01 ถึง D-M11 ในภาษาไทยอย่างครบถ้วน |
-| **บันทึกการเปลี่ยนแปลงฉบับสมบูรณ์** | [InterviewX_Phase1_Change_Log_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/InterviewX_Phase1_Change_Log_TH.md) | 32.6 KB | บันทึกประวัติการแก้ไขและตารางเปรียบเทียบการปรับปรุงข้อกำหนดฉบับภาษาไทย |
+| **เมทริกซ์การตรวจสอบย้อนกลับ** | [InterviewX_Phase1_Requirement_Traceability_TH.xlsx](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/InterviewX_Phase1_Requirement_Traceability_TH.xlsx) | 17.8 KB | ตารางเชื่อมโยงข้อกำหนด 64 รายการ (FR 40, NFR 24) เข้ากับ Survey, RBAC, แผนภาพ และวิธีการทดสอบ |
+| **ทะเบียนการตัดสินใจสถาปัตยกรรม** | [InterviewX_Phase1_Decision_Register_TH.xlsx](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/InterviewX_Phase1_Decision_Register_TH.xlsx) | 11.0 KB | ทะเบียนการตัดสินใจ D-M01 ถึง D-M11 ในภาษาไทยอย่างครบถ้วน |
+| **บันทึกการเปลี่ยนแปลงฉบับสมบูรณ์** | [InterviewX_Phase1_Change_Log_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/InterviewX_Phase1_Change_Log_TH.md) | 32.6 KB | บันทึกประวัติการแก้ไขและตารางเปรียบเทียบการปรับปรุงข้อกำหนดฉบับภาษาไทย |
 
 ---
 
