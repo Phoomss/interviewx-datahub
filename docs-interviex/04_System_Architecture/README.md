@@ -49,6 +49,5 @@
 จัดเก็บในโฟลเดอร์ [interviewx-design/](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/interviewx-design/):
 - `contracts/public-v1.openapi.yaml`: สัญญา OpenAPI 3.0 สำหรับ Public REST API (Client ↔ Backend)
 - `contracts/internal-evaluation.openapi.yaml`: สัญญา OpenAPI 3.0 สำหรับ Internal AI Evaluation Service (NestJS ↔ FastAPI)
-- `database/`: สคริปต์สกีมาฐานข้อมูล PostgreSQL (`001_core.sql`, `002_r3_services.sql`)
-- `docs/physical-erd.md`: เอกสารพจนานุกรมและโครงสร้างข้อมูลกายภาพ
 - `repo/REPOSITORY_STRUCTURE.md`: ข้อกำหนดโครงสร้างโฟลเดอร์และ Monorepo Package Boundary
+- *ดูรายละเอียดสกีมาฐานข้อมูลและโมเดลข้อมูลกายภาพที่:* [05_Database_Data_Governance/](file:///D:/workspaces/interviewx-datahub/docs-interviex/05_Database_Data_Governance/)

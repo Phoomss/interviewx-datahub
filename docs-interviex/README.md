@@ -83,6 +83,11 @@ docs-interviex/
 │   │   └── 📑 ALL_DIAGRAMS.md                     # แผนภาพ v1.0 เดิม
 │   └── 📂 interviewx-design/                      # รายละเอียด OpenAPI, Database, และ Monorepo
 │
+├── 📂 05_Database_Data_Governance/                # การออกแบบฐานข้อมูลและธรรมาภิบาลข้อมูล
+│   ├── 📄 README.md                               # ภาพรวมหมวดฐานข้อมูลและธรรมาภิบาล
+│   ├── 📂 database/                               # สคริปต์สกีมา PostgreSQL (001_core.sql, 002_r3_services.sql)
+│   └── 📂 docs/                                   # เอกสารพจนานุกรมและโครงสร้างข้อมูลกายภาพ (physical-erd.md)
+│
 ├── 📂 05_Knowledge_Base/                          # คลังข้อมูลสรุปภาพรวมและบริบทระบบ
 │   └── 📄 INTERVIEWX_MASTER_KNOWLEDGE_PACK.md    # Master Knowledge Pack สำหรับอ้างอิง
 │

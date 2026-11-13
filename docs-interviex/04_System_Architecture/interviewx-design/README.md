@@ -3,9 +3,9 @@
 **Status:** engineering proposal mapped to `InterviewX_SRS_Final_For_Approval_v1.0` (pending stakeholder sign-off) and `InterviewX_Architecture_Diagrams_v1.0`.
 
 Files:
-- `database/001_core.sql`: R1 physical PostgreSQL schema, with R2-ready voice tables
-- `database/002_r3_services.sql`: Billing and Research independent database schemas; deploy them in separate DBs
-- `docs/physical-erd.md`: Mermaid ERDs, physical data boundaries, invariants
+- `05_Database_Data_Governance/database/001_core.sql`: R1 physical PostgreSQL schema, with R2-ready voice tables
+- `05_Database_Data_Governance/database/002_r3_services.sql`: Billing and Research independent database schemas; deploy them in separate DBs
+- `05_Database_Data_Governance/docs/physical-erd.md`: Mermaid ERDs, physical data boundaries, invariants
 - `contracts/public-v1.openapi.yaml`: client REST contract (release-tagged)
 - `contracts/internal-evaluation.openapi.yaml`: worker→AI FastAPI contract
 - `repo/REPOSITORY_STRUCTURE.md`: monorepo tree, ownership, dependency direction
