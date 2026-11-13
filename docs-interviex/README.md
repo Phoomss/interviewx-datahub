@@ -101,5 +101,8 @@ docs-interviex/
 │   ├── 📂 contracts/                              # สัญญา OpenAPI 3.1 สำหรับ AI Service (internal-evaluation.openapi.yaml)
 │   └── 📄 README.md                               # ภาพรวมหมวดวิศวกรรม AI/ML
 │
+├── 📂 09_Testing_QA/                              # แผนและการประกันคุณภาพซอฟต์แวร์
+│   └── 📄 README.md                               # กลยุทธ์การทดสอบ, เกณฑ์ DoD, และการทดสอบย้อนกลับ
+│
 └── 📄 README.md                                   # คู่มือภาพรวมและสารบัญโครงสร้างเอกสารโครงการ (ไฟล์นี้)
 ```
