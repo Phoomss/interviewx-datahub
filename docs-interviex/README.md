@@ -1,109 +1,85 @@
 # InterviewX — AI Job Interview Simulation System
 > **สารบัญเอกสารและดัชนีนำทางโครงการ (Project Documentation Catalog & Directory Map)**  
-> **วันที่มีผลบังคับใช้:** 8 ตุลาคม 2026 | **เวอร์ชันปัจจุบัน:** 1.0 (Baseline for Approval)
+> **สถานะการกำกับดูแลเอกสาร:** ฉบับปรับปรุงมาตรฐาน Phase 1 (Requirement Alignment)  
+> **เอกสารหลักฐานเวอร์ชันหลักของโครงการ (Active Primary Baseline):** `v1.1 DRAFT_TH` (ฉบับภาษาไทยมาตรฐาน)  
+> **วันที่ปรับปรุงล่าสุด:** 13 พฤศจิกายน 2026
 
 ---
 
-## 📌 แผนผังโครงสร้างโฟลเดอร์ (Directory Structure)
+## 🌟 เอกสารหลักฐานเวอร์ชันหลักของโครงการ (Active Primary Deliverables — v1.1 DRAFT_TH)
+
+เอกสารชุดนี้เป็น **เอกสารหลักฐานทางการ (Official Active Baseline)** สำหรับการออกแบบและพัฒนาแพลตฟอร์ม InterviewX ทั้งระบบ:
+
+| เอกสารผลลัพธ์ | ลิงก์เปิดไฟล์ (Clickable Link) | ขนาดไฟล์ | คำอธิบายสาระสำคัญ |
+|---|---|:---:|---|
+| **เอกสารข้อกำหนดระบบ (SRS Word)** | [InterviewX_SRS_v1.1_DRAFT_TH.docx](file:///D:/workspaces/interviewx-datahub/docs-interviex/InterviewX_SRS_v1.1_DRAFT_TH.docx) | 80.7 KB | เอกสารทางการ 14 หมวด พร้อมใบปะหน้า สารบัญ และจัดรูปแบบตามมาตรฐานด้วยฟอนต์ TH Sarabun New |
+| **เอกสารข้อกำหนดระบบ (SRS Markdown)** | [InterviewX_SRS_v1.1_DRAFT_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/InterviewX_SRS_v1.1_DRAFT_TH.md) | 129 KB | เอกสารข้อกำหนดระบบฉบับเต็ม 14 หมวดในรูปแบบมาร์กดาวน์ภาษาไทยเชิงวิชาการ |
+| **เวิร์กบุ๊กข้อกำหนดและสิทธิ์ (Excel)** | [InterviewX_FR_NFR_RBAC_v1.1_DRAFT_TH.xlsx](file:///D:/workspaces/interviewx-datahub/docs-interviex/InterviewX_FR_NFR_RBAC_v1.1_DRAFT_TH.xlsx) | 38.3 KB | รวม 9 แผ่นงานภาษาไทย: FR, NFR, RBAC, Platform Access, Subscription, Mobile Scope, Data Sync, Decisions, Change Log |
+| **แผนภาพสถาปัตยกรรมระบบทั้งหมด** | [ALL_DIAGRAMS_v1.1_DRAFT_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/ALL_DIAGRAMS_v1.1_DRAFT_TH.md) | 59.3 KB | แผนภาพ Mermaid ทั้งหมด 19 แผนภาพ (D01–D19) พร้อมคำอธิบายและป้ายกำกับภาษาไทย |
+| **เมทริกซ์การตรวจสอบย้อนกลับ** | [InterviewX_Phase1_Requirement_Traceability_TH.xlsx](file:///D:/workspaces/interviewx-datahub/docs-interviex/InterviewX_Phase1_Requirement_Traceability_TH.xlsx) | 17.8 KB | ตารางเชื่อมโยงข้อกำหนด 64 รายการ (FR 40, NFR 24) เข้ากับ Survey, RBAC, แผนภาพ และวิธีการทดสอบ |
+| **ทะเบียนการตัดสินใจสถาปัตยกรรม** | [InterviewX_Phase1_Decision_Register_TH.xlsx](file:///D:/workspaces/interviewx-datahub/docs-interviex/InterviewX_Phase1_Decision_Register_TH.xlsx) | 11.0 KB | ทะเบียนการตัดสินใจ D-M01 ถึง D-M11 ในภาษาไทยอย่างครบถ้วน |
+| **บันทึกการเปลี่ยนแปลงฉบับสมบูรณ์** | [InterviewX_Phase1_Change_Log_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/InterviewX_Phase1_Change_Log_TH.md) | 32.6 KB | บันทึกประวัติการแก้ไขและตารางเปรียบเทียบการปรับปรุงข้อกำหนดฉบับภาษาไทย |
+
+---
+
+## 🚀 เอกสารสรุปสำหรับนำเสนอและวางแผนงานใน Sprint 2 (Sprint 2 Alignment Pack)
+
+สำหรับทีมพัฒนาและผู้มีส่วนได้ส่วนเสียในการวางแผนงาน Sprint 2:
+👉 [InterviewX_Sprint2_Team_Alignment_Brief.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/InterviewX_Sprint2_Team_Alignment_Brief.md)
+- สรุปกฎเหล็กทางสถาปัตยกรรม (Core Architectural Invariants)
+- สัญญาทางเทคนิค (Authentication, Idempotency, Outbox, BullMQ Queue, Ownership Guard)
+- มติการตัดสินใจสถาปัตยกรรม 11 ข้อ (D-M01 ถึง D-M11)
+- การจัดสรรแพ็กเกจงานสำหรับแต่ละทีม (Backend, Frontend, Mobile, AI, QA)
+- วาระการประชุมและคำถามสำคัญสำหรับแต่ละทีมในการประชุม Sprint 2 Planning
+
+---
+
+## 📦 คลังเอกสารประวัติและเวอร์ชันเดิม (Historical Archives)
+
+เอกสารเวอร์ชันเดิมทั้งหมดถูกจัดเก็บรักษาไว้อย่างเป็นระบบ โดยไม่มีการลบหรือเขียนทับ:
+👉 รายละเอียดคลังเอกสารประวัติ: [03_SRS_Requirements/archive/ARCHIVE_INDEX.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/archive/ARCHIVE_INDEX.md)
+- [03_SRS_Requirements/archive/v1.0_baseline/](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/archive/v1.0_baseline/): เอกสารตั้งต้นดั้งเดิม (v1.0 ก่อนการแยกแพลตฟอร์ม)
+- [03_SRS_Requirements/archive/v1.1_en_draft/](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/archive/v1.1_en_draft/): เอกสารร่างฉบับภาษาอังกฤษ (English Draft Baseline)
+- เอกสารแบบร่างเบื้องต้น (Pre-v1.0 Early Drafts): `InterviewX_SRS_Complete.docx`, `InterviewX_SRS_Revised.docx`
+
+---
+
+## 📌 แผนผังโครงสร้างโฟลเดอร์โครงการ (Directory Structure)
 
 ```text
-interviewX/
+docs-interviex/
 │
-├── 📁 01_Proposal/                                # เอกสารข้อเสนอโครงงาน / เล่มวิจัย (Research Proposal)
-│   ├── 📄 InterviewX_Research_Proposal_v1.1.docx  # [ล่าสุด] เล่มข้อเสนอโครงการ v1.1 (Microsoft Word)
+├── 📂 01_Proposal/                                # เอกสารข้อเสนอโครงการ / เล่มวิจัย (Research Proposal)
+│   ├── 📄 InterviewX_Research_Proposal_v1.1.docx  # [ล่าสุด] เล่มข้อเสนอโครงการ v1.1 (Word)
 │   ├── 📄 InterviewX_Research_Proposal_v1.1.pdf   # [ล่าสุด] เล่มข้อเสนอโครงการ v1.1 (PDF)
-│   └── 📁 archive/                                # ประวัติเอกสารเวอร์ชันก่อนหน้า
-│       ├── 📄 InterviewX_Research_Proposal_v1.0.docx
-│       └── 📄 InterviewX_Research_Proposal_v1.0.pdf
+│   └── 📂 archive/                                # ประวัติข้อเสนอโครงการ v1.0
 │
-├── 📁 02_Survey_Data/                             # ข้อมูลการสำรวจความต้องการและผลวิเคราะห์สถิติ
-│   ├── 📊 Interview X Requirement Survey Form (การตอบกลับ) - การตอบแบบฟอร์ม 1.csv # ข้อมูลดิบจากผู้ตอบ (n=102)
-│   └── 📊 InterviewX_Survey_Validated_Aggregates.xlsx                            # ผลการวิเคราะห์สถิติที่ผ่านการตรวจสอบ
+├── 📂 02_Survey_Data/                             # ข้อมูลการสำรวจความต้องการจริง (n=102)
+│   ├── 📊 Interview X Requirement Survey Form.csv # ข้อมูลดิบจากผู้ตอบแบบสอบถาม
+│   └── 📊 InterviewX_Survey_Validated_Aggregates.xlsx # ผลวิเคราะห์ทางสถิติที่ผ่านการตรวจสอบ
 │
-├── 📁 03_SRS_Requirements/                       # ข้อกำหนดความต้องการระบบซอฟต์แวร์ (SRS & Specifications)
-│   ├── 📄 InterviewX_SRS_Final_For_Approval_v1.0.docx   # [เอกสารหลัก] SRS ฉบับสมบูรณ์เสนออนุมัติ (Final)
-│   ├── 📊 InterviewX_FR_NFR_RBAC.xlsx                   # ตารางสรุป Functional/Non-Functional & RBAC Matrix
-│   ├── 🐍 generate_final_srs.py                         # สคริปต์ Python สำหรับฟอร์แมตและสร้างเล่ม SRS Docx
-│   ├── 📄 InterviewX_SRS_Final_For_Approval_v1.0.backup.docx # ไฟล์แม่แบบต้นทางสำหรับสคริปต์
-│   ├── 📁 template_srs/                                 # ลิงก์และข้อมูลแม่แบบ SRS ต้นฉบับ
-│   │   └── 📄 template_srs.text
-│   └── 📁 archive/                                      # ประวัติแบบร่าง SRS เวอร์ชันก่อนหน้า
-│       ├── 📄 InterviewX_SRS_Revised.docx
-│       └── 📄 InterviewX_SRS_Complete.docx
+├── 📂 03_SRS_Requirements/                       # ข้อกำหนดความต้องการระบบซอฟต์แวร์ (SRS)
+│   ├── 📄 InterviewX_SRS_v1.1_DRAFT_TH.docx       # ⭐ [เอกสารหลัก] SRS Word ภาษาไทยมาตรฐาน v1.1
+│   ├── 📄 InterviewX_SRS_v1.1_DRAFT_TH.md         # ⭐ [เอกสารหลัก] SRS Markdown ภาษาไทยมาตรฐาน v1.1
+│   ├── 📊 InterviewX_FR_NFR_RBAC_v1.1_DRAFT_TH.xlsx # ⭐ [เอกสารหลัก] 9 แผ่นงานภาษาไทยมาตรฐาน v1.1
+│   ├── 📊 InterviewX_Phase1_Requirement_Traceability_TH.xlsx # เมทริกซ์ตรวจสอบย้อนกลับ 64 รายการ
+│   ├── 📊 InterviewX_Phase1_Decision_Register_TH.xlsx # ทะเบียนการตัดสินใจ D-M01 ถึง D-M11
+│   ├── 📝 InterviewX_Phase1_Change_Log_TH.md      # บันทึกการเปลี่ยนแปลงฉบับภาษาไทย
+│   ├── 📝 InterviewX_Sprint2_Team_Alignment_Brief.md # เอกสารสรุปสำหรับทีมใน Sprint 2
+│   └── 📂 archive/                                # คลังเอกสารประวัติและเวอร์ชันเดิม
+│       ├── 📂 v1.0_baseline/                      # เอกสารตั้งต้น v1.0
+│       ├── 📂 v1.1_en_draft/                      # เอกสารร่างภาษาอังกฤษ v1.1
+│       └── 📄 ARCHIVE_INDEX.md                    # ดัชนีเอกสารประวัติ
 │
-├── 📁 04_System_Architecture/                     # สถาปัตยกรรมระบบและการออกแบบเชิงเทคนิค (Architecture & Design)
-│   ├── 📄 InterviewX_Architecture_Diagrams_v1.0.md      # เอกสารสรุปแผนภาพสถาปัตยกรรมระบบ
-│   ├── 📁 InterviewX_Final_System_Diagrams_v1.0/        # ชุดแผนภาพระบบฉบับสมบูรณ์ 19 ไดอะแกรม (Mermaid D01-D19)
-│   │   ├── 📄 ALL_DIAGRAMS.md                           # รวมแผนภาพ Mermaid ทั้งหมดพร้อมคำอธิบาย
-│   │   ├── 📄 README.md                                 # คำอธิบายและ Traceability Matrix ของไดอะแกรม
-│   │   └── 📁 diagrams/ (D01_*.mmd ถึง D19_*.mmd)
-│   └── 📁 interviewx-design/                            # รายละเอียดการออกแบบ Database, API และ Monorepo
-│       ├── 📄 README.md
-│       ├── 📁 contracts/ (OpenAPI specs: public-v1, internal-evaluation)
-│       ├── 📁 database/ (001_core.sql, 002_r3_services.sql)
-│       ├── 📁 docs/ (physical-erd.md)
-│       └── 📁 repo/ (REPOSITORY_STRUCTURE.md)
+├── 📂 04_System_Architecture/                     # สถาปัตยกรรมระบบและการออกแบบเชิงเทคนิค
+│   ├── 📂 InterviewX_Final_System_Diagrams_v1.0/
+│   │   ├── 📑 ALL_DIAGRAMS_v1.1_DRAFT_TH.md       # ⭐ แผนภาพ Mermaid ทั้งหมด 19 รูป ภาษาไทย
+│   │   └── 📑 ALL_DIAGRAMS.md                     # แผนภาพ v1.0 เดิม
+│   └── 📂 interviewx-design/                      # รายละเอียด OpenAPI, Database, และ Monorepo
 │
-├── 📁 05_Knowledge_Base/                          # คลังข้อมูลสรุปภาพรวมและบริบทระบบ (Single Source of Truth)
-│   └── 📄 INTERVIEWX_MASTER_KNOWLEDGE_PACK.md    # Master Knowledge Pack สำหรับอ้างอิงและใช้เป็น AI Context
+├── 📂 05_Knowledge_Base/                          # คลังข้อมูลสรุปภาพรวมและบริบทระบบ
+│   └── 📄 INTERVIEWX_MASTER_KNOWLEDGE_PACK.md    # Master Knowledge Pack สำหรับอ้างอิง
 │
+├── 🚀 InterviewX_Sprint2_Team_Alignment_Brief.md  # สรุปวาระการประชุมและสถาปัตยกรรมสำหรับ Sprint 2
 └── 📄 README.md                                   # คู่มือภาพรวมและสารบัญโครงสร้างเอกสารโครงการ (ไฟล์นี้)
 ```
-
----
-
-## 📚 รายละเอียดเอกสารแต่ละหมวดหมู่ (Document Catalog)
-
-### 1. `01_Proposal` — เอกสารข้อเสนอโครงงาน (Research Proposal)
-- **วัตถุประสงค์:** เล่มข้อเสนอโครงงานวิจัยเพื่อการอนุมัติและประเมินผลการดำเนินงาน
-- **เอกสารสำคัญ:**
-  - `InterviewX_Research_Proposal_v1.1.docx` & `.pdf`: เอกสารฉบับปรับปรุงล่าสุด v1.1
-  - `archive/`: เก็บประวัติข้อเสนอโครงการเวอร์ชัน 1.0 (v1.0) ทั้ง docx และ pdf
-
-### 2. `02_Survey_Data` — ข้อมูลการสำรวจความต้องการ (Requirements Survey)
-- **วัตถุประสงค์:** ข้อมูลสถิติเชิงประจักษ์จากการสำรวจกลุ่มตัวอย่างจำนวน 102 คน (นักศึกษา 66.7%, บัณฑิตจบใหม่ 18.6%)
-- **เอกสารสำคัญ:**
-  - `Interview X Requirement Survey Form (การตอบกลับ) - การตอบแบบฟอร์ม 1.csv`: Raw data คำตอบจาก Google Forms
-  - `InterviewX_Survey_Validated_Aggregates.xlsx`: ตารางวิเคราะห์สรุปผลสถิติที่ผ่านการ Cleaned และ Validation แล้ว
-
-### 3. `03_SRS_Requirements` — ข้อกำหนดความต้องการระบบซอฟต์แวร์ (SRS)
-- **วัตถุประสงค์:** ข้อกำหนดระบบที่เป็นทางการตามมาตรฐานวิศวกรรมซอฟต์แวร์ กำหนด Scope R1 (Text MVP), R2 (AI & Voice), R3 (Commercial & Research)
-- **เอกสารสำคัญ:**
-  - `InterviewX_SRS_Final_For_Approval_v1.0.docx`: **เล่ม SRS ฉบับสมบูรณ์สำหรับเสนออนุมัติ** ฟอร์แมตสวยงามพร้อมลายเซ็น
-  - `InterviewX_FR_NFR_RBAC.xlsx`: ตารางสรุป 36 Functional Requirements, 24 Non-Functional Requirements, และ RBAC Matrix
-  - `generate_final_srs.py`: สคริปต์อัตโนมัติสำหรับประมวลผลและสร้างเล่ม SRS docx (สามารถรันได้ด้วย `python3 03_SRS_Requirements/generate_final_srs.py`)
-  - `archive/`: แบบร่างฉบับก่อนหน้า ได้แก่ `InterviewX_SRS_Revised.docx` และ `InterviewX_SRS_Complete.docx`
-
-### 4. `04_System_Architecture` — สถาปัตยกรรมและการออกแบบระบบเชิงเทคนิค
-- **วัตถุประสงค์:** แบบพิมพ์เขียว (Blueprint) ด้านโครงสร้างระบบ ซอฟต์แวร์ ฐานข้อมูล และโครงข่าย
-- **เอกสารสำคัญ:**
-  - `InterviewX_Architecture_Diagrams_v1.0.md`: สรุปภาพรวมสถาปัตยกรรม C4 Containers, Managed Production, K8s Showcase
-  - `InterviewX_Final_System_Diagrams_v1.0/`: ชุดไดอะแกรมมาตรฐาน 19 รูป (D01-D19) ในรูปแบบ Mermaid ครอบคลุมตั้งแต่ Context, Bounded Contexts, ERD, Sequences จนถึง CI/CD และ Roadmap
-  - `interviewx-design/`: การออกแบบระดับโครงสร้างโค้ด
-    - `contracts/`: OpenAPI 3.0 Specs (`public-v1.openapi.yaml`, `internal-evaluation.openapi.yaml`)
-    - `database/`: SQL DDL Scripts (`001_core.sql` สำหรับ R1/R2, `002_r3_services.sql` สำหรับ R3 Billing & Research)
-    - `repo/`: สถาปัตยกรรม Monorepo และการแบ่งแพ็กเกจ
-
-### 5. `05_Knowledge_Base` — คลังความรู้โครงการ (Single Source of Truth)
-- **วัตถุประสงค์:** ชุดข้อมูลสรุปทั้งหมดของโครงการในไฟล์เดียว เพื่อใช้เป็น Context หลักสำหรับ AI Assistants (ChatGPT, Claude, Gemini) และการปฐมนิเทศทีมงาน
-- **เอกสารสำคัญ:**
-  - `INTERVIEWX_MASTER_KNOWLEDGE_PACK.md`: สรุป Problem Statement, Phasing Scope (R1/R2/R3), Survey Stats, RBAC, Core Modules, Invariants, และ PDPA Compliance
-
----
-
-## 🛠️ วิธีการใช้งานและการประมวลผล (Quick Start)
-
-### การสร้างเล่มเอกสาร SRS Docx ใหม่ (Re-generate SRS):
-หากมีการปรับปรุงเนื้อหาหรือต้องการรีรันฟอร์แมตเอกสาร สามารถรันสคริปต์จาก Root Directory ได้ทันที:
-```bash
-python3 03_SRS_Requirements/generate_final_srs.py
-```
-สคริปต์จะอ่านไฟล์แม่แบบและบันทึกผลลัพธ์ลงที่ `03_SRS_Requirements/InterviewX_SRS_Final_For_Approval_v1.0.docx` โดยอัตโนมัติ
-
----
-
-## 🔒 กฎเกณฑ์สถาปัตยกรรมและความปลอดภัย (Core Architectural Invariants)
-1. **Single Ownership:** ข้อมูล Core อยู่ภายใต้ NestJS Monolith; AI Service (FastAPI) มีหน้าที่ประมวลผลคำตอบเท่านั้น ไม่เชื่อมต่อฐานข้อมูลโดยตรง
-2. **Transactional Outbox & Idempotency:** การส่งคำตอบและคิวตรวจงาน (BullMQ) ทำงานแบบ Exactly-Once Business Effect ป้องกันการส่งซ้ำ
-3. **Data Isolation (R3):** บริการ Billing และ Research ในเฟส R3 ใช้ Database และ Credentials แยกจาก Core PostgreSQL เด็ดขาด
-4. **Privacy-First (PDPA):** มีการแยก Consent ชัดเจน (Service vs Voice Retention vs Research Analysis) พร้อมระบบสิทธิ์ลบและส่งออกข้อมูล
