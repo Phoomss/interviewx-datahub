@@ -97,5 +97,9 @@ docs-interviex/
 │   ├── 📄 REPOSITORY_STRUCTURE.md                # โครงสร้าง Monorepo และการแบ่งขอบเขตโมดูล
 │   └── 📄 README.md                               # ภาพรวมหมวดเอกสารประกอบการพัฒนา
 │
+├── 📂 08_AI_ML_Engineering/                       # วิศวกรรมปัญญาประดิษฐ์และการเรียนรู้ของเครื่อง
+│   ├── 📂 contracts/                              # สัญญา OpenAPI 3.1 สำหรับ AI Service (internal-evaluation.openapi.yaml)
+│   └── 📄 README.md                               # ภาพรวมหมวดวิศวกรรม AI/ML
+│
 └── 📄 README.md                                   # คู่มือภาพรวมและสารบัญโครงสร้างเอกสารโครงการ (ไฟล์นี้)
 ```

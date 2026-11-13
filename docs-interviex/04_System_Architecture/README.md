@@ -48,6 +48,6 @@
 
 จัดเก็บในโฟลเดอร์ [interviewx-design/](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/interviewx-design/):
 - `contracts/public-v1.openapi.yaml`: สัญญา OpenAPI 3.0 สำหรับ Public REST API (Client ↔ Backend)
-- `contracts/internal-evaluation.openapi.yaml`: สัญญา OpenAPI 3.0 สำหรับ Internal AI Evaluation Service (NestJS ↔ FastAPI)
+- *ดูรายละเอียดสัญญาบริการ AI ที่:* [08_AI_ML_Engineering/contracts/](file:///D:/workspaces/interviewx-datahub/docs-interviex/08_AI_ML_Engineering/contracts/)
 - *ดูรายละเอียดโครงสร้างโฟลเดอร์ Monorepo ที่:* [07_Development_Documentation/](file:///D:/workspaces/interviewx-datahub/docs-interviex/07_Development_Documentation/)
 - *ดูรายละเอียดสกีมาฐานข้อมูลและโมเดลข้อมูลกายภาพที่:* [05_Database_Data_Governance/](file:///D:/workspaces/interviewx-datahub/docs-interviex/05_Database_Data_Governance/)
