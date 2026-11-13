@@ -53,14 +53,15 @@ docs-interviex/
 │   ├── 📝 InterviewX_Sprint2_Team_Alignment_Brief.md # สรุปวาระการประชุมและสถาปัตยกรรมสำหรับ Sprint 2
 │   └── 📄 README.md                               # ภาพรวมหมวดการบริหารจัดการโครงการ
 │
-├── 📂 01_Proposal/                                # เอกสารข้อเสนอโครงการ / เล่มวิจัย (Research Proposal)
-│   ├── 📄 InterviewX_Research_Proposal_v1.1.docx  # [ล่าสุด] เล่มข้อเสนอโครงการ v1.1 (Word)
-│   ├── 📄 InterviewX_Research_Proposal_v1.1.pdf   # [ล่าสุด] เล่มข้อเสนอโครงการ v1.1 (PDF)
-│   └── 📂 archive/                                # ประวัติข้อเสนอโครงการ v1.0
-│
-├── 📂 02_Survey_Data/                             # ข้อมูลการสำรวจความต้องการจริง (n=102)
-│   ├── 📊 Interview X Requirement Survey Form.csv # ข้อมูลดิบจากผู้ตอบแบบสอบถาม
-│   └── 📊 InterviewX_Survey_Validated_Aggregates.xlsx # ผลวิเคราะห์ทางสถิติที่ผ่านการตรวจสอบ
+├── 📂 02_Research_Analysis/                       # งานวิจัยและการวิเคราะห์ความต้องการ (Research & Survey)
+│   ├── 📄 README.md                               # ภาพรวมหมวดงานวิจัยและการวิเคราะห์
+│   ├── 📂 proposal/                               # เอกสารข้อเสนอโครงการ / เล่มวิจัย (Research Proposal)
+│   │   ├── 📄 InterviewX_Research_Proposal_v1.1.docx # [ล่าสุด] เล่มข้อเสนอโครงการ v1.1 (Word)
+│   │   ├── 📄 InterviewX_Research_Proposal_v1.1.pdf  # [ล่าสุด] เล่มข้อเสนอโครงการ v1.1 (PDF)
+│   │   └── 📂 archive/                            # ประวัติข้อเสนอโครงการ v1.0
+│   └── 📂 survey/                                 # ข้อมูลการสำรวจความต้องการจริง (n=102)
+│       ├── 📊 Interview X Requirement Survey Form.csv # ข้อมูลดิบจากผู้ตอบแบบสอบถาม
+│       └── 📊 InterviewX_Survey_Validated_Aggregates.xlsx # ผลวิเคราะห์ทางสถิติที่ผ่านการตรวจสอบ
 │
 ├── 📂 03_SRS_Requirements/                       # ข้อกำหนดความต้องการระบบซอฟต์แวร์ (SRS)
 │   ├── 📄 InterviewX_SRS_v1.1_DRAFT_TH.docx       # ⭐ [เอกสารหลัก] SRS Word ภาษาไทยมาตรฐาน v1.1
