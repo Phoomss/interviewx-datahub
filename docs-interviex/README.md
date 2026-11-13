@@ -25,7 +25,7 @@
 ## 🚀 เอกสารสรุปสำหรับนำเสนอและวางแผนงานใน Sprint 2 (Sprint 2 Alignment Pack)
 
 สำหรับทีมพัฒนาและผู้มีส่วนได้ส่วนเสียในการวางแผนงาน Sprint 2:
-👉 [InterviewX_Sprint2_Team_Alignment_Brief.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/InterviewX_Sprint2_Team_Alignment_Brief.md)
+👉 [InterviewX_Sprint2_Team_Alignment_Brief.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/01_Project_Management/InterviewX_Sprint2_Team_Alignment_Brief.md)
 - สรุปกฎเหล็กทางสถาปัตยกรรม (Core Architectural Invariants)
 - สัญญาทางเทคนิค (Authentication, Idempotency, Outbox, BullMQ Queue, Ownership Guard)
 - มติการตัดสินใจสถาปัตยกรรม 11 ข้อ (D-M01 ถึง D-M11)
@@ -49,6 +49,10 @@
 ```text
 docs-interviex/
 │
+├── 📂 01_Project_Management/                      # การบริหารจัดการโครงการและการวางแผน Sprint
+│   ├── 📝 InterviewX_Sprint2_Team_Alignment_Brief.md # สรุปวาระการประชุมและสถาปัตยกรรมสำหรับ Sprint 2
+│   └── 📄 README.md                               # ภาพรวมหมวดการบริหารจัดการโครงการ
+│
 ├── 📂 01_Proposal/                                # เอกสารข้อเสนอโครงการ / เล่มวิจัย (Research Proposal)
 │   ├── 📄 InterviewX_Research_Proposal_v1.1.docx  # [ล่าสุด] เล่มข้อเสนอโครงการ v1.1 (Word)
 │   ├── 📄 InterviewX_Research_Proposal_v1.1.pdf   # [ล่าสุด] เล่มข้อเสนอโครงการ v1.1 (PDF)
@@ -65,13 +69,14 @@ docs-interviex/
 │   ├── 📊 InterviewX_Phase1_Requirement_Traceability_TH.xlsx # เมทริกซ์ตรวจสอบย้อนกลับ 64 รายการ
 │   ├── 📊 InterviewX_Phase1_Decision_Register_TH.xlsx # ทะเบียนการตัดสินใจ D-M01 ถึง D-M11
 │   ├── 📝 InterviewX_Phase1_Change_Log_TH.md      # บันทึกการเปลี่ยนแปลงฉบับภาษาไทย
-│   ├── 📝 InterviewX_Sprint2_Team_Alignment_Brief.md # เอกสารสรุปสำหรับทีมใน Sprint 2
+│   ├── 📄 README.md                               # ภาพรวมหมวดข้อกำหนดความต้องการระบบ
 │   └── 📂 archive/                                # คลังเอกสารประวัติและเวอร์ชันเดิม
 │       ├── 📂 v1.0_baseline/                      # เอกสารตั้งต้น v1.0
 │       ├── 📂 v1.1_en_draft/                      # เอกสารร่างภาษาอังกฤษ v1.1
 │       └── 📄 ARCHIVE_INDEX.md                    # ดัชนีเอกสารประวัติ
 │
 ├── 📂 04_System_Architecture/                     # สถาปัตยกรรมระบบและการออกแบบเชิงเทคนิค
+│   ├── 📄 README.md                               # ภาพรวมหมวดสถาปัตยกรรมระบบ
 │   ├── 📂 InterviewX_Final_System_Diagrams_v1.0/
 │   │   ├── 📑 ALL_DIAGRAMS_v1.1_DRAFT_TH.md       # ⭐ แผนภาพ Mermaid ทั้งหมด 19 รูป ภาษาไทย
 │   │   └── 📑 ALL_DIAGRAMS.md                     # แผนภาพ v1.0 เดิม
@@ -80,6 +85,5 @@ docs-interviex/
 ├── 📂 05_Knowledge_Base/                          # คลังข้อมูลสรุปภาพรวมและบริบทระบบ
 │   └── 📄 INTERVIEWX_MASTER_KNOWLEDGE_PACK.md    # Master Knowledge Pack สำหรับอ้างอิง
 │
-├── 🚀 InterviewX_Sprint2_Team_Alignment_Brief.md  # สรุปวาระการประชุมและสถาปัตยกรรมสำหรับ Sprint 2
 └── 📄 README.md                                   # คู่มือภาพรวมและสารบัญโครงสร้างเอกสารโครงการ (ไฟล์นี้)
 ```
