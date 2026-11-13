@@ -3,94 +3,140 @@ flowchart LR
     User([👤 Registered User])
   end
 
-  subgraph SubsystemBoundary["ระบบฝึกสัมภาษณ์และการประเมินผล AI (Interview & AI Evaluation Engine)"]
+  subgraph PracticeBoundary["ระบบฝึกสัมภาษณ์และการประเมินผล AI (Practice & Evaluation Engine)"]
     direction TB
-    
-    StartSession(["เริ่มสร้างเซสชันสัมภาษณ์
+
+    %% Base Use Cases
+    UC_StartSession(["เริ่มเซสชันการสัมภาษณ์
 (Start Interview Session)"])
-    SelectDifficulty(["เลือกระดับความยากง่าย
-(Difficulty Scaling - FR16)"])
-    SelectPressure(["เปิดโหมดสัมภาษณ์กดดัน
-(Pressure Mode - FR33)"])
-
-    TextPractice(["(UC04) ฝึกสัมภาษณ์แบบข้อเขียน
+    UC_PracticeText(["(UC04) ฝึกสัมภาษณ์แบบข้อเขียน
 (Practice Text Interview) [FR05]"])
-    VoicePractice(["(UC05) ฝึกสัมภาษณ์ด้วยเสียง
+    UC_PracticeVoice(["(UC05) ฝึกสัมภาษณ์ด้วยเสียงพูด
 (Practice Voice Interview) [FR05-V]"])
-
-    AutosaveDraft(["บันทึกร่างคำตอบอัตโนมัติ
-(Autosave Draft - FR05)"])
-    VoiceConsent(["ขอความยินยอมเก็บไฟล์เสียง
-(Voice Retention Consent - FR05.1)"])
-    TranscribeAudio(["แปลงเสียงเป็นข้อความ
-(Transcribe Speech to Text)"])
-
-    GenerateQuestion(["ดึงคำถามจากคลังมาตรฐาน
-(Fetch Question - FR03)"])
-    FollowupQuestion(["สร้างคำถามติดตามผลตามบริบท
-(Contextual Follow-up - FR14)"])
-
-    CheckQuota(["ตรวจสอบโควตาสมาชิก
-(Subscription Entitlement - FR13)"])
-    ViewProgress(["ดูสถานะการประมวลผล AI
-(AI Job Processing Status - FR19)"])
-
-    ReviewEval(["(UC06) ตรวจสอบผลประเมินและรูบริก
+    UC_ReviewEval(["(UC06) ตรวจสอบผลการประเมิน AI
 (Review AI Evaluation Report) [FR07]"])
-    RubricScore(["คำนวณคะแนนตามเกณฑ์รูบริก
-(Calculate Rubric Scores)"])
-    RelevanceAnalysis(["วิเคราะห์ความตรงประเด็น STAR
-(Answer Relevance Analysis - FR08)"])
-    StrengthWeakness(["รายงานสรุปจุดแข็ง/จุดพัฒนา
-(Strengths & Weaknesses - FR09)"])
-    GrammarAnalysis(["วิเคราะห์ไวยากรณ์ภาษาอังกฤษ
-(Grammar & Language - FR10)"])
-    SpeechRhythm(["วิเคราะห์จังหวะและความเร็วพูด
-(Speech Pace & Rhythm - FR36)"])
-    ImprovementTips(["ดูคำแนะนำปรับปรุงคำตอบ
-(Answer Guidance - FR06)"])
-    AppealScore(["ส่งคำขออุทธรณ์ผลประเมิน
-(Evaluation Appeal - FR17)"])
-    ExportPDF(["ดาวน์โหลดรายงานสรุป PDF
-(Export Feedback Report - FR20)"])
+
+    %% Includes for Sessions
+    INC_FetchQ(["«include»
+ดึงคำถามตรงตามหมวดหมู่
+(FR03 Category Question)"])
+    INC_CheckQuota(["«include»
+ตัดโควตาเซสชัน Atomic
+(FR13 Quota Ledger Check)"])
+    INC_SubmitAnswer(["«include»
+ส่งคำตอบพร้อม Idempotency Key
+(FR05 Idempotent Submission)"])
+
+    %% Includes for Voice
+    INC_VoiceConsent(["«include»
+ขอความยินยอมเก็บไฟล์เสียง
+(FR05.1 Voice Retention Consent)"])
+    INC_STT(["«include»
+แปลงเสียงพูดเป็นข้อความ
+(FR05-V Speech to Text)"])
+
+    %% Includes for Evaluation
+    INC_RubricScore(["«include»
+คำนวณคะแนนตามเกณฑ์รูบริก AI
+(FR07 Rubric Scoring Engine)"])
+    INC_STARRelevance(["«include»
+วิเคราะห์ความตรงประเด็น STAR
+(FR08 Answer Relevance Analysis)"])
+    INC_StrengthsReport(["«include»
+สรุปจุดเด่นและจุดควรพัฒนา
+(FR09 Strengths & Weaknesses)"])
+
+    %% Extends for Sessions
+    EXT_DifficultyScaling(["«extend»
+เลือกระดับความยากง่าย
+(FR16 Difficulty Scaling)"])
+    EXT_PressureMode(["«extend»
+เปิดโหมดกดดันจับเวลาสั้น
+(FR33 Pressure Simulation)"])
+    EXT_FollowupQ(["«extend»
+สร้างคำถามติดตามผลตามคำตอบ
+(FR14 Contextual Follow-up)"])
+    EXT_Autosave(["«extend»
+บันทึกฉบับร่างคำตอบในเครื่อง
+(FR05 Client Draft Autosave)"])
+    EXT_EditTranscript(["«extend»
+ตรวจทานและแก้ไขข้อความถอดเสียง
+(Review & Edit Transcript)"])
+
+    %% Extends for Evaluation
+    EXT_GrammarAnalysis(["«extend»
+วิเคราะห์ไวยากรณ์ภาษาอังกฤษ
+(FR10 Grammar & Professional Vocab)"])
+    EXT_SpeechPace(["«extend»
+วิเคราะห์จังหวะและความเร็วพูด
+(FR36 Speech Pace & Filler Words)"])
+    EXT_ImprovementTips(["«extend»
+ดูคำแนะนำและตัวอย่างคำตอบที่ดี
+(FR06 Answer Improvement Guidance)"])
+    EXT_AppealScore(["«extend»
+ยื่นคำขออุทธรณ์ผลการประเมิน
+(FR17 Evaluation Score Appeal)"])
+    EXT_ExportPDF(["«extend»
+ส่งออกรายงานผลเป็นไฟล์ PDF
+(FR20 Feedback Report Export)"])
   end
 
-  subgraph ExternalEngines["ระบบประมวลผลภายนอก"]
+  subgraph ExternalInference["ระบบปัญญาประดิษฐ์ภายนอก"]
     LLM[[🤖 Hosted LLM Provider]]
     STT[[🎙️ Speech-to-Text Provider]]
   end
 
-  User --> StartSession
-  User --> TextPractice
-  User --> VoicePractice
-  User --> ReviewEval
-  User --> ViewProgress
+  %% Actor associations
+  User --> UC_StartSession
+  User --> UC_PracticeText
+  User --> UC_PracticeVoice
+  User --> UC_ReviewEval
 
-  StartSession -.->|"<<include>>"| GenerateQuestion
-  StartSession -.->|"<<include>>"| CheckQuota
-  SelectDifficulty -.->|"<<extend>>"| StartSession
-  SelectPressure -.->|"<<extend>>"| StartSession
-  FollowupQuestion -.->|"<<extend>>"| GenerateQuestion
+  %% Start Session Relationships
+  UC_StartSession -. "«include»" .-> INC_FetchQ
+  UC_StartSession -. "«include»" .-> INC_CheckQuota
+  EXT_DifficultyScaling -. "«extend»\n[เมื่อผู้ใช้ระบุระดับทักษะ]" .-> UC_StartSession
+  EXT_PressureMode -. "«extend»\n[เมื่อผู้ใช้ต้องการฝึกกดดัน]" .-> UC_StartSession
+  EXT_FollowupQ -. "«extend»\n[เมื่อคำตอบก่อนหน้าเปิดประเด็น]" .-> INC_FetchQ
 
-  AutosaveDraft -.->|"<<extend>>"| TextPractice
+  %% Practice Text Relationships
+  UC_PracticeText -. "«include»" .-> INC_SubmitAnswer
+  EXT_Autosave -. "«extend»\n[ขณะพิมพ์ / สัญญาณเน็ตสะดุด]" .-> UC_PracticeText
 
-  VoicePractice -.->|"<<include>>"| VoiceConsent
-  VoicePractice -.->|"<<include>>"| TranscribeAudio
-  TranscribeAudio --> STT
+  %% Practice Voice Relationships
+  UC_PracticeVoice -. "«include»" .-> INC_VoiceConsent
+  UC_PracticeVoice -. "«include»" .-> INC_STT
+  UC_PracticeVoice -. "«include»" .-> INC_SubmitAnswer
+  EXT_EditTranscript -. "«extend»\n[เมื่อพบข้อความถอดเสียงผิด]" .-> UC_PracticeVoice
 
-  ReviewEval -.->|"<<include>>"| RubricScore
-  ReviewEval -.->|"<<include>>"| RelevanceAnalysis
-  ReviewEval -.->|"<<include>>"| StrengthWeakness
+  %% Review Evaluation Relationships
+  UC_ReviewEval -. "«include»" .-> INC_RubricScore
+  UC_ReviewEval -. "«include»" .-> INC_STARRelevance
+  UC_ReviewEval -. "«include»" .-> INC_StrengthsReport
 
-  GrammarAnalysis -.->|"<<extend>>"| ReviewEval
-  SpeechRhythm -.->|"<<extend>>"| ReviewEval
-  ImprovementTips -.->|"<<extend>>"| ReviewEval
-  AppealScore -.->|"<<extend>>"| ReviewEval
-  ExportPDF -.->|"<<extend>>"| ReviewEval
+  EXT_GrammarAnalysis -. "«extend»\n[เมื่อตอบสัมภาษณ์ภาษาอังกฤษ]" .-> UC_ReviewEval
+  EXT_SpeechPace -. "«extend»\n[เฉพาะเซสชันสัมภาษณ์ด้วยเสียง R2]" .-> UC_ReviewEval
+  EXT_ImprovementTips -. "«extend»\n[เมื่อผู้ใช้ต้องการแนวทางปรับปรุง]" .-> UC_ReviewEval
+  EXT_AppealScore -. "«extend»\n[เมื่อพบผลคะแนนไม่สอดคล้อง]" .-> UC_ReviewEval
+  EXT_ExportPDF -. "«extend»\n[เมื่อต้องการดาวน์โหลดเก็บไว้]" .-> UC_ReviewEval
 
-  GenerateQuestion --> LLM
-  FollowupQuestion --> LLM
-  RubricScore --> LLM
-  RelevanceAnalysis --> LLM
-  GrammarAnalysis --> LLM
-  ImprovementTips --> LLM
+  %% External Connections
+  INC_FetchQ --> LLM
+  EXT_FollowupQ --> LLM
+  INC_STT --> STT
+  INC_RubricScore --> LLM
+  INC_STARRelevance --> LLM
+  EXT_GrammarAnalysis --> LLM
+  EXT_ImprovementTips --> LLM
+
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+
+  class UC_StartSession,UC_PracticeText,UC_PracticeVoice,UC_ReviewEval baseStyle;
+  class INC_FetchQ,INC_CheckQuota,INC_SubmitAnswer,INC_VoiceConsent,INC_STT,INC_RubricScore,INC_STARRelevance,INC_StrengthsReport incStyle;
+  class EXT_DifficultyScaling,EXT_PressureMode,EXT_FollowupQ,EXT_Autosave,EXT_EditTranscript,EXT_GrammarAnalysis,EXT_SpeechPace,EXT_ImprovementTips,EXT_AppealScore,EXT_ExportPDF extStyle;
+  class User actorStyle;
+  class LLM,STT extSysStyle;

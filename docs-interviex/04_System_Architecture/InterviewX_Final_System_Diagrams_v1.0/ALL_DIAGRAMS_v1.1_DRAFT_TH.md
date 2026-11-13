@@ -765,53 +765,113 @@ Responsive Web, การตรวจสอบตัวตน, ฝึกสั�
 
 ## D20 แผนภาพกรณีการใช้งานระบบโดยรวม (System Use Case Diagram)
 
-แผนภาพกรณีการใช้งานระดับภาพรวมระบบแสดงความสัมพันธ์ระหว่างผู้แสดงบทบาท (Actors) ทั้ง 5 กลุ่ม (ผู้เยี่ยมชม, ผู้สมัครงาน, ผู้ดูแลระบบ, ผู้ดูแลการเงิน, ผู้วิจัย) กับกรณีการใช้งานหลักทั้ง 10 กรณี (UC01 ถึง UC10) และการเชื่อมโยงกับบริการภายนอก 4 ระบบ:
+แผนภาพกรณีการใช้งานระดับภาพรวมระบบแสดงความสัมพันธ์ระหว่างผู้แสดงบทบาท (Actors) ทั้ง 5 กลุ่ม กับกรณีการใช้งานหลัก (UC01 ถึง UC10) พร้อมระบุความสัมพันธ์ **`«include»`** (ขั้นตอนที่ต้องทำเสมอ) และ **`«extend»`** (ส่วนขยายตามเงื่อนไข) ไว้อย่างชัดเจน:
 
 ```mermaid
 flowchart LR
-  subgraph Candidates["กลุ่มผู้ใช้งานทั่วไป (End Users)"]
+  subgraph EndUsers["กลุ่มผู้สมัครงาน (End Users)"]
     Guest([👤 Guest / ผู้เยี่ยมชม])
     User([👤 Registered User / ผู้สมัครงาน])
   end
 
-  subgraph Staff["กลุ่มผู้ดูแลระบบและทีมงานภายใน (Internal Roles)"]
+  subgraph Staff["กลุ่มผู้ดูแลระบบและทีมงานภายใน (Internal Roles - Web Only)"]
     Admin([🛡️ System Admin / ผู้ดูแลระบบ])
     Finance([💳 Finance Admin / ผู้ดูแลการเงิน R3])
     Researcher([🔬 Research Engineer / ผู้วิจัย R3])
   end
 
-  subgraph SystemBoundary["กรอบขอบเขตระบบ InterviewX (InterviewX Platform Boundary)"]
-    UC01(["UC01: สำรวจระบบและทดลองทำสัมภาษณ์ตัวอย่าง
+  subgraph SystemBoundary["กรอบขอบเขตระบบ InterviewX (InterviewX Platform System Boundary)"]
+    direction TB
+
+    %% Base Use Cases
+    UC01(["UC01: สำรวจและทดลองสัมภาษณ์ตัวอย่าง
 (Explore & Trial Simulation) [R1]"])
     UC02(["UC02: ลงทะเบียนและเข้าสู่ระบบด้วยอีเมล
 (Register & Authenticate) [R1]"])
     UC03(["UC03: ตั้งค่าโปรไฟล์และกำหนดเป้าหมาย
-(Manage Profile & Goals) [R1]"])
-    UC04(["UC04: ดำเนินการฝึกสัมภาษณ์แบบข้อเขียน
+(Manage Profile & Career Goals) [R1]"])
+    UC04(["UC04: ฝึกสัมภาษณ์งานแบบข้อเขียน
 (Practice Text Interview) [R1]"])
-    UC05(["UC05: ดำเนินการฝึกสัมภาษณ์ด้วยเสียงพูด
+    UC05(["UC05: ฝึกสัมภาษณ์งานด้วยเสียงพูด
 (Practice Voice Interview) [R2]"])
-    UC06(["UC06: ตรวจสอบผลการประเมินและข้อเสนอแนะ AI
+    UC06(["UC06: ตรวจสอบผลการประเมินและรูบริก AI
 (Review AI Evaluation & Feedback) [R1]"])
     UC07(["UC07: ตรวจสอบประวัติการฝึกซ้อมและแดชบอร์ด
-(View History & Dashboard) [R1/R2]"])
-    UC08(["UC08: จัดการความยินยอมและสิทธิ์คุ้มครองข้อมูล
+(View History & Analytics Dashboard) [R1/R2]"])
+    UC08(["UC08: จัดการความยินยอมและสิทธิ์ข้อมูลส่วนบุคคล
 (Manage PDPA Privacy Rights) [R1]"])
-    UC09(["UC09: บริหารจัดการการเงินและรายการคืนเงิน
-(Manage Billing & Refunds) [R3]"])
+    UC09(["UC09: บริหารจัดการการเงินและคืนเงิน
+(Manage Subscriptions & Billing) [R3]"])
     UC10(["UC10: บริหารระบบ คลังคำถาม และโมเดล AI
 (Administer System & Question Bank) [R1]"])
+
+    %% Included Use Cases
+    INC_Verify(["«include»
+ยืนยันอีเมลด้วยลิงก์ปลอดภัย
+(FR01 Email Verification)"])
+    INC_GenQ(["«include»
+ดึงคำถามสัมภาษณ์จากคลัง
+(FR03 Question Generation)"])
+    INC_CheckQuota(["«include»
+ตรวจสอบโควตาสมาชิก
+(FR13 Entitlement Check)"])
+    INC_SubmitAnswer(["«include»
+ส่งคำตอบเข้าคิวประเมินผล
+(FR05 Idempotent Submit)"])
+    INC_VoiceConsent(["«include»
+ยินยอมเก็บรักษาไฟล์เสียง
+(FR05.1 Voice Consent)"])
+    INC_STT(["«include»
+ถอดเสียงเป็นข้อความ
+(FR05-V Speech to Text)"])
+    INC_RubricScore(["«include»
+คำนวณคะแนนตามเกณฑ์รูบริก
+(FR07 AI Rubric Scoring)"])
+    INC_STARAnalysis(["«include»
+วิเคราะห์โครงสร้าง STAR
+(FR08 Relevance Analysis)"])
+    INC_AuditLog(["«include»
+บันทึกประวัติความปลอดภัย
+(FR26 Immutable Audit)"])
+
+    %% Extended Use Cases
+    EXT_Autosave(["«extend»
+บันทึกฉบับร่างอัตโนมัติ
+(FR05 Autosave Draft)"])
+    EXT_Pressure(["«extend»
+เปิดโหมดกดดันจับเวลา
+(FR33 Pressure Mode)"])
+    EXT_Guidance(["«extend»
+ดูคำแนะนำปรับปรุงคำตอบ
+(FR06 Improvement Tips)"])
+    EXT_Appeal(["«extend»
+ยื่นอุทธรณ์ผลคะแนน
+(FR17 Evaluation Appeal)"])
+    EXT_ExportPDF(["«extend»
+ดาวน์โหลดรายงานสรุป PDF
+(FR20 Export PDF Report)"])
+    EXT_Portability(["«extend»
+ขอรับสำเนาข้อมูล
+(FR21 Data Portability)"])
+    EXT_Erasure(["«extend»
+ขอลบบัญชีและทำลายข้อมูล
+(FR22 Right to Erasure)"])
+    EXT_Refund(["«extend»
+พิจารณาอนุมัติคืนเงิน
+(FR30 Refund Approval)"])
   end
 
   subgraph ExternalServices["ระบบสนับสนุนภายนอก (External Supporting Services)"]
-    EmailGateway[[✉️ Email Service Provider]]
-    LLMService[[🤖 External Hosted LLM]]
+    EmailGateway[[✉️ Email Provider]]
+    LLMService[[🤖 Hosted LLM Provider]]
     STTService[[🎙️ Speech-to-Text Provider R2]]
     PaymentGW[[🏦 Payment Gateway Provider R3]]
   end
 
+  %% Actor Invariants
   User -- สืบทอดสิทธิ์ (Generalizes) --> Guest
 
+  %% Actor Connections
   Guest --> UC01
   Guest --> UC02
 
@@ -822,31 +882,65 @@ flowchart LR
   User --> UC06
   User --> UC07
   User --> UC08
-  User -. "ซื้อสมาชิก" .-> UC09
+  User -. "สมัครสมาชิก" .-> UC09
 
   Admin --> UC10
-  Admin -. "จัดการสิทธิ์ข้อมูล" .-> UC08
+  Admin -. "จัดการสิทธิ์ข้อมูล DSR" .-> UC08
   Finance --> UC09
-  Researcher -. "สกัดชุดข้อมูลวิจัย" .-> UC08
+  Researcher -. "สกัดชุดข้อมูลวิจัยนิรนาม" .-> UC08
 
-  UC02 --> EmailGateway
-  UC04 --> LLMService
-  UC05 --> STTService
-  UC05 --> LLMService
-  UC06 --> LLMService
+  %% Includes
+  UC02 -. "«include»" .-> INC_Verify
+  UC04 -. "«include»" .-> INC_GenQ
+  UC04 -. "«include»" .-> INC_CheckQuota
+  UC04 -. "«include»" .-> INC_SubmitAnswer
+
+  UC05 -. "«include»" .-> INC_VoiceConsent
+  UC05 -. "«include»" .-> INC_STT
+  UC05 -. "«include»" .-> INC_GenQ
+  UC05 -. "«include»" .-> INC_SubmitAnswer
+
+  UC06 -. "«include»" .-> INC_RubricScore
+  UC06 -. "«include»" .-> INC_STARAnalysis
+
+  UC08 -. "«include»" .-> INC_AuditLog
+  UC10 -. "«include»" .-> INC_AuditLog
+
+  %% Extends (Points FROM Extension TO Base)
+  EXT_Autosave -. "«extend»\n[พิมพ์ยังไม่เสร็จ/เน็ตหลุด]" .-> UC04
+  EXT_Pressure -. "«extend»\n[เลือกโหมดท้าทาย]" .-> UC04
+  EXT_Pressure -. "«extend»\n[เลือกโหมดท้าทาย]" .-> UC05
+
+  EXT_Guidance -. "«extend»\n[ต้องการตัวอย่างคำตอบที่ดี]" .-> UC06
+  EXT_Appeal -. "«extend»\n[พบผลคะแนนคลาดเคลื่อน]" .-> UC06
+  EXT_ExportPDF -. "«extend»\n[ต้องการเก็บไฟล์ไว้อ่าน]" .-> UC06
+
+  EXT_Portability -. "«extend»\n[ยื่นคำขอรับไฟล์]" .-> UC08
+  EXT_Erasure -. "«extend»\n[ยื่นคำขอยกเลิกบัญชี]" .-> UC08
+
+  EXT_Refund -. "«extend»\n[มีคำขอคืนเงินในเงื่อนไข]" .-> UC09
+
+  %% External System Connections
+  INC_Verify --> EmailGateway
+  INC_GenQ --> LLMService
+  INC_STT --> STTService
+  INC_RubricScore --> LLMService
+  INC_STARAnalysis --> LLMService
   UC09 --> PaymentGW
+  EXT_Refund --> PaymentGW
 
-  classDef actorStyle fill:#f0f4f8,stroke:#334155,stroke-width:2px;
-  classDef externalStyle fill:#fef3c7,stroke:#d97706,stroke-width:2px;
-  classDef r1Style fill:#ecfdf5,stroke:#059669,stroke-width:2px;
-  classDef r2Style fill:#eff6ff,stroke:#2563eb,stroke-width:2px;
-  classDef r3Style fill:#fdf4ff,stroke:#9333ea,stroke-width:2px;
+  %% Styling
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
 
+  class UC01,UC02,UC03,UC04,UC05,UC06,UC07,UC08,UC09,UC10 baseStyle;
+  class INC_Verify,INC_GenQ,INC_CheckQuota,INC_SubmitAnswer,INC_VoiceConsent,INC_STT,INC_RubricScore,INC_STARAnalysis,INC_AuditLog incStyle;
+  class EXT_Autosave,EXT_Pressure,EXT_Guidance,EXT_Appeal,EXT_ExportPDF,EXT_Portability,EXT_Erasure,EXT_Refund extStyle;
   class Guest,User,Admin,Finance,Researcher actorStyle;
-  class EmailGateway,LLMService,STTService,PaymentGW externalStyle;
-  class UC01,UC02,UC03,UC04,UC06,UC07,UC08,UC10 r1Style;
-  class UC05 r2Style;
-  class UC09 r3Style;
+  class EmailGateway,LLMService,STTService,PaymentGW extSysStyle;
 ```
 
 > 📖 ดูรายละเอียดโมเดลกรณีการใช้งานฉบับสมบูรณ์ พร้อมแผนภาพเจาะลึกรายระบบย่อย (Subsystems D21–D23) และตาราง Traceability ได้ที่:  
