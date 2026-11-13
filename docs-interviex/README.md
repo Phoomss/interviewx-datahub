@@ -88,6 +88,10 @@ docs-interviex/
 │   ├── 📂 database/                               # สคริปต์สกีมา PostgreSQL (001_core.sql, 002_r3_services.sql)
 │   └── 📂 docs/                                   # เอกสารพจนานุกรมและโครงสร้างข้อมูลกายภาพ (physical-erd.md)
 │
+├── 📂 06_UI_UX_Design/                            # การออกแบบประสบการณ์และส่วนติดต่อผู้ใช้งาน
+│   ├── 🖼️ InterviewX AI Interview Coach Dashboard.png # ม็อกอัปแดชบอร์ดหลัก AI Interview Coach
+│   └── 📄 README.md                               # ภาพรวมหมวดการออกแบบ UI/UX
+│
 ├── 📂 05_Knowledge_Base/                          # คลังข้อมูลสรุปภาพรวมและบริบทระบบ
 │   └── 📄 INTERVIEWX_MASTER_KNOWLEDGE_PACK.md    # Master Knowledge Pack สำหรับอ้างอิง
 │
