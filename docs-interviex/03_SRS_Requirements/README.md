@@ -44,11 +44,6 @@
 
 ---
 
-## ⚙️ สคริปต์และแม่แบบการสร้างเอกสาร (Generation Tooling & Templates)
+## ⚙️ แม่แบบโครงสร้างเอกสาร (Templates)
 
-- `build_phase1_deliverables_th.py`: สคริปต์สร้างชุดเอกสารส่งมอบภาษาไทย v1.1 แบบรวม
-- `build_srs_th_markdown.py`: สคริปต์สร้างเอกสาร SRS Markdown ภาษาไทย 14 หมวด
-- `generate_final_srs_v1_1_docx_th.py`: สคริปต์คอมไพล์เอกสาร SRS Word (.docx) ภาษาไทยพร้อมสารบัญและสไตล์
-- `generate_excel_fr_nfr_rbac_th.py`: สคริปต์สร้างเวิร์กบุ๊ก Excel ภาษาไทย 9 แผ่นงาน
-- `generate_change_log_th.py`: สคริปต์สร้างบันทึกประวัติการเปลี่ยนแปลงภาษาไทย
-- `template_srs/template_srs.text`: โครงสร้างแม่แบบมาตรฐาน 14 หมวดสำหรับเอกสาร SRS
+- `template_srs/template_srs.text`: โครงสร้างแม่แบบมาตรฐาน 14 หมวดสำหรับเอกสาร SRS (เอกสาร deliverables ทั้งหมดในหมวดนี้จัดทำและคอมไพล์เป็นผลลัพธ์พร้อมใช้งานเรียบร้อยแล้ว)
