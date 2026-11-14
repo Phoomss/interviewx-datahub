@@ -271,7 +271,7 @@ sequenceDiagram
  U->>C: ส่งคำตอบข้อเขียนสัมภาษณ์
  C->>A: POST /v1/interviews/{id}/answers (พร้อม Idempotency-Key)
  A->>A: ตรวจสอบโทเค็น + สิทธิ์ความเป็นเจ้าของ + สถานะเซสชัน + โควตา
- A->>D: BEGIN; บันทึกคำตอบ, สร้าง eval_job(pending), บันทึก outbox_event, บันทึก key
+ A->>D: BEGIN - บันทึกคำตอบ, สร้าง eval_job(pending), บันทึก outbox_event, บันทึก key
  D-->>A: COMMIT สำเร็จ
  A-->>C: 202 Accepted { jobId, status: "pending" }
  

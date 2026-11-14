@@ -10,10 +10,9 @@ sequenceDiagram
  participant F as FastAPI AI
  participant L as LLM Provider
  U->>W: Submit text answer
- W->>A: POST /v1/interviews/{id}/answers
-Idempotency-Key
+ W->>A: POST /v1/interviews/{id}/answers (Idempotency-Key)
  A->>A: Auth + ownership + state + content checks
- A->>D: BEGIN; insert answer, job, outbox, idempotency
+ A->>D: BEGIN - insert answer, job, outbox, idempotency
  D-->>A: COMMIT
  A-->>W: 202 Accepted: jobId
  O->>D: Read undispatched outbox

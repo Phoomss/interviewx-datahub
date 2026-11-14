@@ -403,7 +403,7 @@ sequenceDiagram
  U->>C: Submit text answer
  C->>A: POST /v1/interviews/{id}/answers (Idempotency-Key: UUID)
  A->>A: Auth token + ownership + session state + entitlement check
- A->>D: BEGIN; insert answer, eval_job(pending), outbox_event, idempotency_key
+ A->>D: BEGIN - insert answer, eval_job(pending), outbox_event, idempotency_key
  D-->>A: COMMIT
  A-->>C: 202 Accepted { jobId, status: "pending" }
  
