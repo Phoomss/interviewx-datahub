@@ -830,6 +830,416 @@ flowchart LR
 
 ---
 
+## D20 MASTER SYSTEM USE CASE MODEL
+
+Master System Use Case Diagram specifying the relationships between all 5 actor roles (Guest, Registered User, System Admin, Finance Admin, Research Engineer) and core use cases (UC01–UC10) with formal UML `«include»` and `«extend»` dependencies:
+
+```mermaid
+flowchart LR
+  subgraph EndUsers["End Users"]
+    Guest([👤 Guest])
+    User([👤 Registered User])
+  end
+
+  subgraph Staff["Internal Staff Roles (Web Only)"]
+    Admin([🛡️ System Admin])
+    Finance([💳 Finance Admin R3])
+    Researcher([🔬 Research Engineer R3])
+  end
+
+  subgraph SystemBoundary["InterviewX Platform System Boundary"]
+    direction TB
+
+    %% Base Use Cases
+    UC01(["UC01: Explore & Trial Simulation [R1]"])
+    UC02(["UC02: Register & Authenticate [R1]"])
+    UC03(["UC03: Manage Profile & Career Goals [R1]"])
+    UC04(["UC04: Practice Text Interview [R1]"])
+    UC05(["UC05: Practice Voice Interview [R2]"])
+    UC06(["UC06: Review AI Evaluation & Feedback [R1]"])
+    UC07(["UC07: View History & Analytics Dashboard [R1/R2]"])
+    UC08(["UC08: Manage PDPA Privacy Rights [R1]"])
+    UC09(["UC09: Manage Subscriptions & Billing [R3]"])
+    UC10(["UC10: Administer System & Question Bank [R1]"])
+
+    %% Included Use Cases
+    INC_Verify(["«include»<br/>Verify Email via Secure Link<br/>(FR01 Email Verification)"])
+    INC_GenQ(["«include»<br/>Fetch Categorized Question<br/>(FR03 Question Generation)"])
+    INC_CheckQuota(["«include»<br/>Check Entitlement Quota<br/>(FR13 Entitlement Check)"])
+    INC_SubmitAnswer(["«include»<br/>Enqueue Answer for Evaluation<br/>(FR05 Idempotent Submit)"])
+    INC_VoiceConsent(["«include»<br/>Consent to Voice Audio Retention<br/>(FR05.1 Voice Consent)"])
+    INC_STT(["«include»<br/>Transcribe Speech to Text<br/>(FR05-V Speech to Text)"])
+    INC_RubricScore(["«include»<br/>Compute AI Rubric Scores<br/>(FR07 Rubric Scoring)"])
+    INC_STARAnalysis(["«include»<br/>Analyze STAR Structure<br/>(FR08 Relevance Analysis)"])
+    INC_AuditLog(["«include»<br/>Record Security Audit Event<br/>(FR26 Immutable Audit)"])
+
+    %% Extended Use Cases
+    EXT_Autosave(["«extend»<br/>Autosave Answer Draft<br/>(FR05 Autosave Draft)"])
+    EXT_Pressure(["«extend»<br/>Enable Timed Pressure Mode<br/>(FR33 Pressure Mode)"])
+    EXT_Guidance(["«extend»<br/>View Improvement Tips<br/>(FR06 Improvement Tips)"])
+    EXT_Appeal(["«extend»<br/>Submit Evaluation Appeal<br/>(FR17 Evaluation Appeal)"])
+    EXT_ExportPDF(["«extend»<br/>Download PDF Report<br/>(FR20 Export PDF Report)"])
+    EXT_Portability(["«extend»<br/>Request Data Export<br/>(FR21 Data Portability)"])
+    EXT_Erasure(["«extend»<br/>Request Account Deletion<br/>(FR22 Right to Erasure)"])
+    EXT_Refund(["«extend»<br/>Approve Refund Request<br/>(FR30 Refund Approval)"])
+  end
+
+  subgraph ExternalServices["External Supporting Services"]
+    EmailGateway[[✉️ Email Provider]]
+    LLMService[[🤖 Hosted LLM Provider]]
+    STTService[[🎙️ Speech-to-Text Provider R2]]
+    PaymentGW[[🏦 Payment Gateway Provider R3]]
+  end
+
+  %% Actor Invariants
+  User -- Generalizes --> Guest
+
+  %% Actor Connections
+  Guest --> UC01
+  Guest --> UC02
+
+  User --> UC02
+  User --> UC03
+  User --> UC04
+  User --> UC05
+  User --> UC06
+  User --> UC07
+  User --> UC08
+  User -. "Subscribe" .-> UC09
+
+  Admin --> UC10
+  Admin -. "Manage DSR" .-> UC08
+  Finance --> UC09
+  Researcher -. "Export Research Dataset" .-> UC08
+
+  %% Includes
+  UC02 -. "«include»" .-> INC_Verify
+  UC04 -. "«include»" .-> INC_GenQ
+  UC04 -. "«include»" .-> INC_CheckQuota
+  UC04 -. "«include»" .-> INC_SubmitAnswer
+
+  UC05 -. "«include»" .-> INC_VoiceConsent
+  UC05 -. "«include»" .-> INC_STT
+  UC05 -. "«include»" .-> INC_GenQ
+  UC05 -. "«include»" .-> INC_SubmitAnswer
+
+  UC06 -. "«include»" .-> INC_RubricScore
+  UC06 -. "«include»" .-> INC_STARAnalysis
+
+  UC08 -. "«include»" .-> INC_AuditLog
+  UC10 -. "«include»" .-> INC_AuditLog
+
+  %% Extends (Points FROM Extension TO Base)
+  EXT_Autosave -. "«extend»\n[Typing / Network Jitter]" .-> UC04
+  EXT_Pressure -. "«extend»\n[Select Pressure Mode]" .-> UC04
+  EXT_Pressure -. "«extend»\n[Select Pressure Mode]" .-> UC05
+
+  EXT_Guidance -. "«extend»\n[Request Exemplar]" .-> UC06
+  EXT_Appeal -. "«extend»\n[Disputed Score]" .-> UC06
+  EXT_ExportPDF -. "«extend»\n[Save Offline Report]" .-> UC06
+
+  EXT_Portability -. "«extend»\n[Submit Export Request]" .-> UC08
+  EXT_Erasure -. "«extend»\n[Confirm Account Deletion]" .-> UC08
+
+  EXT_Refund -. "«extend»\n[Eligible Refund Claim]" .-> UC09
+
+  %% External System Connections
+  INC_Verify --> EmailGateway
+  INC_GenQ --> LLMService
+  INC_STT --> STTService
+  INC_RubricScore --> LLMService
+  INC_STARAnalysis --> LLMService
+  UC09 --> PaymentGW
+  EXT_Refund --> PaymentGW
+
+  %% Styling
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+
+  class UC01,UC02,UC03,UC04,UC05,UC06,UC07,UC08,UC09,UC10 baseStyle;
+  class INC_Verify,INC_GenQ,INC_CheckQuota,INC_SubmitAnswer,INC_VoiceConsent,INC_STT,INC_RubricScore,INC_STARAnalysis,INC_AuditLog incStyle;
+  class EXT_Autosave,EXT_Pressure,EXT_Guidance,EXT_Appeal,EXT_ExportPDF,EXT_Portability,EXT_Erasure,EXT_Refund extStyle;
+  class Guest,User,Admin,Finance,Researcher actorStyle;
+  class EmailGateway,LLMService,STTService,PaymentGW extSysStyle;
+```
+
+---
+
+## D21 SUBSYSTEM USE CASES: PRACTICE & AI EVALUATION ENGINE
+
+Subsystem Use Case Diagram detailing question selection, quota deduction, text/voice simulation flows, rubric evaluation, and contextual extensions:
+
+```mermaid
+flowchart LR
+  subgraph Candidate["Candidate"]
+    User([👤 Registered User])
+  end
+
+  subgraph PracticeBoundary["Practice & Evaluation Engine"]
+    direction TB
+
+    %% Base Use Cases
+    UC_StartSession(["Start Interview Session"])
+    UC_PracticeText(["(UC04) Practice Text Interview [FR05]"])
+    UC_PracticeVoice(["(UC05) Practice Voice Interview [FR05-V]"])
+    UC_ReviewEval(["(UC06) Review AI Evaluation Report [FR07]"])
+
+    %% Includes for Sessions
+    INC_FetchQ(["«include»<br/>Fetch Categorized Question<br/>(FR03 Category Question)"])
+    INC_CheckQuota(["«include»<br/>Atomic Quota Deduction<br/>(FR13 Quota Ledger Check)"])
+    INC_SubmitAnswer(["«include»<br/>Submit with Idempotency Key<br/>(FR05 Idempotent Submission)"])
+
+    %% Includes for Voice
+    INC_VoiceConsent(["«include»<br/>Request Voice Retention Consent<br/>(FR05.1 Voice Consent)"])
+    INC_STT(["«include»<br/>Transcribe Audio to Text<br/>(FR05-V Speech to Text)"])
+
+    %% Includes for Evaluation
+    INC_RubricScore(["«include»<br/>Calculate Rubric Scores<br/>(FR07 Rubric Scoring Engine)"])
+    INC_STARRelevance(["«include»<br/>Analyze STAR Relevance<br/>(FR08 Relevance Analysis)"])
+    INC_StrengthsReport(["«include»<br/>Synthesize Strengths & Weaknesses<br/>(FR09 Strengths Report)"])
+
+    %% Extends for Sessions
+    EXT_DifficultyScaling(["«extend»<br/>Select Difficulty Level<br/>(FR16 Difficulty Scaling)"])
+    EXT_PressureMode(["«extend»<br/>Enable Time Pressure Mode<br/>(FR33 Pressure Simulation)"])
+    EXT_FollowupQ(["«extend»<br/>Generate Contextual Follow-up<br/>(FR14 Contextual Follow-up)"])
+    EXT_Autosave(["«extend»<br/>Autosave Answer Draft<br/>(FR05 Client Draft Autosave)"])
+    EXT_EditTranscript(["«extend»<br/>Review & Edit Transcript<br/>(Review & Edit Transcript)"])
+
+    %% Extends for Evaluation
+    EXT_GrammarAnalysis(["«extend»<br/>Analyze English Grammar<br/>(FR10 Professional Vocab)"])
+    EXT_SpeechPace(["«extend»<br/>Analyze Speech Pace & Fillers<br/>(FR36 Speech Pace Analysis)"])
+    EXT_ImprovementTips(["«extend»<br/>View Exemplar & Tips<br/>(FR06 Improvement Guidance)"])
+    EXT_AppealScore(["«extend»<br/>Submit Score Appeal<br/>(FR17 Evaluation Score Appeal)"])
+    EXT_ExportPDF(["«extend»<br/>Export Report to PDF<br/>(FR20 Feedback Report Export)"])
+  end
+
+  subgraph ExternalInference["External AI Services"]
+    LLM[[🤖 Hosted LLM Provider]]
+    STT[[🎙️ Speech-to-Text Provider]]
+  end
+
+  %% Actor associations
+  User --> UC_StartSession
+  User --> UC_PracticeText
+  User --> UC_PracticeVoice
+  User --> UC_ReviewEval
+
+  %% Start Session Relationships
+  UC_StartSession -. "«include»" .-> INC_FetchQ
+  UC_StartSession -. "«include»" .-> INC_CheckQuota
+  EXT_DifficultyScaling -. "«extend»\n[Specific Skill Level]" .-> UC_StartSession
+  EXT_PressureMode -. "«extend»\n[High Pressure Drill]" .-> UC_StartSession
+  EXT_FollowupQ -. "«extend»\n[Answer Opens Inquiry]" .-> INC_FetchQ
+
+  %% Practice Text Relationships
+  UC_PracticeText -. "«include»" .-> INC_SubmitAnswer
+  EXT_Autosave -. "«extend»\n[Typing / Network Disruption]" .-> UC_PracticeText
+
+  %% Practice Voice Relationships
+  UC_PracticeVoice -. "«include»" .-> INC_VoiceConsent
+  UC_PracticeVoice -. "«include»" .-> INC_STT
+  UC_PracticeVoice -. "«include»" .-> INC_SubmitAnswer
+  EXT_EditTranscript -. "«extend»\n[Transcription Correction]" .-> UC_PracticeVoice
+
+  %% Review Evaluation Relationships
+  UC_ReviewEval -. "«include»" .-> INC_RubricScore
+  UC_ReviewEval -. "«include»" .-> INC_STARRelevance
+  UC_ReviewEval -. "«include»" .-> INC_StrengthsReport
+
+  EXT_GrammarAnalysis -. "«extend»\n[English Response]" .-> UC_ReviewEval
+  EXT_SpeechPace -. "«extend»\n[R2 Voice Session Only]" .-> UC_ReviewEval
+  EXT_ImprovementTips -. "«extend»\n[Guidance Requested]" .-> UC_ReviewEval
+  EXT_AppealScore -. "«extend»\n[Disputed AI Score]" .-> UC_ReviewEval
+  EXT_ExportPDF -. "«extend»\n[Export Requested]" .-> UC_ReviewEval
+
+  %% External Connections
+  INC_FetchQ --> LLM
+  EXT_FollowupQ --> LLM
+  INC_STT --> STT
+  INC_RubricScore --> LLM
+  INC_STARRelevance --> LLM
+  EXT_GrammarAnalysis --> LLM
+  EXT_ImprovementTips --> LLM
+
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+
+  class UC_StartSession,UC_PracticeText,UC_PracticeVoice,UC_ReviewEval baseStyle;
+  class INC_FetchQ,INC_CheckQuota,INC_SubmitAnswer,INC_VoiceConsent,INC_STT,INC_RubricScore,INC_STARRelevance,INC_StrengthsReport incStyle;
+  class EXT_DifficultyScaling,EXT_PressureMode,EXT_FollowupQ,EXT_Autosave,EXT_EditTranscript,EXT_GrammarAnalysis,EXT_SpeechPace,EXT_ImprovementTips,EXT_AppealScore,EXT_ExportPDF extStyle;
+  class User actorStyle;
+  class LLM,STT extSysStyle;
+```
+
+---
+
+## D22 SUBSYSTEM USE CASES: IDENTITY & PDPA PRIVACY GOVERNANCE
+
+Subsystem Use Case Diagram covering registration, authentication, consent lifecycle, audit event logging, data portability, and the right to erasure workflow:
+
+```mermaid
+flowchart LR
+  subgraph Actors["Actors"]
+    Guest([👤 Guest])
+    User([👤 Registered User])
+    Admin([🛡️ System Admin / DPO])
+  end
+
+  subgraph PrivacyBoundary["Identity & Privacy Governance"]
+    direction TB
+
+    %% Base Use Cases
+    UC_Register(["Sign Up with Email (FR01)"])
+    UC_Login(["(UC02) Authenticate & Issue Tokens"])
+    UC_ManageProfile(["(UC03) Manage Profile & Goals (FR02)"])
+    UC_ConsentDashboard(["(UC08) Manage Consent Preferences (FR18)"])
+    UC_DSRWorkflow(["(FR35) Data Subject Rights SLA Workflow"])
+
+    %% Includes
+    INC_VerifyEmail(["«include»<br/>Send Secure Verification Link"])
+    INC_IssueTokens(["«include»<br/>Generate Access & Refresh Tokens"])
+    INC_AuditRecord(["«include»<br/>Record Immutable Consent Event Log"])
+
+    %% Extends
+    EXT_ResetPassword(["«extend»<br/>Password Reset Request"])
+    EXT_ChangePassword(["«extend»<br/>Change Account Password (FR23)"])
+    EXT_LogoutAll(["«extend»<br/>Logout from All Devices (FR23)"])
+    EXT_RevokeConsent(["«extend»<br/>Revoke Purpose Consent (FR18)"])
+    EXT_DataPortability(["«extend»<br/>Data Portability Request (FR21)"])
+    EXT_AccountErasure(["«extend»<br/>Right to Erasure / Deletion (FR22)"])
+  end
+
+  subgraph MailService["External Services"]
+    EmailGateway[[✉️ Transactional Email]]
+  end
+
+  %% Associations
+  Guest --> UC_Register
+  Guest --> UC_Login
+  User --> UC_Login
+  User --> UC_ManageProfile
+  User --> UC_ConsentDashboard
+  Admin --> UC_DSRWorkflow
+
+  %% Includes
+  UC_Register -. "«include»" .-> INC_VerifyEmail
+  UC_Login -. "«include»" .-> INC_IssueTokens
+  UC_ConsentDashboard -. "«include»" .-> INC_AuditRecord
+
+  %% Extends
+  EXT_ResetPassword -. "«extend»\n[Forgot Password]" .-> UC_Login
+  EXT_ChangePassword -. "«extend»\n[Update Credentials]" .-> UC_Login
+  EXT_LogoutAll -. "«extend»\n[Security Compromise]" .-> UC_Login
+
+  EXT_RevokeConsent -. "«extend»\n[Withdraw Consent]" .-> UC_ConsentDashboard
+  EXT_DataPortability -. "«extend»\n[Export JSON/CSV]" .-> UC_ConsentDashboard
+  EXT_AccountErasure -. "«extend»\n[Confirm Account Deletion]" .-> UC_ConsentDashboard
+
+  %% DSR Inclusion
+  EXT_DataPortability -. "«include»" .-> UC_DSRWorkflow
+  EXT_AccountErasure -. "«include»" .-> UC_DSRWorkflow
+
+  INC_VerifyEmail --> EmailGateway
+  EXT_ResetPassword --> EmailGateway
+
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+
+  class UC_Register,UC_Login,UC_ManageProfile,UC_ConsentDashboard,UC_DSRWorkflow baseStyle;
+  class INC_VerifyEmail,INC_IssueTokens,INC_AuditRecord incStyle;
+  class EXT_ResetPassword,EXT_ChangePassword,EXT_LogoutAll,EXT_RevokeConsent,EXT_DataPortability,EXT_AccountErasure extStyle;
+  class Guest,User,Admin actorStyle;
+  class EmailGateway extSysStyle;
+```
+
+---
+
+## D23 SUBSYSTEM USE CASES: BACKOFFICE, FINANCE & RESEARCH
+
+Subsystem Use Case Diagram for internal staff portals (Web Only) covering question bank and rubric management, AI prompt configuration, financial reconciliation, and governed differential privacy dataset export:
+
+```mermaid
+flowchart LR
+  subgraph StaffUsers["Internal Staff (Web Only)"]
+    Admin([🛡️ System Admin])
+    Finance([💳 Finance Admin R3])
+    Researcher([🔬 Research Engineer R3])
+  end
+
+  subgraph BackofficeBoundary["Backoffice & Governance Portal"]
+    direction TB
+
+    %% Base Use Cases
+    UC_ManageQuestions(["(UC10) Question Bank & Rubric Console (FR24)"])
+    UC_ManageUsers(["User & Role RBAC Console (FR25)"])
+    UC_AuditViewer(["Security Audit Viewer (FR26)"])
+    UC_FinancialDashboard(["(UC09) Financial & MRR Dashboard (FR31)"])
+    UC_ResearchExport(["(UC08.1) Research Dataset Release (FR18.1)"])
+
+    %% Includes
+    INC_ImmutableVersion(["«include»<br/>Immutable Rubric Version Pinning"])
+    INC_AuditTrail(["«include»<br/>Record Audit Trail Event"])
+    INC_DiffPrivacy(["«include»<br/>Differential Privacy Noise & Suppression"])
+    INC_PaymentAPI(["«include»<br/>Execute Payment Gateway API Call"])
+
+    %% Extends
+    EXT_ConfigPrompt(["«extend»<br/>AI Model & Prompt Config (FR34)"])
+    EXT_SuspendAccount(["«extend»<br/>Suspend & Unlock User (FR32)"])
+    EXT_ResolveAppeal(["«extend»<br/>Resolve Score Appeal (FR17)"])
+    EXT_ProcessRefund(["«extend»<br/>Process Refund Request (FR30)"])
+  end
+
+  subgraph ExternalGW["External Gateways"]
+    PaymentGateway[[🏦 Payment Gateway Provider]]
+  end
+
+  %% Associations
+  Admin --> UC_ManageQuestions
+  Admin --> UC_ManageUsers
+  Admin --> UC_AuditViewer
+  Finance --> UC_FinancialDashboard
+  Researcher --> UC_ResearchExport
+
+  %% Includes
+  UC_ManageQuestions -. "«include»" .-> INC_ImmutableVersion
+  UC_ManageQuestions -. "«include»" .-> INC_AuditTrail
+  UC_ManageUsers -. "«include»" .-> INC_AuditTrail
+  UC_ResearchExport -. "«include»" .-> INC_DiffPrivacy
+  EXT_ProcessRefund -. "«include»" .-> INC_PaymentAPI
+  INC_PaymentAPI --> PaymentGateway
+
+  %% Extends
+  EXT_ConfigPrompt -. "«extend»\n[Tune or Upgrade AI Model]" .-> UC_ManageQuestions
+  EXT_SuspendAccount -. "«extend»\n[Fraud / Policy Violation]" .-> UC_ManageUsers
+  EXT_ResolveAppeal -. "«extend»\n[Pending Score Appeal]" .-> UC_ManageQuestions
+  EXT_ProcessRefund -. "«extend»\n[Eligible Refund Claim]" .-> UC_FinancialDashboard
+
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+
+  class UC_ManageQuestions,UC_ManageUsers,UC_AuditViewer,UC_FinancialDashboard,UC_ResearchExport baseStyle;
+  class INC_ImmutableVersion,INC_AuditTrail,INC_DiffPrivacy,INC_PaymentAPI incStyle;
+  class EXT_ConfigPrompt,EXT_SuspendAccount,EXT_ResolveAppeal,EXT_ProcessRefund extStyle;
+  class Admin,Finance,Researcher actorStyle;
+  class PaymentGateway extSysStyle;
+```
+
+---
+
+---
+
 ## D24 WEB & MOBILE ARCHITECTURE ALIGNMENT
 
 Illustrates the architectural alignment, responsibility boundaries, shared monorepo contracts, and unified backend between Responsive Web (Next.js) and Native Mobile (React Native / Expo).

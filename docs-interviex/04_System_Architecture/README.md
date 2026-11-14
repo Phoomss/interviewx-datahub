@@ -11,18 +11,18 @@
 
 ---
 
-## 🌟 แผนภาพสถาปัตยกรรมระบบทั้งหมด 20 รูป (Active Baseline — D01 ถึง D20)
+## 🌟 แผนภาพสถาปัตยกรรมระบบทั้งหมด 25 รูป (Active Baseline — D01 ถึง D25)
 
 แผนภาพทั้งหมดถูกออกแบบด้วย Mermaid และจัดทำทั้งฉบับภาษาไทยและภาษาอังกฤษ:
 
 | แผนภาพผลลัพธ์ | ลิงก์เปิดไฟล์ (Clickable Link) | ขนาดไฟล์ | คำอธิบายสาระสำคัญ |
 |---|---|:---:|---|
-| **แบบจำลองกรณีการใช้งานระบบ (Use Case Model v1.1)** | [InterviewX_Use_Case_Diagrams_v1.1.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/InterviewX_Use_Case_Diagrams_v1.1.md) | ~15 KB | รวมแผนภาพกรณีการใช้งานทั้งระดับระบบ (D20) และระบบย่อย 3 ด้าน (D21–D23) พร้อมตาราง Traceability |
-| **แผนภาพสถาปัตยกรรมระบบ (ภาษาไทย v1.1)** | [ALL_DIAGRAMS_v1.1_DRAFT_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/InterviewX_Final_System_Diagrams_v1.0/ALL_DIAGRAMS_v1.1_DRAFT_TH.md) | ~63 KB | รวม 20 แผนภาพ (D01–D20) พร้อมคำอธิบาย ป้ายกำกับภาษาไทยมาตรฐาน |
-| **แผนภาพสถาปัตยกรรมระบบ (English v1.1)** | [ALL_DIAGRAMS_v1.1_DRAFT.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/InterviewX_Final_System_Diagrams_v1.0/ALL_DIAGRAMS_v1.1_DRAFT.md) | 26.5 KB | รวม 19 แผนภาพฉบับภาษาอังกฤษสำหรับทีมพัฒนาสากล |
+| **แบบจำลองกรณีการใช้งานระบบ (Use Case Model v1.1)** | [InterviewX_Use_Case_Diagrams_v1.1.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/InterviewX_Use_Case_Diagrams_v1.1.md) | ~20 KB | รวมแผนภาพกรณีการใช้งานทั้งระดับระบบ (D20) และระบบย่อย 3 ด้าน (D21–D23) พร้อมตาราง Traceability |
+| **แผนภาพสถาปัตยกรรมระบบ (ภาษาไทย v1.1)** | [ALL_DIAGRAMS_v1.1_DRAFT_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/InterviewX_Final_System_Diagrams_v1.0/ALL_DIAGRAMS_v1.1_DRAFT_TH.md) | ~85 KB | รวมครบทั้ง 25 แผนภาพ (D01–D25) พร้อมคำอธิบาย ป้ายกำกับภาษาไทยมาตรฐาน |
+| **แผนภาพสถาปัตยกรรมระบบ (English v1.1)** | [ALL_DIAGRAMS_v1.1_DRAFT.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/InterviewX_Final_System_Diagrams_v1.0/ALL_DIAGRAMS_v1.1_DRAFT.md) | ~45 KB | รวมครบทั้ง 25 แผนภาพฉบับภาษาอังกฤษสำหรับทีมพัฒนาสากล |
 | **แผนภาพสถาปัตยกรรมดั้งเดิม (v1.0 Baseline)** | [ALL_DIAGRAMS.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/InterviewX_Final_System_Diagrams_v1.0/ALL_DIAGRAMS.md) | 18.2 KB | แผนภาพตั้งต้นก่อนการแยกแพลตฟอร์ม Phase 1 |
 
-### รายการแผนภาพย่อย (Diagram Breakdown: D01–D20)
+### รายการแผนภาพย่อย (Diagram Breakdown: D01–D25)
 - **D01:** บริบทระบบระดับสูง (System Context)
 - **D02:** C4 Containers (Decoupled Web, Mobile, NestJS, FastAPI, Storage)
 - **D03:** การแบ่งขอบเขตบริบทตามหลัก DDD (Bounded Contexts)
@@ -43,6 +43,11 @@
 - **D18:** โครงสร้างการแบ่งแยกขอบเขตโค้ด Monorepo (Monorepo Package Boundaries)
 - **D19:** แผนงานการเปิดตัวระบบ (Release Roadmap Timeline)
 - **D20:** แผนภาพกรณีการใช้งานระบบโดยรวม (System Use Case Diagram)
+- **D21:** แผนภาพระบบย่อย: การฝึกสัมภาษณ์และการประเมินผล AI (Practice & AI Evaluation Engine)
+- **D22:** แผนภาพระบบย่อย: ยืนยันตัวตนและคุ้มครองข้อมูลส่วนบุคคล (Identity & PDPA Governance)
+- **D23:** แผนภาพระบบย่อย: การบริหารระบบ การเงิน และชุดข้อมูลวิจัย (Administration, Billing & Research)
+- **D24:** การจัดแนวทางสถาปัตยกรรมระหว่าง Web และ Mobile (Web & Mobile Architecture Alignment)
+- **D25:** ลำดับการทำงานและการสลับรูปแบบระหว่าง Web และ Mobile (Web vs Mobile Interaction Sequence)
 
 ---
 

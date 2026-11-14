@@ -943,8 +943,364 @@ flowchart LR
   class EmailGateway,LLMService,STTService,PaymentGW extSysStyle;
 ```
 
-> 📖 ดูรายละเอียดโมเดลกรณีการใช้งานฉบับสมบูรณ์ พร้อมแผนภาพเจาะลึกรายระบบย่อย (Subsystems D21–D23) และตาราง Traceability ได้ที่:  
+> 📖 ดูรายละเอียดโมเดลกรณีการใช้งานฉบับสมบูรณ์ พร้อมตาราง Traceability ได้ที่:  
 > 👉 [InterviewX_Use_Case_Diagrams_v1.1.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/InterviewX_Use_Case_Diagrams_v1.1.md)
+
+---
+
+## D21 แผนภาพระบบย่อย: การฝึกสัมภาษณ์และการประเมินผล AI (Practice & AI Evaluation Engine)
+
+แผนภาพกรณีการใช้งานระบบย่อยที่เกี่ยวข้องกับการฝึกสัมภาษณ์ทั้งแบบข้อความและเสียงพูด (R2) กลไกการตัดโควตา การส่งคำตอบแบบ Idempotent และการประเมินผลลัพธ์ผ่านรูบริก AI:
+
+```mermaid
+flowchart LR
+  subgraph Candidate["ผู้สมัครงาน"]
+    User([👤 Registered User])
+  end
+
+  subgraph PracticeBoundary["ระบบฝึกสัมภาษณ์และการประเมินผล AI (Practice & Evaluation Engine)"]
+    direction TB
+
+    %% Base Use Cases
+    UC_StartSession(["เริ่มเซสชันการสัมภาษณ์
+(Start Interview Session)"])
+    UC_PracticeText(["(UC04) ฝึกสัมภาษณ์แบบข้อเขียน
+(Practice Text Interview) [FR05]"])
+    UC_PracticeVoice(["(UC05) ฝึกสัมภาษณ์ด้วยเสียงพูด
+(Practice Voice Interview) [FR05-V]"])
+    UC_ReviewEval(["(UC06) ตรวจสอบผลการประเมิน AI
+(Review AI Evaluation Report) [FR07]"])
+
+    %% Includes for Sessions
+    INC_FetchQ(["«include»
+ดึงคำถามตรงตามหมวดหมู่
+(FR03 Category Question)"])
+    INC_CheckQuota(["«include»
+ตัดโควตาเซสชัน Atomic
+(FR13 Quota Ledger Check)"])
+    INC_SubmitAnswer(["«include»
+ส่งคำตอบพร้อม Idempotency Key
+(FR05 Idempotent Submission)"])
+
+    %% Includes for Voice
+    INC_VoiceConsent(["«include»
+ขอความยินยอมเก็บไฟล์เสียง
+(FR05.1 Voice Retention Consent)"])
+    INC_STT(["«include»
+แปลงเสียงพูดเป็นข้อความ
+(FR05-V Speech to Text)"])
+
+    %% Includes for Evaluation
+    INC_RubricScore(["«include»
+คำนวณคะแนนตามเกณฑ์รูบริก AI
+(FR07 Rubric Scoring Engine)"])
+    INC_STARRelevance(["«include»
+วิเคราะห์ความตรงประเด็น STAR
+(FR08 Answer Relevance Analysis)"])
+    INC_StrengthsReport(["«include»
+สรุปจุดเด่นและจุดควรพัฒนา
+(FR09 Strengths & Weaknesses)"])
+
+    %% Extends for Sessions
+    EXT_DifficultyScaling(["«extend»
+เลือกระดับความยากง่าย
+(FR16 Difficulty Scaling)"])
+    EXT_PressureMode(["«extend»
+เปิดโหมดกดดันจับเวลาสั้น
+(FR33 Pressure Simulation)"])
+    EXT_FollowupQ(["«extend»
+สร้างคำถามติดตามผลตามคำตอบ
+(FR14 Contextual Follow-up)"])
+    EXT_Autosave(["«extend»
+บันทึกฉบับร่างคำตอบในเครื่อง
+(FR05 Client Draft Autosave)"])
+    EXT_EditTranscript(["«extend»
+ตรวจทานและแก้ไขข้อความถอดเสียง
+(Review & Edit Transcript)"])
+
+    %% Extends for Evaluation
+    EXT_GrammarAnalysis(["«extend»
+วิเคราะห์ไวยากรณ์ภาษาอังกฤษ
+(FR10 Grammar & Professional Vocab)"])
+    EXT_SpeechPace(["«extend»
+วิเคราะห์จังหวะและความเร็วพูด
+(FR36 Speech Pace & Filler Words)"])
+    EXT_ImprovementTips(["«extend»
+ดูคำแนะนำและตัวอย่างคำตอบที่ดี
+(FR06 Answer Improvement Guidance)"])
+    EXT_AppealScore(["«extend»
+ยื่นคำขออุทธรณ์ผลการประเมิน
+(FR17 Evaluation Score Appeal)"])
+    EXT_ExportPDF(["«extend»
+ส่งออกรายงานผลเป็นไฟล์ PDF
+(FR20 Feedback Report Export)"])
+  end
+
+  subgraph ExternalInference["ระบบปัญญาประดิษฐ์ภายนอก"]
+    LLM[[🤖 Hosted LLM Provider]]
+    STT[[🎙️ Speech-to-Text Provider]]
+  end
+
+  %% Actor associations
+  User --> UC_StartSession
+  User --> UC_PracticeText
+  User --> UC_PracticeVoice
+  User --> UC_ReviewEval
+
+  %% Start Session Relationships
+  UC_StartSession -. "«include»" .-> INC_FetchQ
+  UC_StartSession -. "«include»" .-> INC_CheckQuota
+  EXT_DifficultyScaling -. "«extend»\n[เมื่อผู้ใช้ระบุระดับทักษะ]" .-> UC_StartSession
+  EXT_PressureMode -. "«extend»\n[เมื่อผู้ใช้ต้องการฝึกกดดัน]" .-> UC_StartSession
+  EXT_FollowupQ -. "«extend»\n[เมื่อคำตอบก่อนหน้าเปิดประเด็น]" .-> INC_FetchQ
+
+  %% Practice Text Relationships
+  UC_PracticeText -. "«include»" .-> INC_SubmitAnswer
+  EXT_Autosave -. "«extend»\n[ขณะพิมพ์ / สัญญาณเน็ตสะดุด]" .-> UC_PracticeText
+
+  %% Practice Voice Relationships
+  UC_PracticeVoice -. "«include»" .-> INC_VoiceConsent
+  UC_PracticeVoice -. "«include»" .-> INC_STT
+  UC_PracticeVoice -. "«include»" .-> INC_SubmitAnswer
+  EXT_EditTranscript -. "«extend»\n[เมื่อพบข้อความถอดเสียงผิด]" .-> UC_PracticeVoice
+
+  %% Review Evaluation Relationships
+  UC_ReviewEval -. "«include»" .-> INC_RubricScore
+  UC_ReviewEval -. "«include»" .-> INC_STARRelevance
+  UC_ReviewEval -. "«include»" .-> INC_StrengthsReport
+
+  EXT_GrammarAnalysis -. "«extend»\n[เมื่อตอบสัมภาษณ์ภาษาอังกฤษ]" .-> UC_ReviewEval
+  EXT_SpeechPace -. "«extend»\n[เฉพาะเซสชันสัมภาษณ์ด้วยเสียง R2]" .-> UC_ReviewEval
+  EXT_ImprovementTips -. "«extend»\n[เมื่อผู้ใช้ต้องการแนวทางปรับปรุง]" .-> UC_ReviewEval
+  EXT_AppealScore -. "«extend»\n[เมื่อพบผลคะแนนไม่สอดคล้อง]" .-> UC_ReviewEval
+  EXT_ExportPDF -. "«extend»\n[เมื่อต้องการดาวน์โหลดเก็บไว้]" .-> UC_ReviewEval
+
+  %% External Connections
+  INC_FetchQ --> LLM
+  EXT_FollowupQ --> LLM
+  INC_STT --> STT
+  INC_RubricScore --> LLM
+  INC_STARRelevance --> LLM
+  EXT_GrammarAnalysis --> LLM
+  EXT_ImprovementTips --> LLM
+
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+
+  class UC_StartSession,UC_PracticeText,UC_PracticeVoice,UC_ReviewEval baseStyle;
+  class INC_FetchQ,INC_CheckQuota,INC_SubmitAnswer,INC_VoiceConsent,INC_STT,INC_RubricScore,INC_STARRelevance,INC_StrengthsReport incStyle;
+  class EXT_DifficultyScaling,EXT_PressureMode,EXT_FollowupQ,EXT_Autosave,EXT_EditTranscript,EXT_GrammarAnalysis,EXT_SpeechPace,EXT_ImprovementTips,EXT_AppealScore,EXT_ExportPDF extStyle;
+  class User actorStyle;
+  class LLM,STT extSysStyle;
+```
+
+---
+
+## D22 แผนภาพระบบย่อย: ยืนยันตัวตนและคุ้มครองข้อมูลส่วนบุคคล (Identity & PDPA Governance)
+
+แผนภาพกรณีการใช้งานสำหรับการลงทะเบียน, เข้าสู่ระบบ, การจัดการความยินยอม PDPA, การขอรับสำเนาข้อมูล (Data Portability) และการขอลบบัญชีถาวร (Right to Erasure):
+
+```mermaid
+flowchart LR
+  subgraph Actors["ผู้แสดงบทบาท"]
+    Guest([👤 Guest])
+    User([👤 Registered User])
+    Admin([🛡️ System Admin / เจ้าหน้าที่ DPO])
+  end
+
+  subgraph PrivacyBoundary["ระบบการตรวจสอบสิทธิ์และธรรมาภิบาลข้อมูล (Identity & Privacy Governance)"]
+    direction TB
+
+    %% Base Use Cases
+    UC_Register(["ลงทะเบียนบัญชีผู้ใช้ใหม่
+(Sign Up with Email - FR01)"])
+    UC_Login(["(UC02) เข้าสู่ระบบด้วยอีเมล
+(Authenticate & Issue Tokens)"])
+    UC_ManageProfile(["(UC03) ตั้งค่าโปรไฟล์และเป้าหมาย
+(Manage Profile & Goals - FR02)"])
+    UC_ConsentDashboard(["(UC08) จัดการความยินยอม PDPA
+(Manage Consent Preferences - FR18)"])
+    UC_DSRWorkflow(["(FR35) ดำเนินการตามคำร้องขอสิทธิ์
+(Data Subject Rights SLA Workflow)"])
+
+    %% Includes
+    INC_VerifyEmail(["«include»
+ส่งลิงก์ยืนยันตัวตนทางอีเมล
+(Send Secure Verification Link)"])
+    INC_IssueTokens(["«include»
+สร้าง Access & Refresh Tokens
+(JWT Token Generation)"])
+    INC_AuditRecord(["«include»
+บันทึกหลักฐาน Timestamp ไม่แก้ไขได้
+(Immutable Consent Event Log)"])
+
+    %% Extends
+    EXT_ResetPassword(["«extend»
+ขอรีเซ็ตรหัสผ่านผ่านอีเมล
+(Password Reset Request)"])
+    EXT_ChangePassword(["«extend»
+เปลี่ยนรหัสผ่านประจำตัว
+(Change Password - FR23)"])
+    EXT_LogoutAll(["«extend»
+ยกเลิกเซสชันทุกอุปกรณ์
+(Logout from All Devices - FR23)"])
+    EXT_RevokeConsent(["«extend»
+เพิกถอนความยินยอมรายวัตถุประสงค์
+(Revoke Specific Consent - FR18)"])
+    EXT_DataPortability(["«extend»
+ขอรับสำเนาข้อมูลส่วนบุคคล
+(Data Portability Request - FR21)"])
+    EXT_AccountErasure(["«extend»
+ขอลบบัญชีและทำลายข้อมูลส่วนบุคคล
+(Right to Erasure / Deletion - FR22)"])
+  end
+
+  subgraph MailService["ระบบภายนอก"]
+    EmailGateway[[✉️ Transactional Email]]
+  end
+
+  %% Associations
+  Guest --> UC_Register
+  Guest --> UC_Login
+  User --> UC_Login
+  User --> UC_ManageProfile
+  User --> UC_ConsentDashboard
+  Admin --> UC_DSRWorkflow
+
+  %% Includes
+  UC_Register -. "«include»" .-> INC_VerifyEmail
+  UC_Login -. "«include»" .-> INC_IssueTokens
+  UC_ConsentDashboard -. "«include»" .-> INC_AuditRecord
+
+  %% Extends
+  EXT_ResetPassword -. "«extend»\n[เมื่อผู้ใช้ลืมรหัสผ่าน]" .-> UC_Login
+  EXT_ChangePassword -. "«extend»\n[เมื่อต้องการเปลี่ยนรหัสผ่าน]" .-> UC_Login
+  EXT_LogoutAll -. "«extend»\n[เมื่อพบอุปกรณ์ต้องสงสัย]" .-> UC_Login
+
+  EXT_RevokeConsent -. "«extend»\n[เมื่อต้องการระงับการใช้ข้อมูล]" .-> UC_ConsentDashboard
+  EXT_DataPortability -. "«extend»\n[เมื่อยื่นคำขอรับไฟล์ JSON/CSV]" .-> UC_ConsentDashboard
+  EXT_AccountErasure -. "«extend»\n[เมื่อยืนยันขอลบบัญชีถาวร]" .-> UC_ConsentDashboard
+
+  %% DSR Inclusion
+  EXT_DataPortability -. "«include»" .-> UC_DSRWorkflow
+  EXT_AccountErasure -. "«include»" .-> UC_DSRWorkflow
+
+  INC_VerifyEmail --> EmailGateway
+  EXT_ResetPassword --> EmailGateway
+
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+
+  class UC_Register,UC_Login,UC_ManageProfile,UC_ConsentDashboard,UC_DSRWorkflow baseStyle;
+  class INC_VerifyEmail,INC_IssueTokens,INC_AuditRecord incStyle;
+  class EXT_ResetPassword,EXT_ChangePassword,EXT_LogoutAll,EXT_RevokeConsent,EXT_DataPortability,EXT_AccountErasure extStyle;
+  class Guest,User,Admin actorStyle;
+  class EmailGateway extSysStyle;
+```
+
+---
+
+## D23 แผนภาพระบบย่อย: การบริหารระบบ การเงิน และชุดข้อมูลวิจัย (Administration, Billing & Research)
+
+แผนภาพกรณีการใช้งานสำหรับพอร์ทัลหลังบ้าน (Web Only) รองรับการบริหารคลังคำถามและรูบริก, การปรับแต่งโมเดล AI, การจัดการการเงินและคืนเงิน, และการสกัดชุดข้อมูลวิจัยนิรนาม:
+
+```mermaid
+flowchart LR
+  subgraph StaffUsers["ทีมงานภายใน (Web Only)"]
+    Admin([🛡️ System Admin])
+    Finance([💳 Finance Admin R3])
+    Researcher([🔬 Research Engineer R3])
+  end
+
+  subgraph BackofficeBoundary["พอร์ทัลการบริหารจัดการระบบและกำกับดูแล (Backoffice & Governance Portal)"]
+    direction TB
+
+    %% Base Use Cases
+    UC_ManageQuestions(["(UC10) บริหารคลังคำถามและรูบริก
+(Question Bank & Rubric Console - FR24)"])
+    UC_ManageUsers(["บริหารจัดการผู้ใช้และสิทธิ์
+(User & Role RBAC Console - FR25)"])
+    UC_AuditViewer(["ตรวจสอบประวัติความปลอดภัย
+(Security Audit Viewer - FR26)"])
+    UC_FinancialDashboard(["(UC09) ดูแดชบอร์ดรายได้และการเงิน
+(Financial & MRR Dashboard - FR31)"])
+    UC_ResearchExport(["(UC08.1) ส่งออกชุดข้อมูลวิจัย
+(Research Dataset Release - FR18.1)"])
+
+    %% Includes
+    INC_ImmutableVersion(["«include»
+บันทึกเวอร์ชันแบบ Immutable
+(Rubric Version Pinning)"])
+    INC_AuditTrail(["«include»
+บันทึกหลักฐาน Audit Trail
+(Audit Log Event Record)"])
+    INC_DiffPrivacy(["«include»
+ตัด PII และใส่สัญญาณรบกวน DP
+(Differential Privacy & Cell >= 10)"])
+    INC_PaymentAPI(["«include»
+ส่งคำสั่งผ่าน API ธนาคาร/เกตเวย์
+(Execute Payment API Call)"])
+
+    %% Extends
+    EXT_ConfigPrompt(["«extend»
+ทดสอบและปรับแต่ง Prompt โมเดล
+(AI Model & Prompt Config - FR34)"])
+    EXT_SuspendAccount(["«extend»
+ระงับและปลดล็อกบัญชีผู้ใช้
+(Suspend & Unlock User - FR32)"])
+    EXT_ResolveAppeal(["«extend»
+พิจารณาและตัดสินข้ออุทธรณ์คะแนน
+(Resolve Score Appeal - FR17)"])
+    EXT_ProcessRefund(["«extend»
+พิจารณาและอนุมัติการคืนเงิน
+(Process Refund Request - FR30)"])
+  end
+
+  subgraph ExternalGW["ระบบภายนอก"]
+    PaymentGateway[[🏦 Payment Gateway Provider]]
+  end
+
+  %% Associations
+  Admin --> UC_ManageQuestions
+  Admin --> UC_ManageUsers
+  Admin --> UC_AuditViewer
+  Finance --> UC_FinancialDashboard
+  Researcher --> UC_ResearchExport
+
+  %% Includes
+  UC_ManageQuestions -. "«include»" .-> INC_ImmutableVersion
+  UC_ManageQuestions -. "«include»" .-> INC_AuditTrail
+  UC_ManageUsers -. "«include»" .-> INC_AuditTrail
+  UC_ResearchExport -. "«include»" .-> INC_DiffPrivacy
+  EXT_ProcessRefund -. "«include»" .-> INC_PaymentAPI
+  INC_PaymentAPI --> PaymentGateway
+
+  %% Extends
+  EXT_ConfigPrompt -. "«extend»\n[เมื่อปรับปรุงหรือเปลี่ยนเวอร์ชันโมเดล]" .-> UC_ManageQuestions
+  EXT_SuspendAccount -. "«extend»\n[เมื่อพบบัญชีทุจริตหรือละเมิดกฎ]" .-> UC_ManageUsers
+  EXT_ResolveAppeal -. "«extend»\n[เมื่อมีคำขออุทธรณ์คะแนนในคิว]" .-> UC_ManageQuestions
+  EXT_ProcessRefund -. "«extend»\n[เมื่อมีคำขอคืนเงินตามเงื่อนไข]" .-> UC_FinancialDashboard
+
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+
+  class UC_ManageQuestions,UC_ManageUsers,UC_AuditViewer,UC_FinancialDashboard,UC_ResearchExport baseStyle;
+  class INC_ImmutableVersion,INC_AuditTrail,INC_DiffPrivacy,INC_PaymentAPI incStyle;
+  class EXT_ConfigPrompt,EXT_SuspendAccount,EXT_ResolveAppeal,EXT_ProcessRefund extStyle;
+  class Admin,Finance,Researcher actorStyle;
+  class PaymentGateway extSysStyle;
+```
+
+---
 
 ---
 
