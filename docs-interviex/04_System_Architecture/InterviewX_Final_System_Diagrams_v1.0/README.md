@@ -29,6 +29,12 @@ Based on `InterviewX_SRS_Final_For_Approval_v1.0.docx`, `InterviewX_Architecture
 | D17 | Observability and recovery | OTel and restore drill |
 | D18 | Monorepo dependency architecture | Package/interface boundaries |
 | D19 | Release roadmap | Feature gates and independence |
+| D20 | System Use Cases Overview | Cross-role boundary & package map |
+| D21 | Interview & AI Evaluation Use Cases | Core candidate workflow |
+| D22 | Account & Privacy Governance Use Cases | Consent, audit, erasure & export |
+| D23 | Admin, Finance & Research Use Cases | Operational governance (Web-Only) |
+| D24 | Web & Mobile Architecture Alignment | Frontend separation, shared contracts & unified backend |
+| D25 | Web vs Mobile Interaction Sequence | Dual authentication, RBAC guard & idempotency |
 
 Each `diagrams/Dxx_*.mmd` file is a standalone Mermaid source. `ALL_DIAGRAMS.md` collects all diagrams for review.
 
