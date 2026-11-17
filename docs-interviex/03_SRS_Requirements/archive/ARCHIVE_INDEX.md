@@ -1,14 +1,14 @@
 # ดัชนีบันทึกเอกสารประวัติและเวอร์ชันเดิม (Archive & Version History Index)
 **โครงการ:** InterviewX — AI Job Interview Simulation System  
-**วันที่บันทึก:** 13 พฤศจิกายน 2026  
+**วันที่บันทึก:** 17 พฤศจิกายน 2026  
 **สถานะ:** เอกสารควบคุมประวัติ (Historical Reference Index)
 
 ---
 
 ## 1. วัตถุประสงค์ของการจัดเก็บคลังเอกสารประวัติ (Purpose of Archive)
 
-ตามข้อตกลงการบริหารจัดการเอกสารโครงการ เอกสารเวอร์ชันเดิมทั้งหมดจะได้รับการจัดเก็บรักษาไว้อย่างปลอดภัย ไม่มีการลบหรือเขียนทับ เพื่อรักษาความสามารถในการตรวจสอบย้อนกลับ (Traceability) และเป็นหลักฐานอ้างอิงทางประวัติศาสตร์ โดยมีเอกสารหลักฐานฉบับปัจจุบันของโครงการคือ:
-👉 **เวอร์ชันหลักที่ใช้งาน (Active Primary Baseline):** `v1.1 DRAFT_TH` (ฉบับภาษาไทยมาตรฐาน)
+ตามข้อตกลงการบริหารจัดการเอกสารโครงการ เอกสารเวอร์ชันเดิมและฉบับร่างทั้งหมดจะได้รับการจัดเก็บรักษาไว้อย่างปลอดภัย ไม่มีการลบหรือเขียนทับ เพื่อรักษาความสามารถในการตรวจสอบย้อนกลับ (Traceability) และเป็นหลักฐานอ้างอิงทางประวัติศาสตร์ โดยมีเอกสารหลักฐานฉบับปัจจุบันของโครงการคือ:
+👉 **เวอร์ชันหลักที่ใช้งาน (Active Primary Baseline):** [v1.1_approved/](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/v1.1_approved/) (ฉบับภาษาไทยมาตรฐานที่ผ่านการอนุมัติแล้ว)
 
 ---
 
@@ -36,6 +36,10 @@
 │   ├── 📊 InterviewX_Phase1_Decision_Register.xlsx
 │   └── 📝 InterviewX_Phase1_Change_Log.md
 │
+├── 📂 v1.1_th_draft/                   # เอกสารร่างภาษาไทย v1.1 DRAFT ก่อนได้รับอนุมัติ
+│   ├── 📄 InterviewX_SRS_v1.1_DRAFT_TH.docx
+│   └── 📄 InterviewX_SRS_v1.1_DRAFT_TH.md
+│
 ├── 📄 InterviewX_SRS_Complete.docx     # ร่างเอกสารเบื้องต้น (Pre-v1.0 Initial Draft)
 └── 📄 InterviewX_SRS_Revised.docx      # ร่างเอกสารปรับปรุงก่อนเข้าสู่กระบวนการจัดทำ v1.0
 ```
@@ -51,18 +55,21 @@
 ### 3.2 กลุ่มเอกสาร `v1.1_en_draft/` (เอกสารร่างภาษาอังกฤษ - 13 พ.ย. 2026)
 - **สาระสำคัญ:** เอกสารฉบับร่างภาษาอังกฤษที่พัฒนาขึ้นภายใต้ Phase 1 Requirement Alignment โดยแยกขอบเขต Responsive Web และ Native Mobile (iOS/Android), ปรับปรุง FR15 และ NFR08 พร้อมกำหนดเกณฑ์ Acceptance Criteria, เพิ่ม Platform Access Matrix, Subscription Matrix และ Decision Register (D-M01 ถึง D-M11)
 
-### 3.3 กลุ่มเอกสารฉบับก่อนหน้า (Pre-v1.0 Early Drafts)
+### 3.3 กลุ่มเอกสาร `v1.1_th_draft/` (เอกสารร่างภาษาไทยก่อนอนุมัติ - 13 พ.ย. 2026)
+- **สาระสำคัญ:** เอกสารฉบับร่างภาษาไทย (v1.1 DRAFT_TH) ที่จัดทำขึ้นสำหรับการตรวจสอบและทบทวนภายในทีม ก่อนได้รับการอนุมัติอย่างเป็นทางการในวันที่ 17 พ.ย. 2026
+
+### 3.4 กลุ่มเอกสารฉบับก่อนหน้า (Pre-v1.0 Early Drafts)
 - **`InterviewX_SRS_Complete.docx` และ `InterviewX_SRS_Revised.docx`:** เอกสารที่ร่างขึ้นในระยะเริ่มต้นสำรวจความต้องการของระบบ
 
 ---
 
-## 4. แหล่งที่ตั้งของเอกสารหลักฐานปัจจุบัน (Active Primary Baseline: v1.1 DRAFT_TH)
+## 4. แหล่งที่ตั้งของเอกสารหลักฐานปัจจุบัน (Active Primary Baseline: v1.1 Approved)
 
-เอกสารหลักฐานที่เป็นทางการของโครงการทั้งหมดถูกจัดเก็บไว้ที่โฟลเดอร์หลัก (Root Directory) และโฟลเดอร์ `03_SRS_Requirements/`:
-1. **เอกสาร SRS ฉบับสมบูรณ์ (Word):** `InterviewX_SRS_v1.1_DRAFT_TH.docx`
-2. **เอกสาร SRS ฉบับสมบูรณ์ (Markdown):** `InterviewX_SRS_v1.1_DRAFT_TH.md`
-3. **เวิร์กบุ๊กข้อกำหนดและสิทธิ์ (Excel):** `InterviewX_FR_NFR_RBAC_v1.1_DRAFT_TH.xlsx`
-4. **แผนภาพสถาปัตยกรรมระบบทั้งหมด (Mermaid):** `ALL_DIAGRAMS_v1.1_DRAFT_TH.md`
-5. **เมทริกซ์การตรวจสอบย้อนกลับ (Excel):** `InterviewX_Phase1_Requirement_Traceability_TH.xlsx`
-6. **ทะเบียนการตัดสินใจสถาปัตยกรรม (Excel):** `InterviewX_Phase1_Decision_Register_TH.xlsx`
-7. **บันทึกการเปลี่ยนแปลงฉบับสมบูรณ์ (Markdown):** `InterviewX_Phase1_Change_Log_TH.md`
+เอกสารหลักฐานที่เป็นทางการของโครงการทั้งหมดที่ผ่านการอนุมัติแล้ว จัดเก็บอย่างเป็นระบบที่โฟลเดอร์:  
+👉 [03_SRS_Requirements/v1.1_approved/](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/v1.1_approved/)
+1. **เอกสาร SRS ฉบับสมบูรณ์ (Word):** [InterviewX_SRS_v1.1_FINAL_TH.docx](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/v1.1_approved/InterviewX_SRS_v1.1_FINAL_TH.docx)
+2. **เอกสาร SRS ฉบับสมบูรณ์ (Markdown):** [InterviewX_SRS_v1.1_FINAL_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/v1.1_approved/InterviewX_SRS_v1.1_FINAL_TH.md)
+3. **เวิร์กบุ๊กข้อกำหนดและสิทธิ์ (Excel):** [InterviewX_FR_NFR_RBAC_v1.1_FINAL_TH.xlsx](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/v1.1_approved/InterviewX_FR_NFR_RBAC_v1.1_FINAL_TH.xlsx)
+4. **เมทริกซ์การตรวจสอบย้อนกลับ (Excel):** [InterviewX_Phase1_Requirement_Traceability_TH.xlsx](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/v1.1_approved/InterviewX_Phase1_Requirement_Traceability_TH.xlsx)
+5. **ทะเบียนการตัดสินใจสถาปัตยกรรม (Excel):** [InterviewX_Phase1_Decision_Register_TH.xlsx](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/v1.1_approved/InterviewX_Phase1_Decision_Register_TH.xlsx)
+6. **บันทึกการเปลี่ยนแปลงฉบับสมบูรณ์ (Markdown):** [InterviewX_Phase1_Change_Log_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/v1.1_approved/InterviewX_Phase1_Change_Log_TH.md)

@@ -1,7 +1,7 @@
 # InterviewX — บันทึกการเปลี่ยนแปลงเอกสารในระยะที่ 1: การปรับประสานข้อกำหนดระบบ (Phase 1 Change Log)
-**เวอร์ชันเอกสาร:** 1.1 DRAFT  
-**วันที่ปรับปรุง:** 13 พฤศจิกายน 2026  
-**สถานะ:** เอกสารควบคุม • รอการลงนามอนุมัติจากผู้มีส่วนได้ส่วนเสีย (Pending Stakeholder Approval)  
+**เวอร์ชันเอกสาร:** 1.1 FINAL  
+**วันที่ปรับปรุง:** 17 พฤศจิกายน 2026  
+**สถานะ:** เอกสารควบคุม • ผ่านการอนุมัติจากผู้มีส่วนได้ส่วนเสียแล้ว (Approved Baseline v1.1)  
 **บทบาทหน้าที่ผู้จัดทำ:** หัวหน้านักวิเคราะห์ธุรกิจ (Senior Business Analyst), นักวิเคราะห์ระบบ (System Analyst), สถาปนิกซอฟต์แวร์ (Software Architect) และผู้เชี่ยวชาญด้านเอกสารทางเทคนิค (Technical Documentation Specialist)
 
 ---
@@ -29,13 +29,13 @@
 ### 2.2 เอกสารผลลัพธ์ฉบับปรับปรุงในระยะที่ 1 (ภาษาไทยมาตรฐาน)
 | เอกสารผลลัพธ์ | เส้นทางไฟล์ (File Path) | เวอร์ชัน | สถานะการดำเนินงาน |
 |---|---|---|---|
-| **เอกสารข้อกำหนดระบบ (SRS Word)** | `03_SRS_Requirements/InterviewX_SRS_v1.1_DRAFT_TH.docx` | v1.1 DRAFT | ข้อเสนอปรับปรุง — รอการลงนามอนุมัติ |
-| **เอกสารข้อกำหนดระบบ (SRS Markdown)** | `03_SRS_Requirements/InterviewX_SRS_v1.1_DRAFT_TH.md` | v1.1 DRAFT | ข้อเสนอปรับปรุง — รอการลงนามอนุมัติ |
-| **เวิร์กบุ๊กข้อกำหนดและสิทธิ์ (Excel)** | `03_SRS_Requirements/InterviewX_FR_NFR_RBAC_v1.1_DRAFT_TH.xlsx` | v1.1 DRAFT | ข้อเสนอปรับปรุง — รอการลงนามอนุมัติ (9 แผ่นงาน) |
-| **แผนภาพสถาปัตยกรรมระบบทั้งหมด** | `04_System_Architecture/InterviewX_Final_System_Diagrams_v1.0/ALL_DIAGRAMS_v1.1_DRAFT_TH.md` | v1.1 DRAFT | ข้อเสนอปรับปรุง — รอการลงนามอนุมัติ (19 แผนภาพ) |
-| **เมทริกซ์ตรวจสอบย้อนกลับข้อกำหนด** | `03_SRS_Requirements/InterviewX_Phase1_Requirement_Traceability_TH.xlsx` | v1.1 DRAFT | ข้อเสนอตั้งต้น — รอการลงนามอนุมัติ (64 รายการ) |
-| **ทะเบียนการตัดสินใจทางเทคนิค** | `03_SRS_Requirements/InterviewX_Phase1_Decision_Register_TH.xlsx` | v1.1 DRAFT | รอการยืนยันจากผู้มีส่วนได้ส่วนเสีย (11 ประเด็น) |
-| **บันทึกการเปลี่ยนแปลงฉบับสมบูรณ์** | `InterviewX_Phase1_Change_Log_TH.md` | v1.1 DRAFT | เอกสารฉบับสมบูรณ์ |
+| **เอกสารข้อกำหนดระบบ (SRS Word)** | `03_SRS_Requirements/v1.1_approved/InterviewX_SRS_v1.1_FINAL_TH.docx` | v1.1 FINAL | อนุมัติแล้ว (Approved Baseline) |
+| **เอกสารข้อกำหนดระบบ (SRS Markdown)** | `03_SRS_Requirements/v1.1_approved/InterviewX_SRS_v1.1_FINAL_TH.md` | v1.1 FINAL | อนุมัติแล้ว (Approved Baseline) |
+| **เวิร์กบุ๊กข้อกำหนดและสิทธิ์ (Excel)** | `03_SRS_Requirements/v1.1_approved/InterviewX_FR_NFR_RBAC_v1.1_FINAL_TH.xlsx` | v1.1 FINAL | อนุมัติแล้ว (9 แผ่นงานสมบูรณ์) |
+| **แผนภาพสถาปัตยกรรมระบบทั้งหมด** | `04_System_Architecture/v1.1_diagrams/ALL_DIAGRAMS_v1.1_FINAL_TH.md` | v1.1 FINAL | อนุมัติแล้ว (25 แผนภาพสมบูรณ์) |
+| **เมทริกซ์ตรวจสอบย้อนกลับข้อกำหนด** | `03_SRS_Requirements/v1.1_approved/InterviewX_Phase1_Requirement_Traceability_TH.xlsx` | v1.1 FINAL | อนุมัติแล้ว (64 รายการ) |
+| **ทะเบียนการตัดสินใจทางเทคนิค** | `03_SRS_Requirements/v1.1_approved/InterviewX_Phase1_Decision_Register_TH.xlsx` | v1.1 FINAL | ได้รับการยืนยันและอนุมัติ (11 ประเด็น D-M01 ถึง D-M11) |
+| **บันทึกการเปลี่ยนแปลงฉบับสมบูรณ์** | `03_SRS_Requirements/v1.1_approved/InterviewX_Phase1_Change_Log_TH.md` | v1.1 FINAL | อนุมัติแล้ว (Approved Baseline) |
 
 ---
 

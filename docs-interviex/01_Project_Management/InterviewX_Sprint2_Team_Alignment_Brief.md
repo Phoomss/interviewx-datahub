@@ -3,14 +3,14 @@
 
 **เวอร์ชันเอกสาร:** 1.0 (สำหรับใช้งานใน Sprint 2 Planning & Grooming)  
 **วันที่จัดทำ:** 13 พฤศจิกายน 2026  
-**เอกสารอ้างอิงหลักฐาน:** [InterviewX_SRS_v1.1_DRAFT_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/InterviewX_SRS_v1.1_DRAFT_TH.md) (ฉบับภาษาไทยมาตรฐาน)  
+**เอกสารอ้างอิงหลักฐาน:** [InterviewX_SRS_v1.1_FINAL_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/v1.1_approved/InterviewX_SRS_v1.1_FINAL_TH.md) (ฉบับภาษาไทยมาตรฐานที่ผ่านการอนุมัติแล้ว)  
 **กลุ่มเป้าหมาย:** Product Owner, Scrum Master, Technical Lead, Backend Engineers, Frontend Engineers, Mobile Engineers, AI Engineers, QA Engineers
 
 ---
 
 ## 1. บริบทและวัตถุประสงค์ของการประชุม Sprint 2 (Context & Objectives)
 
-หลังจากที่ทีมงานได้เสร็จสิ้น **ระยะที่ 1: การปรับประสานข้อกำหนดและขอบเขตแพลตฟอร์ม (Phase 1: Requirement Alignment)** โดยกำหนดให้ **เอกสารข้อกำหนดระบบซอฟต์แวร์ เวอร์ชัน 1.1 DRAFT (ภาษาไทยมาตรฐาน)** เป็น **เอกสารหลักฐานเวอร์ชันหลักของโครงการ (Active Primary Baseline)** และได้จัดเก็บเอกสารเวอร์ชันเดิมเข้าสู่คลังเอกสารประวัติ (Archive) เรียบร้อยแล้ว
+หลังจากที่ทีมงานได้เสร็จสิ้น **ระยะที่ 1: การปรับประสานข้อกำหนดและขอบเขตแพลตฟอร์ม (Phase 1: Requirement Alignment)** โดยผ่านการอนุมัติรับรองให้ **เอกสารข้อกำหนดระบบซอฟต์แวร์ เวอร์ชัน 1.1 FINAL (ภาษาไทยมาตรฐาน)** เป็น **เอกสารหลักฐานเวอร์ชันหลักของโครงการ (Active Primary Baseline)** และได้จัดเก็บเอกสารเวอร์ชันเดิมเข้าสู่คลังเอกสารประวัติ (Archive) เรียบร้อยแล้ว
 
 เป้าหมายสำคัญของ **Sprint 2** คือการนำข้อกำหนดทางสถาปัตยกรรมที่ผ่านการปรับประสานมาแปลงเป็นการพัฒนาจริง (Implementation) โดยมุ่งเน้นไปที่:
 1. การสร้าง **Core Mock Interview Flow** (การจำลองคำถาม, การส่งคำตอบข้อเขียน, การประเมินผล AI และการแสดงฟีดแบ็ก) บน Responsive Web Application
@@ -217,7 +217,7 @@ flowchart LR
 3. **ความทนทานของเครือข่าย:** ผ่านการทดสอบส่งคำขอซ้ำด้วย `Idempotency-Key` เดียวกัน และระบบไม่สร้างเรคคอร์ดหรือคิดคะแนนซ้ำ
 4. **การทดสอบอัตโนมัติ:** Unit Test Coverage ไม่ต่ำกว่า 80% ใน Core Modules และผ่าน Integration Tests ร่วมกันระหว่าง NestJS, BullMQ และ FastAPI
 5. **การแสดงผล:** ส่วนติดต่อผู้ใช้บนเว็บต้องผ่านการทดสอบ Responsive Layout ที่ Viewport 360px (Mobile), 768px (Tablet), และ 1024px+ (Desktop) โดยไม่มี Element ซ้อนทับหรือล้นขอบจอ
-6. **การตรวจสอบย้อนกลับ:** ทุกชิ้นงานใน Backlog มีการผูกรหัสข้อกำหนด (FR/NFR ID) ตรงกับตาราง [InterviewX_Phase1_Requirement_Traceability_TH.xlsx](file:///D:/workspaces/interviewx-datahub/docs-interviex/InterviewX_Phase1_Requirement_Traceability_TH.xlsx)
+6. **การตรวจสอบย้อนกลับ:** ทุกชิ้นงานใน Backlog มีการผูกรหัสข้อกำหนด (FR/NFR ID) ตรงกับตาราง [InterviewX_Phase1_Requirement_Traceability_TH.xlsx](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/v1.1_approved/InterviewX_Phase1_Requirement_Traceability_TH.xlsx)
 
 ---
 *เอกสารนี้จัดทำขึ้นโดยทีมสถาปัตยกรรมและวิเคราะห์ระบบ เพื่อเป็นแนวทางปฏิบัติการร่วมกันใน Sprint 2*

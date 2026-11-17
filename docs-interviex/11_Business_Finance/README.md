@@ -13,7 +13,7 @@
 
 ## 💎 ระดับแพ็กเกจและการจัดสรรสิทธิ์ (Subscription Tiers & Entitlements)
 
-อ้างอิงแผ่นงาน `Subscription Matrix` ใน [03_SRS_Requirements/InterviewX_FR_NFR_RBAC_v1.1_DRAFT_TH.xlsx](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/InterviewX_FR_NFR_RBAC_v1.1_DRAFT_TH.xlsx):
+อ้างอิงแผ่นงาน `Subscription Matrix` ใน [03_SRS_Requirements/v1.1_approved/InterviewX_FR_NFR_RBAC_v1.1_FINAL_TH.xlsx](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/v1.1_approved/InterviewX_FR_NFR_RBAC_v1.1_FINAL_TH.xlsx):
 
 | แพ็กเกจ (Tier) | กลุ่มเป้าหมาย | โควตาคำถาม / เดือน | สิทธิ์การเข้าถึงฟีเจอร์เด่น | ช่องทางชำระเงินที่รองรับ |
 |---|---|:---:|---|---|

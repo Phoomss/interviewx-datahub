@@ -165,7 +165,7 @@
 
 ## 9. สัญญาเชื่อมต่อ API หลัก (Core REST API Endpoints)
 
-อ้างอิงจาก [public-v1.openapi.yaml](file:///Users/mac/Desktop/interviewX/interviewx-design/contracts/public-v1.openapi.yaml):
+อ้างอิงจาก [public-v1.openapi.yaml](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/interviewx-design/contracts/public-v1.openapi.yaml):
 - **Authentication:**
   - `POST /v1/auth/register` : สมัครสมาชิก
   - `POST /v1/auth/login` : ล็อกอิน รับ Access + Refresh Token

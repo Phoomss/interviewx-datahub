@@ -944,7 +944,7 @@ flowchart LR
 ```
 
 > 📖 ดูรายละเอียดโมเดลกรณีการใช้งานฉบับสมบูรณ์ พร้อมตาราง Traceability ได้ที่:  
-> 👉 [InterviewX_Use_Case_Diagrams_v1.1.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/InterviewX_Use_Case_Diagrams_v1.1.md)
+> 👉 [InterviewX_Use_Case_Diagrams_v1.1.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/InterviewX_Use_Case_Diagrams_v1.1.md)
 
 ---
 

@@ -31,7 +31,7 @@
 ## 📋 การตรวจสอบย้อนกลับสู่การทดสอบ (Requirement-to-Test Traceability)
 
 ข้อกำหนดทั้ง 64 รายการ (40 FR, 24 NFR) มีการผูกวิธีทดสอบและเกณฑ์การยอมรับอย่างเป็นรูปธรรม:
-👉 ตรวจสอบเมทริกซ์การทดสอบฉบับเต็มได้ที่: [03_SRS_Requirements/InterviewX_Phase1_Requirement_Traceability_TH.xlsx](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/InterviewX_Phase1_Requirement_Traceability_TH.xlsx)
+👉 ตรวจสอบเมทริกซ์การทดสอบฉบับเต็มได้ที่: [03_SRS_Requirements/v1.1_approved/InterviewX_Phase1_Requirement_Traceability_TH.xlsx](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/v1.1_approved/InterviewX_Phase1_Requirement_Traceability_TH.xlsx)
 
 | ขอบเขตการทดสอบ | วิธีการทดสอบ (Method) | เครื่องมือหลัก | เกณฑ์ความสำเร็จ (Pass Criteria) |
 |---|---|---|---|

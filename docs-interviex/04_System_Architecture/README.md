@@ -1,26 +1,27 @@
 # หมวดที่ 04: สถาปัตยกรรมระบบและการออกแบบเชิงเทคนิค (04_System_Architecture)
-> **InterviewX — AI Job Interview Simulation System**
-> **สถานะเอกสาร:** กำกับดูแลตามสถาปัตยกรรม v1.1 DRAFT_TH (Active Primary Baseline)
-> **ปรับปรุงล่าสุด:** 13 พฤศจิกายน 2026
+> **InterviewX — AI Job Interview Simulation System**  
+> **สถานะเอกสาร:** กำกับดูแลตามสถาปัตยกรรม v1.1 FINAL (Active Primary Baseline)  
+> **ปรับปรุงล่าสุด:** 17 พฤศจิกายน 2026  
 
 ---
 
 ## 📌 ภาพรวมหมวดสถาปัตยกรรมระบบ (Category Overview)
 
-หมวดนี้รวบรวมแบบจำลองสถาปัตยกรรมระบบ (System Architecture), แผนภาพสถาปัตยกรรม C4 Model, แผนผังลำดับการทำงาน (Sequence Diagrams), สัญญาการเชื่อมต่อระบบ (API Contracts / OpenAPI 3.0), และการแบ่งขอบเขตบริบท (Bounded Contexts) ของแพลตฟอร์ม InterviewX
+หมวดนี้รวบรวมแบบจำลองสถาปัตยกรรมระบบ (System Architecture), แผนภาพสถาปัตยกรรม C4 Model, แผนผังลำดับการทำงาน (Sequence Diagrams), สัญญาการเชื่อมต่อระบบ (API Contracts / OpenAPI 3.0), แบบจำลองกรณีการใช้งาน (Use Cases) และการแบ่งขอบเขตบริบท (Bounded Contexts) ของแพลตฟอร์ม InterviewX
 
 ---
 
-## 🌟 แผนภาพสถาปัตยกรรมระบบทั้งหมด 25 รูป (Active Baseline — D01 ถึง D25)
+## 🌟 แผนภาพสถาปัตยกรรมระบบฉบับทางการที่ผ่านการอนุมัติ (Active Primary Baseline — v1.1 FINAL)
 
-แผนภาพทั้งหมดถูกออกแบบด้วย Mermaid และจัดทำทั้งฉบับภาษาไทยและภาษาอังกฤษ:
+แผนภาพทั้งหมดถูกออกแบบด้วย Mermaid และจัดทำทั้งฉบับภาษาไทยและภาษาอังกฤษ รวมทั้งสิ้น 25 แผนภาพ (D01 ถึง D25) จัดเก็บอย่างเป็นระบบที่:  
+👉 **โฟลเดอร์หลัก:** [v1.1_diagrams/](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/)
 
 | แผนภาพผลลัพธ์ | ลิงก์เปิดไฟล์ (Clickable Link) | ขนาดไฟล์ | คำอธิบายสาระสำคัญ |
 |---|---|:---:|---|
-| **แบบจำลองกรณีการใช้งานระบบ (Use Case Model v1.1)** | [InterviewX_Use_Case_Diagrams_v1.1.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/InterviewX_Use_Case_Diagrams_v1.1.md) | ~20 KB | รวมแผนภาพกรณีการใช้งานทั้งระดับระบบ (D20) และระบบย่อย 3 ด้าน (D21–D23) พร้อมตาราง Traceability |
-| **แผนภาพสถาปัตยกรรมระบบ (ภาษาไทย v1.1)** | [ALL_DIAGRAMS_v1.1_DRAFT_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/InterviewX_Final_System_Diagrams_v1.0/ALL_DIAGRAMS_v1.1_DRAFT_TH.md) | ~85 KB | รวมครบทั้ง 25 แผนภาพ (D01–D25) พร้อมคำอธิบาย ป้ายกำกับภาษาไทยมาตรฐาน |
-| **แผนภาพสถาปัตยกรรมระบบ (English v1.1)** | [ALL_DIAGRAMS_v1.1_DRAFT.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/InterviewX_Final_System_Diagrams_v1.0/ALL_DIAGRAMS_v1.1_DRAFT.md) | ~45 KB | รวมครบทั้ง 25 แผนภาพฉบับภาษาอังกฤษสำหรับทีมพัฒนาสากล |
-| **แผนภาพสถาปัตยกรรมดั้งเดิม (v1.0 Baseline)** | [ALL_DIAGRAMS.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/InterviewX_Final_System_Diagrams_v1.0/ALL_DIAGRAMS.md) | 18.2 KB | แผนภาพตั้งต้นก่อนการแยกแพลตฟอร์ม Phase 1 |
+| **แผนภาพสถาปัตยกรรมระบบ (ภาษาไทย v1.1 FINAL)** | [ALL_DIAGRAMS_v1.1_FINAL_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/ALL_DIAGRAMS_v1.1_FINAL_TH.md) | ~99 KB | รวมครบทั้ง 25 แผนภาพ (D01–D25) พร้อมคำอธิบายและป้ายกำกับภาษาไทยมาตรฐาน |
+| **แผนภาพสถาปัตยกรรมระบบ (English v1.1 FINAL)** | [ALL_DIAGRAMS_v1.1_FINAL.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/ALL_DIAGRAMS_v1.1_FINAL.md) | ~54 KB | รวมครบทั้ง 25 แผนภาพฉบับภาษาอังกฤษสำหรับทีมพัฒนาสากล |
+| **แบบจำลองกรณีการใช้งานระบบ (Use Case Model v1.1)** | [InterviewX_Use_Case_Diagrams_v1.1.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/InterviewX_Use_Case_Diagrams_v1.1.md) | ~48 KB | รวมแผนภาพกรณีการใช้งานทั้งระดับระบบ (D20) และระบบย่อย 3 ด้าน (D21–D23) พร้อมตาราง Traceability |
+| **ซอร์สโค้ด Mermaid (.mmd รายไฟล์)** | [diagrams/](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/diagrams/) | 25 ไฟล์ | ซอร์สโค้ด Mermaid สำหรับเรนเดอร์แผนภาพ D01–D25 |
 
 ### รายการแผนภาพย่อย (Diagram Breakdown: D01–D25)
 - **D01:** บริบทระบบระดับสูง (System Context)
@@ -51,10 +52,14 @@
 
 ---
 
-## 📐 สัญญา API และการออกแบบระบบเชิงเทคนิค (Technical Design & Contracts)
+## 🛠️ ข้อกำหนดการออกแบบเชิงวิศวกรรม (Detailed Engineering Designs)
 
-จัดเก็บในโฟลเดอร์ [interviewx-design/](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/interviewx-design/):
-- `contracts/public-v1.openapi.yaml`: สัญญา OpenAPI 3.0 สำหรับ Public REST API (Client ↔ Backend)
-- *ดูรายละเอียดสัญญาบริการ AI ที่:* [08_AI_ML_Engineering/contracts/](file:///D:/workspaces/interviewx-datahub/docs-interviex/08_AI_ML_Engineering/contracts/)
-- *ดูรายละเอียดโครงสร้างโฟลเดอร์ Monorepo ที่:* [07_Development_Documentation/](file:///D:/workspaces/interviewx-datahub/docs-interviex/07_Development_Documentation/)
-- *ดูรายละเอียดสกีมาฐานข้อมูลและโมเดลข้อมูลกายภาพที่:* [05_Database_Data_Governance/](file:///D:/workspaces/interviewx-datahub/docs-interviex/05_Database_Data_Governance/)
+- [interviewx-design/](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/interviewx-design/): เอกสารการออกแบบเชิงลึก รายละเอียดสเปก OpenAPI, สคริปต์สกีมาฐานข้อมูล, และแบบร่าง Monorepo
+
+---
+
+## 📦 คลังแผนภาพประวัติ (Historical Archives)
+
+- แผนภาพฉบับร่าง v1.1 ก่อนอนุมัติ: [archive/v1.1_drafts/](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/archive/v1.1_drafts/)
+- แผนภาพดั้งเดิมรอบตั้งต้น (v1.0): [archive/v1.0_baseline/](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/archive/v1.0_baseline/)
+- รายละเอียดคลังประวัติ: [archive/ARCHIVE_INDEX.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/archive/ARCHIVE_INDEX.md)
