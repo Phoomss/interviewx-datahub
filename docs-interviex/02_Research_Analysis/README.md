@@ -17,9 +17,11 @@
 02_Research_Analysis/
 │
 ├── 📂 proposal/                                   # เล่มข้อเสนอโครงการวิจัย
-│   ├── 📄 InterviewX_Research_Proposal_v1.1.docx # [ล่าสุด] ข้อเสนอโครงการ v1.1 (Word)
-│   ├── 📄 InterviewX_Research_Proposal_v1.1.pdf  # [ล่าสุด] ข้อเสนอโครงการ v1.1 (PDF)
-│   └── 📂 archive/                               # ประวัติข้อเสนอโครงการ v1.0
+│   ├── 📄 InterviewX_Research_Proposal_v1.2.docx # [ล่าสุด] ข้อเสนอโครงการ v1.2 (Word)
+│   ├── 📄 InterviewX_Research_Proposal_v1.2.pdf  # [ล่าสุด] ข้อเสนอโครงการ v1.2 (PDF)
+│   └── 📂 archive/                               # ประวัติข้อเสนอโครงการ v1.0 และ v1.1
+│       ├── 📄 InterviewX_Research_Proposal_v1.1.docx
+│       ├── 📄 InterviewX_Research_Proposal_v1.1.pdf
 │       ├── 📄 InterviewX_Research_Proposal_v1.0.docx
 │       └── 📄 InterviewX_Research_Proposal_v1.0.pdf
 │

@@ -11,6 +11,17 @@
 
 ---
 
+## 🎓 เอกสารรายงานข้อกำหนดระบบฉบับวิชาการ / เล่มโครงงาน (Academic & Project Submission Report)
+
+เอกสารรายงานข้อกำหนดความต้องการของระบบ (SRS) จัดทำตามแบบแผนของสาขาวิชาวิศวกรรมซอฟต์แวร์ มหาวิทยาลัยราชภัฏนครปฐม โดยปรับปรุงเนื้อหาให้สมบูรณ์ ถูกต้องตามสถาปัตยกรรมจริงของ InterviewX 100% (ลบเนื้อหาหลงเหลือของระบบลูกจ้าง กฟผ. ในส่วนที่ 4.2 ออกทั้งหมด และเติมเต็มขอบเขตระบบ, Use Cases, สแตกเทคโนโลยี Next.js/NestJS/FastAPI และ NFR01–NFR24):
+
+| เอกสารผลลัพธ์ | ลิงก์เปิดไฟล์ (Clickable Link) | รูปแบบ | คำอธิบายสาระสำคัญ |
+|---|---|:---:|---|
+| **รายงาน SRS ฉบับสมบูรณ์ (Markdown)** | [InterviewX_SRS_Report_Revised_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/InterviewX_SRS_Report_Revised_TH.md) | Markdown | รายงาน SRS ฉบับสมบูรณ์ 4 บทใหญ่ พร้อม Use Case Specifications, Data Dictionary, สถาปัตยกรรมระบบ และ NFR ครบ 24 ข้อ |
+| **รายงาน SRS ฉบับสมบูรณ์ (Word docx)** | [InterviewX_SRS_Report_v1.1_TH.docx](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/InterviewX_SRS_Report_v1.1_TH.docx) | Word .docx (~3.6 MB) | ไฟล์ Word พร้อมส่งที่มีรูปไดอะแกรมครบถ้วน ปรับปรุงเนื้อหาข้อ 1.3, 2.2, 4.1 และ 4.2 ให้ถูกต้องสมบูรณ์ |
+
+---
+
 ## 🌟 เอกสารหลักฐานเวอร์ชันหลักของโครงการที่ผ่านการอนุมัติ (Active Primary Baseline — v1.1 Approved)
 
 เอกสารชุดนี้เป็น **เอกสารหลักฐานทางการ (Official Active Baseline)** ประจำโครงการในภาษาไทยมาตรฐาน ได้รับการอนุมัติอย่างเป็นทางการจากผู้มีส่วนได้ส่วนเสียและทีมพัฒนา:  

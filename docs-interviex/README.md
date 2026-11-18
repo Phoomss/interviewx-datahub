@@ -19,6 +19,7 @@
 | **เมทริกซ์การตรวจสอบย้อนกลับ** | [InterviewX_Phase1_Requirement_Traceability_TH.xlsx](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/v1.1_approved/InterviewX_Phase1_Requirement_Traceability_TH.xlsx) | 26.0 KB | ตารางเชื่อมโยงข้อกำหนด 64 รายการ (FR 40, NFR 24) เข้ากับ Survey, RBAC, แผนภาพ และวิธีการทดสอบ |
 | **ทะเบียนการตัดสินใจสถาปัตยกรรม** | [InterviewX_Phase1_Decision_Register_TH.xlsx](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/v1.1_approved/InterviewX_Phase1_Decision_Register_TH.xlsx) | 11.0 KB | ทะเบียนการตัดสินใจ D-M01 ถึง D-M11 ในภาษาไทยอย่างครบถ้วน |
 | **บันทึกการเปลี่ยนแปลงฉบับสมบูรณ์** | [InterviewX_Phase1_Change_Log_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/v1.1_approved/InterviewX_Phase1_Change_Log_TH.md) | 32.4 KB | บันทึกประวัติการแก้ไขและตารางเปรียบเทียบการปรับปรุงข้อกำหนดฉบับภาษาไทย |
+| **รายงาน SRS ฉบับวิชาการ (มรภ.นครปฐม)** | [InterviewX_SRS_Report_Revised_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/InterviewX_SRS_Report_Revised_TH.md) / [Word .docx](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/InterviewX_SRS_Report_v1.1_TH.docx) | ~3.7 MB | รายงาน SRS ฉบับสมบูรณ์ตามแบบแผนวิชาการ ลบข้อมูลผิดพลาด กฟผ. ออกทั้งหมด พร้อมเนื้อหาขอบเขตระบบ, Use Cases, สแตกเทคโนโลยี และ NFR ครบ 24 ข้อ |
 
 ---
 
