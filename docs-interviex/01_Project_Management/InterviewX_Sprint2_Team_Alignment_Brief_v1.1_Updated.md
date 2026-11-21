@@ -129,19 +129,21 @@ flowchart TD
 
 ## 4. มติการตัดสินใจสถาปัตยกรรมที่ต้องสรุปกับทีม (Decision Items: D-M01 ถึง D-M11)
 
-| รหัส | ประเด็นการตัดสินใจ | ข้อเสนอแนะของสถาปนิกและทีมเทคนิค | ผลกระทบต่อ Sprint 2 | ผู้มีอำนาจตัดสินใจ |
+*(หมายเหตุ: การกำหนดผู้ถือครองตำแหน่งทางวิศวกรรม อ้างอิงตาม [เอกสารโครงสร้างทีมพัฒนาและผู้รับผิดชอบระบบย่อย](InterviewX_Development_Team_Roles_and_Module_Ownership.md))*:
+
+| รหัส | ประเด็นการตัดสินใจ | ข้อเสนอแนะของสถาปนิกและทีมเทคนิค | ผลกระทบต่อ Sprint 2 | ผู้มีอำนาจตัดสินใจ (Approved Roles) |
 |:---:|---|---|---|---|
-| **D-M01** | **กำหนดการเปิดตัว Native Mobile** | เปิดตัวในรอบ **R2** ควบคู่กับระบบสัมภาษณ์ด้วยเสียง (R1 โฟกัส Responsive Web) | Sprint 2 พัฒนา API หลังบ้านให้พร้อมรองรับ Mobile โดยยังไม่ต้อง Deploy แอปขึ้น Store | Product Owner / นายนรงศักดิ์ (Tech Lead) / นายสมหมาย (UX Lead) |
-| **D-M02** | **เทคโนโลยีพัฒนาแอปมือถือ** | เลือกใช้ **React Native / Expo** | เริ่มสร้างโฟลเดอร์ `apps/mobile` ใน Monorepo เพื่อแชร์ DTOs และ Schemas จาก `packages/contracts` | นายนรงศักดิ์ (Tech Lead) / นายสมหมาย (UX/UI Lead) |
-| **D-M03** | **OS ขั้นต่ำที่รองรับ** | **iOS 16.0+** และ **Android 13.0+ (API 33)** | ฝ่าย QA กำหนด Device Farm และ Emulator สำหรับการทดสอบตามสเปกนี้ | นายณัฐพล (QA Lead) / นายสมหมาย (Mobile Lead) |
-| **D-M04** | **สถาปัตยกรรมระบบชำระเงินบนมือถือ** | แสดงแพ็กเกจบนแอป และส่งต่อผู้ใช้ไปจ่ายเงินผ่าน **Web Checkout** ในระยะแรก | หลีกเลี่ยงค่าธรรมเนียม Store 15–30% และลดความซับซ้อนของ In-App Purchase ในช่วง MVP | Product Owner / Finance Admin / นายนรงศักดิ์ (Tech Lead) |
-| **D-M05** | **สถาปัตยกรรมการแจ้งเตือนแบบพุช** | ติดตั้งระบบ Push Notifications ผ่าน **APNs และ FCM** ในรอบ R2 | ออกแบบ Event และ Outbox Schema ให้พร้อมส่งต่อ Event สู่ Push Notification Worker | Product Owner / นายกิติกร, นายจิรเมธ (Core Backend) / นายสมหมาย (Mobile Lead) |
-| **D-M06** | **การยืนยันตัวตนด้วยไบโอเมตริกซ์** | รองรับ **Face ID / Touch ID** ปลดล็อก Refresh Token ในรอบ R2 | Backend ออกแบบ Refresh Token Rotation และ Token Expiration ให้รองรับการจัดเก็บใน Secure Storage | นายกิติกร (Security/Auth Lead) / นายสมหมาย (Mobile Lead) |
-| **D-M07** | **Universal Links & Deep Linking** | กำหนดค่า **Universal Links (iOS) และ App Links (Android)** | กำหนด Route URL ของ Web และ Mobile ให้สอดคล้องกัน โดยเฉพาะหน้าผลประเมินและยืนยันอีเมล | นายสมหมาย (UX/UI & Mobile Lead) / นายกิติกร (Auth API) |
-| **D-M08** | **ขอบเขตการทำงานออฟไลน์และ AI** | **Online-Required** สำหรับการประเมิน AI; ไม่อนุญาตให้รัน On-device LLM ใน R1/R2 | ไม่ต้องสร้างโมเดลย่อส่วนในเครื่อง ออกแบบให้ไคลเอนต์แคชคำตอบฉบับร่างเพื่อกันเน็ตหลุด | นายนรงศักดิ์ (Tech Lead & AI Lead) |
-| **D-M09** | **ความเท่าเทียมของฟังก์ชัน Web vs Mobile** | ฟังก์ชันสำหรับ End Users เท่าเทียมกัน 100%; ฟังก์ชัน Admin/Research สงวนบน Web | วางโครงสร้าง API กลางสำหรับฟังก์ชันสัมภาษณ์และประวัติให้ใช้งานได้ร่วมกัน และบล็อกคำขอ Admin จาก Mobile | Product Owner / นายณัฐพล (BA / QA Lead) / นายสมหมาย (UX Lead) |
-| **D-M10** | **การปฏิบัติตามกฎระเบียบสโตร์** | ติดตั้งปุ่มขอลบข้อมูลบัญชี (FR35), ขอสิทธิ์ไมโครโฟน และ Privacy Labels | Backend พัฒนา Purge Endpoint รองรับการลบบัญชีและล้างข้อมูล PII ตามระเบียบ Apple/Google Store | นายกิติกร (Privacy/PDPA Lead) / นายณัฐพล (QA & Release Lead) |
-| **D-M11** | **โพรโทคอลการรับส่งไฟล์เสียงสัมภาษณ์** | Chunked HTTPS Upload ผ่าน Pre-signed URL ตรงไปยัง MinIO/S3 ในรอบ R2 | Sprint 2 วางโครงสร้าง Storage Service หลังบ้านให้รองรับการออก Pre-signed URL | นายนรงศักดิ์ (Tech Lead & AI Lead) / นายจิรเมธ (Integration Lead) |
+| **D-M01** | **กำหนดการเปิดตัว Native Mobile** | เปิดตัวในรอบ **R2** ควบคู่กับระบบสัมภาษณ์ด้วยเสียง (R1 โฟกัส Responsive Web) | Sprint 2 พัฒนา API หลังบ้านให้พร้อมรองรับ Mobile โดยยังไม่ต้อง Deploy แอปขึ้น Store | Product Owner / Tech Lead / Mobile Lead |
+| **D-M02** | **เทคโนโลยีพัฒนาแอปมือถือ** | เลือกใช้ **React Native / Expo** | เริ่มสร้างโฟลเดอร์ `apps/mobile` ใน Monorepo เพื่อแชร์ DTOs และ Schemas จาก `packages/contracts` | Tech Lead / Mobile Lead |
+| **D-M03** | **OS ขั้นต่ำที่รองรับ** | **iOS 16.0+** และ **Android 13.0+ (API 33)** | ฝ่าย QA กำหนด Device Farm และ Emulator สำหรับการทดสอบตามสเปกนี้ | QA Lead / Mobile Lead |
+| **D-M04** | **สถาปัตยกรรมระบบชำระเงินบนมือถือ** | แสดงแพ็กเกจบนแอป และส่งต่อผู้ใช้ไปจ่ายเงินผ่าน **Web Checkout** ในระยะแรก | หลีกเลี่ยงค่าธรรมเนียม Store 15–30% และลดความซับซ้อนของ In-App Purchase ในช่วง MVP | Product Owner / Finance Admin / Tech Lead |
+| **D-M05** | **สถาปัตยกรรมการแจ้งเตือนแบบพุช** | ติดตั้งระบบ Push Notifications ผ่าน **APNs และ FCM** ในรอบ R2 | ออกแบบ Event และ Outbox Schema ให้พร้อมส่งต่อ Event สู่ Push Notification Worker | Product Owner / Backend Core Team / Mobile Lead |
+| **D-M06** | **การยืนยันตัวตนด้วยไบโอเมตริกซ์** | รองรับ **Face ID / Touch ID** ปลดล็อก Refresh Token ในรอบ R2 | Backend ออกแบบ Refresh Token Rotation และ Token Expiration ให้รองรับการจัดเก็บใน Secure Storage | Backend Security Lead / Mobile Lead |
+| **D-M07** | **Universal Links & Deep Linking** | กำหนดค่า **Universal Links (iOS) และ App Links (Android)** | กำหนด Route URL ของ Web และ Mobile ให้สอดคล้องกัน โดยเฉพาะหน้าผลประเมินและยืนยันอีเมล | UX/UI & Mobile Lead / Backend API Lead |
+| **D-M08** | **ขอบเขตการทำงานออฟไลน์และ AI** | **Online-Required** สำหรับการประเมิน AI; ไม่อนุญาตให้รัน On-device LLM ใน R1/R2 | ไม่ต้องสร้างโมเดลย่อส่วนในเครื่อง ออกแบบให้ไคลเอนต์แคชคำตอบฉบับร่างเพื่อกันเน็ตหลุด | Software Architect / AI Lead |
+| **D-M09** | **ความเท่าเทียมของฟังก์ชัน Web vs Mobile** | ฟังก์ชันสำหรับ End Users เท่าเทียมกัน 100%; ฟังก์ชัน Admin/Research สงวนบน Web | วางโครงสร้าง API กลางสำหรับฟังก์ชันสัมภาษณ์และประวัติให้ใช้งานได้ร่วมกัน และบล็อกคำขอ Admin จาก Mobile | Product Owner / QA Lead / UX/UI Lead |
+| **D-M10** | **การปฏิบัติตามกฎระเบียบสโตร์** | ติดตั้งปุ่มขอลบข้อมูลบัญชี (FR35), ขอสิทธิ์ไมโครโฟน และ Privacy Labels | Backend พัฒนา Purge Endpoint รองรับการลบบัญชีและล้างข้อมูล PII ตามระเบียบ Apple/Google Store | Privacy & PDPA Lead / QA & Release Lead |
+| **D-M11** | **โพรโทคอลการรับส่งไฟล์เสียงสัมภาษณ์** | Chunked HTTPS Upload ผ่าน Pre-signed URL ตรงไปยัง MinIO/S3 ในรอบ R2 | Sprint 2 วางโครงสร้าง Storage Service หลังบ้านให้รองรับการออก Pre-signed URL | Tech Lead & AI Lead / Backend Integration Lead |
 
 ---
 
