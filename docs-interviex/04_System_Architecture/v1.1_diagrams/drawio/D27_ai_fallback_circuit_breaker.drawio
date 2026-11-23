@@ -1,0 +1,292 @@
+<mxfile host="app.diagrams.net" modified="2026-11-23T16:30:00.000Z" agent="InterviewX" version="24.0.0" type="device">
+  <diagram id="d27" name="D27 — AI Fallback &amp; Circuit Breaker">
+    <mxGraphModel dx="1800" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1180" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Header -->
+        <mxCell id="hdr_cat" value="&lt;b&gt;INTERVIEWX / RELIABILITY &amp;amp; FAULT TOLERANCE · RESILIENCE ARCHITECTURE&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#475569;letterSpacing=1.5;" vertex="1" parent="1">
+          <mxGeometry x="48" y="24" width="600" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="hdr_status" value="&lt;b&gt;APPROVED BASELINE · v1.1 FINAL&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#B45309;letterSpacing=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1350" y="24" width="400" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="hdr_title" value="&lt;b&gt;D27 — AI Fallback &amp;amp; Circuit Breaker&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=32;fontColor=#0F172A;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="48" y="50" width="800" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="hdr_sub" value="High-availability evaluation engine · Redis queue consumption · Exponential backoff · 5-failure circuit breaker · Multi-tier failover" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#64748B;" vertex="1" parent="1">
+          <mxGeometry x="48" y="94" width="1000" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Legend Bar -->
+        <mxCell id="legend_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#F8FAFC;strokeColor=#E2E8F0;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="48" y="130" width="1704" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="leg_count" value="&lt;b&gt;15 COMPONENTS · 19 LINKS&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=12;fontColor=#1E293B;" vertex="1" parent="1">
+          <mxGeometry x="68" y="140" width="220" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" value="Job Queue &amp;amp; Primary Call" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=12;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="720" y="140" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1_line" value="" style="endArrow=none;html=1;strokeColor=#0284C7;strokeWidth=2.5;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="680" y="150" as="sourcePoint" />
+            <mxPoint x="710" y="150" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg2" value="Success Path / Completed" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=12;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="140" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2_line" value="" style="endArrow=none;html=1;strokeColor=#16A34A;strokeWidth=2.5;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="960" y="150" as="sourcePoint" />
+            <mxPoint x="990" y="150" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg3" value="Exponential Retry Flow" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=12;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="140" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3_line" value="" style="endArrow=none;html=1;strokeColor=#7C3AED;strokeWidth=2.5;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1240" y="150" as="sourcePoint" />
+            <mxPoint x="1270" y="150" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg4" value="Circuit Trip &amp;amp; Failover" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=12;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="140" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4_line" value="" style="endArrow=none;html=1;strokeColor=#DC2626;strokeWidth=2;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1520" y="150" as="sourcePoint" />
+            <mxPoint x="1550" y="150" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Container 00: Ingestion -->
+        <mxCell id="c00" value="&lt;b&gt;00 · ASYNC QUEUE INGESTION &amp;amp; WORKER INVOCATION&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size: 11px; font-weight: normal;&quot;&gt;Decoupled queue buffer protects AI service against traffic spikes; worker pulls job with 10s budget&lt;/font&gt;" style="swimlane;startSize=40;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1.5;rounded=1;arcSize=6;fontSize=12;fontColor=#0F172A;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="48" y="190" width="1704" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="n_queue" value="&lt;b&gt;Redis / BullMQ Queue&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#059669&quot;&gt;Evaluation Job Stream (FIFO)&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#ECFDF5;strokeColor=#059669;strokeWidth=1.5;fontColor=#065F46;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="100" y="240" width="250" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n_worker" value="&lt;b&gt;Evaluation Worker Pod&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#0284C7&quot;&gt;BullMQ Worker Process&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#E0F2FE;strokeColor=#0284C7;strokeWidth=1.5;fontColor=#0369A1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="500" y="240" width="270" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n_watchdog" value="&lt;b&gt;Latency Watchdog Timer&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#B45309&quot;&gt;Strict 10s Execution Deadline&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFFBEB;strokeColor=#D97706;strokeWidth=1.5;fontColor=#92400E;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="900" y="240" width="270" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n_state" value="&lt;b&gt;Redis Circuit State Key&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#475569&quot;&gt;circuit:llm:primary (State: CLOSED)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#F8FAFC;strokeColor=#64748B;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="240" width="280" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Main Runtime Container -->
+        <mxCell id="c_runtime" value="&lt;b&gt;RESILIENT EVALUATION &amp;amp; CIRCUIT BREAKER RUNTIME&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size: 11px; font-weight: normal;&quot;&gt;Primary model dispatch · Sliding window failure counter · Trip open after 5 failures · Automatic secondary LLM failover&lt;/font&gt;" style="swimlane;startSize=40;fillColor=#FFFFFF;strokeColor=#D97706;strokeWidth=2;rounded=1;arcSize=6;fontSize=13;fontColor=#B45309;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="48" y="340" width="1704" height="740" as="geometry" />
+        </mxCell>
+
+        <!-- Sub-container 01: Primary Inference -->
+        <mxCell id="c01" value="&lt;b&gt;01 · PRIMARY INFERENCE DISPATCH&lt;/b&gt;" style="swimlane;startSize=30;fillColor=#F8FAFC;strokeColor=#CBD5E1;strokeWidth=1.5;rounded=1;arcSize=6;fontSize=12;fontColor=#0F172A;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="72" y="395" width="480" height="660" as="geometry" />
+        </mxCell>
+        <mxCell id="n_primary_llm" value="&lt;b&gt;Primary LLM Provider&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#0284C7&quot;&gt;Hosted Enterprise Foundation Model API&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#0369A1&quot;&gt;Endpoint: https://api.primary-llm.com/v1/chat&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#E0F2FE;strokeColor=#0284C7;strokeWidth=2;fontColor=#0369A1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="100" y="450" width="424" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="d_primary_ok" value="Response Received&lt;br&gt;&amp;amp; Within 10s?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFBEB;strokeColor=#D97706;strokeWidth=2;fontColor=#92400E;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="212" y="600" width="200" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="n_telemetry" value="&lt;b&gt;Latency &amp;amp; Token Telemetry&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#475569&quot;&gt;Records P95 Latency · HTTP Status · Token Usage&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#64748B&quot;&gt;OpenTelemetry Span Exported to Prometheus / Grafana&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#F1F5F9;strokeColor=#64748B;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="100" y="780" width="424" height="75" as="geometry" />
+        </mxCell>
+
+        <!-- Sub-container 02: Circuit Breaker -->
+        <mxCell id="c02" value="&lt;b&gt;02 · CIRCUIT BREAKER &amp;amp; RETRY CONTROLLER&lt;/b&gt;" style="swimlane;startSize=30;fillColor=#F8FAFC;strokeColor=#CBD5E1;strokeWidth=1.5;rounded=1;arcSize=6;fontSize=12;fontColor=#0F172A;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="580" y="395" width="560" height="660" as="geometry" />
+        </mxCell>
+        <mxCell id="d_trip" value="Consecutive Fails&lt;br&gt;&amp;gt;= 5 Failures?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FEF2F2;strokeColor=#DC2626;strokeWidth=2;fontColor=#991B1B;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="760" y="450" width="200" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="n_retry" value="&lt;b&gt;EXPONENTIAL BACKOFF RETRY&lt;/b&gt;&lt;br&gt;&lt;b&gt;Retry Budget (Max 3 Attempts)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#6B21A8&quot;&gt;• Attempt 1: 1.0s delay&lt;br&gt;• Attempt 2: 2.0s delay&lt;br&gt;• Attempt 3: 4.0s delay&lt;br&gt;&lt;b&gt;Re-invokes Primary Model&lt;/b&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#F3E8FF;strokeColor=#7C3AED;strokeWidth=1.5;fontColor=#581C87;fontSize=11;align=left;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="610" y="605" width="235" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="n_tripped" value="&lt;b&gt;CIRCUIT BREAKER: TRIPPED&lt;/b&gt;&lt;br&gt;&lt;b&gt;Circuit State: OPEN&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#9A3412&quot;&gt;• Cooldown reset: 60 seconds&lt;br&gt;• Half-open canary test&lt;br&gt;• Bypasses primary queue&lt;br&gt;&lt;b&gt;Immediate Fallback Switch&lt;/b&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFF7ED;strokeColor=#EA580C;strokeWidth=2;fontColor=#C2410C;fontSize=11;align=left;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="880" y="605" width="235" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="n_secondary_llm" value="&lt;b&gt;Secondary Backup LLM Provider (Failover)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#B45309&quot;&gt;Alternative Cloud LLM Provider (Independent Infrastructure / SLA)&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#92400E&quot;&gt;Zero downtime fallback · Pinned configuration parity preserved&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFFBEB;strokeColor=#D97706;strokeWidth=2;fontColor=#92400E;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="610" y="800" width="505" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="d_fallback_ok" value="Fallback Model&lt;br&gt;Response OK?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFBEB;strokeColor=#D97706;strokeWidth=2;fontColor=#92400E;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="762" y="930" width="200" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Sub-container 03: Verification & Escalation -->
+        <mxCell id="c03" value="&lt;b&gt;03 · VERIFICATION &amp;amp; ESCALATION&lt;/b&gt;" style="swimlane;startSize=30;fillColor=#F8FAFC;strokeColor=#CBD5E1;strokeWidth=1.5;rounded=1;arcSize=6;fontSize=12;fontColor=#0F172A;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="1170" y="395" width="555" height="660" as="geometry" />
+        </mxCell>
+        <mxCell id="n_validator" value="&lt;b&gt;Pydantic Schema Validator Engine&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#059669&quot;&gt;Validates both Primary &amp;amp; Fallback Model JSON Outputs&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#047857&quot;&gt;4 Dimensions · [0, 100] Score Interval · Text Citations&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#ECFDF5;strokeColor=#059669;strokeWidth=2;fontColor=#065F46;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="450" width="495" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="d_payload_ok" value="Output Conforms to&lt;br&gt;Pydantic Schema?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFBEB;strokeColor=#D97706;strokeWidth=2;fontColor=#92400E;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1347" y="580" width="200" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="n_completed" value="&lt;b&gt;STATUS: COMPLETED&lt;/b&gt;&lt;br&gt;&lt;b&gt;PostgreSQL Persistence&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#15803D&quot;&gt;• Store valid scores &amp;amp; feedback&lt;br&gt;• Model identifier committed&lt;br&gt;• Job marked completed&lt;br&gt;• Decrements circuit fail count&lt;br&gt;&lt;b&gt;Available to User Dashboard&lt;/b&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#F0FDF4;strokeColor=#16A34A;strokeWidth=2;fontColor=#15803D;fontSize=11;align=left;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="730" width="235" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="n_review" value="&lt;b&gt;STATUS: NEEDS_REVIEW&lt;/b&gt;&lt;br&gt;&lt;b&gt;Expert Review Queue&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#B91C1C&quot;&gt;• Non-blocking for user session&lt;br&gt;• Job flagged for human audit&lt;br&gt;• Raw payload &amp;amp; stacktrace logged&lt;br&gt;• SLA SLA breach prevented&lt;br&gt;&lt;b&gt;Enters Backoffice Appeals&lt;/b&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FEF2F2;strokeColor=#DC2626;strokeWidth=2;dashed=1;fontColor=#991B1B;fontSize=11;align=left;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="1460" y="730" width="235" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="n_alert" value="&lt;b&gt;Automated Admin On-Call Alert (Incident Trigger)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#B91C1C&quot;&gt;PagerDuty / Slack Webhook / OpsGenie Escalation Dispatched&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#7F1D1D&quot;&gt;Severity: High · Root-cause inspection &amp;amp; provider status verified&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FEE2E2;strokeColor=#DC2626;strokeWidth=1.5;fontColor=#991B1B;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="940" width="495" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ================= ALL WORKFLOW EDGES (PARENT="1" WITH MXGEOMETRY) ================= -->
+        <!-- Edge 1: Queue -> Worker -->
+        <mxCell id="wf_01" value="Pulls Job" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#0369A1;" edge="1" parent="1" source="n_queue" target="n_worker">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edge 2: Worker -> Watchdog -->
+        <mxCell id="wf_02" value="Arms 10s" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D97706;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#92400E;" edge="1" parent="1" source="n_worker" target="n_watchdog">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edge 3: Worker -> Primary LLM -->
+        <mxCell id="wf_03" value="1. Dispatches Job" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#0369A1;" edge="1" parent="1" source="n_worker" target="n_primary_llm">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="635" y="360" />
+              <mxPoint x="312" y="360" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Edge 4: Primary LLM -> Check -->
+        <mxCell id="wf_04" value="2. Evaluates" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#0369A1;" edge="1" parent="1" source="n_primary_llm" target="d_primary_ok">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edge 5: Primary Check -> Telemetry -->
+        <mxCell id="wf_05" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#64748B;strokeWidth=1.5;endArrow=block;endFill=1;" edge="1" parent="1" source="d_primary_ok" target="n_telemetry">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edge 6: Primary Success -> Validator (GREEN PATH) -->
+        <mxCell id="wf_06" value="Primary Success" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#16A34A;strokeWidth=2.5;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#15803D;" edge="1" parent="1" source="d_primary_ok" target="n_validator">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="312" y="730" />
+              <mxPoint x="555" y="730" />
+              <mxPoint x="555" y="370" />
+              <mxPoint x="1447" y="370" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Edge 7: Primary Fail -> Circuit Check (RED PATH) -->
+        <mxCell id="wf_07" value="Failure / Timeout (&gt;10s)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#DC2626;strokeWidth=2;dashed=1;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#DC2626;" edge="1" parent="1" source="d_primary_ok" target="d_trip">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="460" y="645" />
+              <mxPoint x="460" y="495" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Edge 8: Trip NO -> Retry (PURPLE PATH) -->
+        <mxCell id="wf_08" value="NO (&lt; 5 Fails)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7C3AED;strokeWidth=2;dashed=1;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#6B21A8;" edge="1" parent="1" source="d_trip" target="n_retry">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="727" y="495" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Edge 9: Retry -> Re-invoke Primary -->
+        <mxCell id="wf_09" value="Retry Loop (Max 3)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7C3AED;strokeWidth=2;dashed=1;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#6B21A8;" edge="1" parent="1" source="n_retry" target="n_primary_llm">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="560" y="672" />
+              <mxPoint x="560" y="487" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Edge 10: Trip YES -> Circuit Tripped (RED PATH) -->
+        <mxCell id="wf_10" value="YES (&gt;= 5 Fails)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#EA580C;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#9A3412;" edge="1" parent="1" source="d_trip" target="n_tripped">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="997" y="495" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Edge 11: Tripped -> Secondary LLM -->
+        <mxCell id="wf_11" value="Triggers Failover" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#EA580C;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#9A3412;" edge="1" parent="1" source="n_tripped" target="n_secondary_llm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edge 12: Secondary LLM -> Check Fallback -->
+        <mxCell id="wf_12" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D97706;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1" source="n_secondary_llm" target="d_fallback_ok">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edge 13: Fallback Success -> Validator (GREEN PATH) -->
+        <mxCell id="wf_13" value="Fallback Success" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#16A34A;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#15803D;" edge="1" parent="1" source="d_fallback_ok" target="n_validator">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1150" y="970" />
+              <mxPoint x="1150" y="487" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Edge 14: Fallback Fail -> Needs Review (RED PATH) -->
+        <mxCell id="wf_14" value="Fallback Failed" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#DC2626;strokeWidth=2;dashed=1;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#991B1B;" edge="1" parent="1" source="d_fallback_ok" target="n_review">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="862" y="1035" />
+              <mxPoint x="1577" y="1035" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Edge 15: Validator -> Payload Check -->
+        <mxCell id="wf_15" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#059669;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1" source="n_validator" target="d_payload_ok">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edge 16: Payload YES -> Completed (GREEN PATH) -->
+        <mxCell id="wf_16" value="YES (Valid)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#16A34A;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#15803D;" edge="1" parent="1" source="d_payload_ok" target="n_completed">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1317" y="625" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Edge 17: Payload NO -> Needs Review (RED PATH) -->
+        <mxCell id="wf_17" value="NO (Invalid)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#DC2626;strokeWidth=2;dashed=1;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#991B1B;" edge="1" parent="1" source="d_payload_ok" target="n_review">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1577" y="625" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Edge 18: Needs Review -> Alert -->
+        <mxCell id="wf_18" value="Triggers Escalation" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#DC2626;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#991B1B;" edge="1" parent="1" source="n_review" target="n_alert">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Bottom Banner -->
+        <mxCell id="bot_banner" value="&lt;b&gt;HIGH AVAILABILITY GUARANTEE:&lt;/b&gt; Zero silent data loss on LLM failure. Multi-tier resilience combines local retries, circuit breaking, secondary LLM failover and human expert audit fallback." style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFF7ED;strokeColor=#FFEDD5;strokeWidth=1;align=left;spacingLeft=20;fontSize=12;fontColor=#9A3412;" vertex="1" parent="1">
+          <mxGeometry x="48" y="1100" width="1704" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="bot_tag" value="&lt;b&gt;ENTERPRISE BASELINE · v1.1 FINAL&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;fontSize=11;fontColor=#C2410C;letterSpacing=1;" vertex="1" parent="1">
+          <mxGeometry x="1450" y="1111" width="280" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

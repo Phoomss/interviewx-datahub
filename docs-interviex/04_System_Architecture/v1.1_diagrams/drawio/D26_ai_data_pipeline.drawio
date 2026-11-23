@@ -1,0 +1,244 @@
+<mxfile host="app.diagrams.net" modified="2026-11-23T16:30:00.000Z" agent="InterviewX" version="24.0.0" type="device">
+  <diagram id="d26" name="D26 — AI Data Pipeline Flow">
+    <mxGraphModel dx="1800" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1120" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Header -->
+        <mxCell id="hdr_cat" value="&lt;b&gt;INTERVIEWX / AI ENGINE · DATA PIPELINE&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#475569;letterSpacing=1.5;" vertex="1" parent="1">
+          <mxGeometry x="48" y="24" width="400" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="hdr_status" value="&lt;b&gt;APPROVED BASELINE · v1.1 FINAL&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontColor=#B45309;letterSpacing=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1350" y="24" width="400" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="hdr_title" value="&lt;b&gt;D26 — AI Data Pipeline Flow&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=32;fontColor=#0F172A;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="48" y="50" width="800" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="hdr_sub" value="End-to-end evaluation lifecycle · PII &amp;amp; Prompt injection filter · Version-pinned Rubric · 10s LLM Timeout · Pydantic V2 schema validation" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=13;fontColor=#64748B;" vertex="1" parent="1">
+          <mxGeometry x="48" y="94" width="1000" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Legend Bar -->
+        <mxCell id="legend_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#F8FAFC;strokeColor=#E2E8F0;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="48" y="130" width="1704" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="leg_count" value="&lt;b&gt;14 COMPONENTS · 16 LINKS&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=12;fontColor=#1E293B;" vertex="1" parent="1">
+          <mxGeometry x="68" y="140" width="220" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" value="Ingestion / Payload" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=12;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="720" y="140" width="160" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1_line" value="" style="endArrow=none;html=1;strokeColor=#0284C7;strokeWidth=2.5;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="680" y="150" as="sourcePoint" />
+            <mxPoint x="710" y="150" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg2" value="LLM Inference &amp;amp; Config" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=12;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="980" y="140" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2_line" value="" style="endArrow=none;html=1;strokeColor=#7C3AED;strokeWidth=2.5;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="940" y="150" as="sourcePoint" />
+            <mxPoint x="970" y="150" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg3" value="Validation / Completed" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=12;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="140" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3_line" value="" style="endArrow=none;html=1;strokeColor=#16A34A;strokeWidth=2.5;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1220" y="150" as="sourcePoint" />
+            <mxPoint x="1250" y="150" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg4" value="Review Required / Anomaly" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=12;fontColor=#475569;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="140" width="180" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4_line" value="" style="endArrow=none;html=1;strokeColor=#DC2626;strokeWidth=2;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1500" y="150" as="sourcePoint" />
+            <mxPoint x="1530" y="150" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Container 00: Ingestion -->
+        <mxCell id="c00" value="&lt;b&gt;00 · EXTERNAL INGESTION &amp;amp; ENTRYPOINT&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size: 11px; font-weight: normal;&quot;&gt;Candidate submission via Web / Mobile clients and asynchronous BullMQ job dispatching&lt;/font&gt;" style="swimlane;startSize=40;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1.5;rounded=1;arcSize=6;fontSize=12;fontColor=#0F172A;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="48" y="190" width="1704" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="n_raw_ans" value="&lt;b&gt;Candidate Raw Answer&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#0284C7&quot;&gt;Text Input / STT Transcript&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#E0F2FE;strokeColor=#0284C7;strokeWidth=1.5;fontColor=#0369A1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="100" y="240" width="260" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n_dispatcher" value="&lt;b&gt;Evaluation Job Dispatcher&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#7C3AED&quot;&gt;BullMQ Queue · Redis Job Stream&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#F3E8FF;strokeColor=#7C3AED;strokeWidth=1.5;fontColor=#6B21A8;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="540" y="240" width="260" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n_meta" value="&lt;b&gt;Session Metadata &amp;amp; Auth&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#64748B&quot;&gt;interviewId · questionId · userId&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#F8FAFC;strokeColor=#94A3B8;strokeWidth=1.5;fontColor=#334155;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="980" y="240" width="270" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n_audit" value="&lt;b&gt;Provenance &amp;amp; Audit Log&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#475569&quot;&gt;Append-only Ingestion Audit Event&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#F1F5F9;strokeColor=#64748B;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="240" width="280" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Main Runtime Container -->
+        <mxCell id="c_runtime" value="&lt;b&gt;AI EVALUATION PIPELINE RUNTIME (FASTAPI &amp;amp; WORKER CLUSTER)&lt;/b&gt;&lt;br&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size: 11px; font-weight: normal;&quot;&gt;Stateless AI processing · Immutable rubric versioning · PII sanitization · Strict Pydantic output validation&lt;/font&gt;" style="swimlane;startSize=40;fillColor=#FFFFFF;strokeColor=#0284C7;strokeWidth=2;rounded=1;arcSize=6;fontSize=13;fontColor=#0369A1;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="48" y="340" width="1704" height="680" as="geometry" />
+        </mxCell>
+
+        <!-- Sub-container 01: Context Preparation -->
+        <mxCell id="c01" value="&lt;b&gt;01 · CONTEXT PREPARATION &amp;amp; PINNING&lt;/b&gt;" style="swimlane;startSize=30;fillColor=#F8FAFC;strokeColor=#CBD5E1;strokeWidth=1.5;rounded=1;arcSize=6;fontSize=12;fontColor=#0F172A;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="72" y="395" width="490" height="605" as="geometry" />
+        </mxCell>
+        <mxCell id="n_sanitizer" value="&lt;b&gt;Security Sanitizer &amp;amp; Guardrails&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#B45309&quot;&gt;Prompt Injection Defense · PII Masking · HTML Tag Stripping&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FEF3C7;strokeColor=#D97706;strokeWidth=1.5;fontColor=#92400E;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="100" y="445" width="434" height="68" as="geometry" />
+        </mxCell>
+        <mxCell id="n_rubric" value="&lt;b&gt;Pinned Rubric Version (Immutable)&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#059669&quot;&gt;4 Dimensions: Relevance, STAR Structure, Problem Solving, Comm&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#ECFDF5;strokeColor=#059669;strokeWidth=1.5;fontColor=#065F46;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="100" y="555" width="434" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="n_config" value="&lt;b&gt;AI System Prompt &amp;amp; Config Version&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#7C3AED&quot;&gt;Pinned System Prompt · Model Hyperparameters (Temp=0.2)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#F3E8FF;strokeColor=#7C3AED;strokeWidth=1.5;fontColor=#6B21A8;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="100" y="665" width="434" height="68" as="geometry" />
+        </mxCell>
+        <mxCell id="n_bundle" value="&lt;b&gt;Sanitized Evaluation Context Bundle&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#0284C7&quot;&gt;{ clean_answer, rubric_spec, system_prompt, job_id }&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#64748B&quot;&gt;Immutable Payload Hash Generated for Provenance&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFFFFF;strokeColor=#0284C7;strokeWidth=2;fontColor=#0369A1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="100" y="775" width="434" height="74" as="geometry" />
+        </mxCell>
+
+        <!-- Sub-container 02: Inference -->
+        <mxCell id="c02" value="&lt;b&gt;02 · ASYNC INFERENCE &amp;amp; LLM DISPATCH&lt;/b&gt;" style="swimlane;startSize=30;fillColor=#F8FAFC;strokeColor=#CBD5E1;strokeWidth=1.5;rounded=1;arcSize=6;fontSize=12;fontColor=#0F172A;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="585" y="395" width="540" height="605" as="geometry" />
+        </mxCell>
+        <mxCell id="n_llm_client" value="&lt;b&gt;FastAPI LLM Client Adapter&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#0284C7&quot;&gt;Non-blocking HTTP Client · Timeout: 10s · Exponential Retry (Max 2)&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#0369A1&quot;&gt;Header: x-correlation-id propagation&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#E0F2FE;strokeColor=#0284C7;strokeWidth=1.5;fontColor=#0369A1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="620" y="465" width="470" height="74" as="geometry" />
+        </mxCell>
+        <mxCell id="n_cloud_llm" value="&lt;b&gt;External LLM Foundation Model&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#6B21A8&quot;&gt;Primary Model: Hosted Enterprise LLM API&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#7C3AED&quot;&gt;TLS 1.3 Outbound Egress · Strict Zero-Data-Retention Agreement&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#EDE9FE;strokeColor=#7C3AED;strokeWidth=2;fontColor=#5B21B6;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="620" y="605" width="470" height="78" as="geometry" />
+        </mxCell>
+        <mxCell id="n_raw_parser" value="&lt;b&gt;Raw Output Parser &amp;amp; JSON Extractor&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#475569&quot;&gt;Extracts JSON codeblocks from raw response&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#64748B&quot;&gt;Raw Response Size &amp;amp; Token Usage Logged to OpenTelemetry&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#F1F5F9;strokeColor=#475569;strokeWidth=1.5;fontColor=#1E293B;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="620" y="755" width="470" height="74" as="geometry" />
+        </mxCell>
+
+        <!-- Sub-container 03: Validation -->
+        <mxCell id="c03" value="&lt;b&gt;03 · STRICT SCHEMA VALIDATION &amp;amp; GOVERNANCE&lt;/b&gt;" style="swimlane;startSize=30;fillColor=#F8FAFC;strokeColor=#CBD5E1;strokeWidth=1.5;rounded=1;arcSize=6;fontSize=12;fontColor=#0F172A;collapsible=0;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="395" width="575" height="605" as="geometry" />
+        </mxCell>
+        <mxCell id="n_validator" value="&lt;b&gt;Pydantic V2 Schema Validator Engine&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#059669&quot;&gt;EvaluationResultSchema · Structural &amp;amp; Type Strictness&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#ECFDF5;strokeColor=#059669;strokeWidth=2;fontColor=#065F46;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="1185" y="455" width="505" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="n_rules" value="&lt;b&gt;MANDATORY PYDANTIC VALIDATION CRITERIA:&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot; color=&quot;#334155&quot;&gt;✓ All 4 rubric dimensions present: relevance, star, problem_solving, comm&lt;br&gt;✓ Individual and overall scores strictly bounded within [0, 100] interval&lt;br&gt;✓ Exact candidate response evidence excerpt citations required&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFFFFF;strokeColor=#0D9488;strokeWidth=1.5;dashed=1;align=left;spacingLeft=15;fontColor=#0F766E;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1185" y="545" width="505" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="d_valid" value="Output Conforms to&lt;br&gt;Pydantic Schema?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FFFBEB;strokeColor=#D97706;strokeWidth=2;fontColor=#92400E;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1337" y="665" width="200" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="n_completed" value="&lt;b&gt;STATUS: COMPLETED&lt;/b&gt;&lt;br&gt;&lt;b&gt;PostgreSQL Persistence&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#15803D&quot;&gt;• Insert evaluation result record&lt;br&gt;• Commit scores &amp;amp; feedback text&lt;br&gt;• Store rubric_version_id hash&lt;br&gt;&lt;b&gt;Ready for Web/Mobile Polling&lt;/b&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#F0FDF4;strokeColor=#16A34A;strokeWidth=2;fontColor=#15803D;fontSize=11;align=left;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="1185" y="795" width="235" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="n_review" value="&lt;b&gt;STATUS: NEEDS_REVIEW&lt;/b&gt;&lt;br&gt;&lt;b&gt;Human Review Enclave&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot; color=&quot;#B91C1C&quot;&gt;• Quarantine malformed output&lt;br&gt;• Log validation error payload&lt;br&gt;• Dispatch Admin On-call Alert&lt;br&gt;&lt;b&gt;Score Appeal &amp;amp; Audit Ready&lt;/b&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FEF2F2;strokeColor=#DC2626;strokeWidth=2;dashed=1;fontColor=#991B1B;fontSize=11;align=left;spacingLeft=12;" vertex="1" parent="1">
+          <mxGeometry x="1455" y="795" width="235" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- ================= ALL WORKFLOW EDGES (PARENT="1" WITH MXGEOMETRY) ================= -->
+        <!-- Edge 1: Raw Answer -> Dispatcher -->
+        <mxCell id="wf26_01" value="Enqueues Job" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#0369A1;" edge="1" parent="1" source="n_raw_ans" target="n_dispatcher">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edge 2: Dispatcher -> Meta -->
+        <mxCell id="wf26_02" value="Binds Metadata" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7C3AED;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#6B21A8;" edge="1" parent="1" source="n_dispatcher" target="n_meta">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edge 3: Dispatcher -> Sanitizer -->
+        <mxCell id="wf26_03" value="Extracts Answer" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#0369A1;" edge="1" parent="1" source="n_dispatcher" target="n_sanitizer">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="670" y="360" />
+              <mxPoint x="317" y="360" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Edge 4: Sanitizer -> Rubric -->
+        <mxCell id="wf26_04" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#D97706;strokeWidth=1.5;endArrow=block;endFill=1;" edge="1" parent="1" source="n_sanitizer" target="n_rubric">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edge 5: Rubric -> Config -->
+        <mxCell id="wf26_05" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#059669;strokeWidth=1.5;endArrow=block;endFill=1;" edge="1" parent="1" source="n_rubric" target="n_config">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edge 6: Config -> Bundle -->
+        <mxCell id="wf26_06" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7C3AED;strokeWidth=1.5;endArrow=block;endFill=1;" edge="1" parent="1" source="n_config" target="n_bundle">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edge 7: Bundle -> LLM Client -->
+        <mxCell id="wf26_07" value="Dispatches Bundle" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#0369A1;" edge="1" parent="1" source="n_bundle" target="n_llm_client">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="555" y="812" />
+              <mxPoint x="555" y="502" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Edge 8: LLM Client -> Cloud LLM -->
+        <mxCell id="wf26_08" value="HTTPS Call (10s)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7C3AED;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#6B21A8;" edge="1" parent="1" source="n_llm_client" target="n_cloud_llm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edge 9: Cloud LLM -> Raw Parser -->
+        <mxCell id="wf26_09" value="Raw JSON Stream" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#7C3AED;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#6B21A8;" edge="1" parent="1" source="n_cloud_llm" target="n_raw_parser">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edge 10: Raw Parser -> Validator -->
+        <mxCell id="wf26_10" value="Parsed JSON" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#0284C7;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#0369A1;" edge="1" parent="1" source="n_raw_parser" target="n_validator">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1135" y="792" />
+              <mxPoint x="1135" y="490" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Edge 11: Validator -> Criteria Rules -->
+        <mxCell id="wf26_11" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#059669;strokeWidth=1.5;endArrow=block;endFill=1;" edge="1" parent="1" source="n_validator" target="n_rules">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edge 12: Criteria Rules -> Decision -->
+        <mxCell id="wf26_12" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#059669;strokeWidth=1.5;endArrow=block;endFill=1;" edge="1" parent="1" source="n_rules" target="d_valid">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Edge 13: Decision -> Completed (GREEN PATH) -->
+        <mxCell id="wf26_13" value="YES (Valid)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#16A34A;strokeWidth=2;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#15803D;" edge="1" parent="1" source="d_valid" target="n_completed">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1302" y="710" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Edge 14: Decision -> Needs Review (RED PATH) -->
+        <mxCell id="wf26_14" value="NO (Anomaly)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#DC2626;strokeWidth=2;dashed=1;endArrow=block;endFill=1;fontSize=10;fontStyle=1;fontColor=#991B1B;" edge="1" parent="1" source="d_valid" target="n_review">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1572" y="710" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Bottom Banner -->
+        <mxCell id="bot_banner" value="&lt;b&gt;DETERMINISTIC &amp;amp; AUDITABLE PROVENANCE:&lt;/b&gt; Every evaluation pins immutable rubric and prompt version hashes. Pydantic validation prevents score drift and eliminates silent hallucinations before database commitment." style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#FFF7ED;strokeColor=#FFEDD5;strokeWidth=1;align=left;spacingLeft=20;fontSize=12;fontColor=#9A3412;" vertex="1" parent="1">
+          <mxGeometry x="48" y="1040" width="1704" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="bot_tag" value="&lt;b&gt;ENTERPRISE BASELINE · v1.1 FINAL&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;fontSize=11;fontColor=#C2410C;letterSpacing=1;" vertex="1" parent="1">
+          <mxGeometry x="1450" y="1051" width="280" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

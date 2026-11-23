@@ -19,6 +19,8 @@
 | **แผนภาพสถาปัตยกรรมระบบ (English v1.1 FINAL)** | [ALL_DIAGRAMS_v1.1_FINAL.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/ALL_DIAGRAMS_v1.1_FINAL.md) | ~58 KB | รวมครบ 27 แผนภาพฉบับภาษาอังกฤษสำหรับทีมพัฒนาสากล |
 | **แบบจำลองกรณีการใช้งานระบบ (Use Case Model v1.1)** | [InterviewX_Use_Case_Diagrams_v1.1.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/InterviewX_Use_Case_Diagrams_v1.1.md) | ~48 KB | รวมแผนภาพ Use Case ระดับระบบ (D20) และระบบย่อย 3 ด้าน (D21–D23) พร้อมตาราง Traceability |
 | **โฟลเดอร์ไฟล์ซอร์สโค้ด Mermaid (.mmd)** | [diagrams/](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/diagrams/) | 27 ไฟล์ | ซอร์สโค้ด Mermaid รายไฟล์ D01 ถึง D27 สำหรับเรนเดอร์และแก้ไข |
+| **โฟลเดอร์ไฟล์สำหรับ draw.io (.drawio)** | [drawio/](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/drawio/) | ไฟล์ XML | ไฟล์ Blueprint แก้ไขได้ 100% บน draw.io / diagrams.net (D26, D27) |
+| **โฟลเดอร์ภาพเวกเตอร์และความละเอียดสูง (SVG / PNG)** | [images/](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/images/) | SVG & PNG | ภาพ Blueprint คุณภาพสูงแบบเวกเตอร์และเรนเดอร์ PNG สำหรับนำไปใช้งาน (D26, D27) |
 
 ---
 
