@@ -1,8 +1,8 @@
-# InterviewX — Master Knowledge Pack for ChatGPT / AI Assistant
+# InterviewX — Master Knowledge Pack for ChatGPT / AI Assistant (v1.1 Updated)
 
 > **เอกสารรวมชุดข้อมูลโครงการฉบับสมบูรณ์ (Single Source of Truth Knowledge Base)**  
-> **วันที่มีผลบังคับใช้:** 8 ตุลาคม 2026 | **เวอร์ชัน:** 1.0 (Final Baseline)  
-> **วัตถุประสงค์:** ใช้เป็น Context / Knowledge Base สำหรับ AI Assistant (ChatGPT / Claude) ในการตอบคำถาม ออกแบบสถาปัตยกรรม เขียนโค้ด และเขียนข้อกำหนด
+> **วันที่มีผลบังคับใช้:** 21 พฤศจิกายน 2026 | **เวอร์ชัน:** 1.1 (Updated with Development Team Roles & Ownership)  
+> **วัตถุประสงค์:** ใช้เป็น Context / Knowledge Base สำหรับ AI Assistant (ChatGPT / Claude / Antigravity) ในการตอบคำถาม ออกแบบสถาปัตยกรรม เขียนโค้ด กำหนดข้อกำหนด และแจกแจงงานตามบทบาทของทีมพัฒนา
 
 ---
 
@@ -24,7 +24,7 @@
 | Release | ชื่อเฟส | ขอบเขตการทำงาน (Scope) | สถานะทางสถาปัตยกรรม |
 |---|---|---|---|
 | **R1 (MVP)** | Core Text MVP | - ระบบบัญชีผู้ใช้, ยืนยันตัวตน (Email/Password, Social Auth)<br>- จำลองการสัมภาษณ์แบบพิมพ์ข้อความ (Text Interview)<br>- ระบบประเมินผล AI อิงเกณฑ์ Rubric (Accuracy, Structure, Logic)<br>- แนะนำตัวอย่างคำตอบแบบ STAR Method<br>- ระบบความเป็นส่วนตัว (PDPA / Consent / Data Export-Deletion)<br>- ระบบ Admin จัดการคลังคำถามและ Rubric | **Core Services Only**<br>(NestJS API + Worker + FastAPI AI Service + Postgres Core) |
-| **R2** | Enhanced AI & Voice | - ระบบสัมภาษณ์ด้วยเสียง (STT / Voice-to-Text)<br>- วิเคราะห์ตัวบ่งชี้การพูด (Speech indicators: ความเร็ว, คำฟุ่มเฟือย, Tone)<br>- ตัวเลือกระยะเวลาจัดเก็บไฟล์เสียง (Voice retention choice: 0 วัน, 30 วัน, ลบทันที)<br>- Dashboard ติดตามพัฒนาการของผู้ใช้ (Progress Tracking) | ปลดล็อกเมื่อผ่านการอนุมัติความปลอดภัยและงบประมาณ |
+| **R2** | Enhanced AI & Voice | - ระบบสัมภาษณ์ด้วยเสียง (STT / Voice-to-Text)<br>- วิเคราะห์ตัวบ่งชี้การพูด (Speech indicators: ความเร็ว, คำฟุ่มเฟือย, Tone)<br>- ตัวเลือกระยะเวลาจัดเก็บไฟล์เสียง (Voice retention choice: 0 วัน, 30 วัน, ลบทันที)<br>- Dashboard ติดตามพัฒนาการของผู้ใช้ (Progress Tracking)<br>- Native Mobile Application (iOS & Android via React Native/Expo) | ปลดล็อกเมื่อผ่านการอนุมัติความปลอดภัยและงบประมาณ |
 | **R3** | Commercial & Research | - ระบบชำระเงินและจัดการสิทธิ์ (Billing Service + Payment Gateway)<br>- จัดการโควตาและแพ็กเกจ (Basic, Pro, Enterprise)<br>- ระบบส่งออกข้อมูลวิจัย (Research Service) ที่มีการทำ Anonymization / K-Anonymity / Data Suppression | แยก Service และแยกฐานข้อมูลเด็ดขาด (Independent DBs & Credentials) |
 
 ---
@@ -119,6 +119,7 @@
 
 ### 7.1 ภาพรวมสถาปัตยกรรม (C4 Containers)
 - **Web App:** Next.js (TypeScript) PWA สำหรับ Mobile/Desktop Responsive
+- **Mobile App (R2):** React Native / Expo สำหรับ iOS และ Android
 - **Core API / BFF:** NestJS (Modular Monolith) จัดการ Business Logic, Auth, RBAC, Validation
 - **Job Queue & Outbox:** Redis + BullMQ ร่วมกับ Transactional Outbox Pattern เพื่อความปลอดภัยของข้อมูล
 - **Worker:** NestJS Evaluation Worker ดึงงานจาก Queue ไปเรียก AI Service
@@ -138,67 +139,74 @@
 ## 8. โครงสร้างฐานข้อมูลหลัก (Core Database Schema Overview)
 
 ### Schemas ใน Core Postgres (`001_core.sql`):
-1. **`identity`**:
-   - `users`: `id`, `email`, `role`, `status`, `created_at`
-   - `auth_identities`: `user_id`, `provider` (local/google), `password_hash`
-   - `refresh_sessions`: `token_hash`, `expires_at`, `revoked_at`
-2. **`interview`**:
-   - `sessions`: `id`, `user_id`, `category`, `status` (in_progress, completed, abandoned), `mode`
-   - `session_questions`: `session_id`, `question_id`, `sequence_order`
-   - `answers`: `id`, `session_id`, `question_id`, `text_answer`, `voice_audio_url`, `submitted_at`
-3. **`evaluation`**:
-   - `jobs`: `id`, `answer_id`, `status` (queued, processing, completed, failed), `retry_count`
-   - `feedback`: `id`, `job_id`, `overall_score`, `rubric_scores` (JSONB), `strengths`, `improvements`, `sample_star_answer`
-   - `appeals`: `feedback_id`, `user_id`, `reason`, `status` (pending, reviewed, rejected)
-4. **`content`**:
-   - `question_bank`: `id`, `category`, `difficulty`, `question_text`, `is_active`
-   - `rubrics`: `id`, `category`, `criteria` (JSONB), `version`
-5. **`privacy`**:
-   - `consent_events`: `user_id`, `consent_type` (voice_retention, research, ai_training), `agreed`, `timestamp`
-   - `data_rights_requests`: `user_id`, `request_type` (export, delete), `status`
-6. **`platform`**:
-   - `idempotency_keys`: `key`, `user_id`, `response_payload`, `expires_at`
-   - `outbox_events`: `id`, `event_type`, `payload` (JSONB), `published_at`
-   - `audit_logs`: `actor_id`, `action`, `resource`, `ip_address`, `timestamp`
+1. **`identity`**: `users`, `auth_identities`, `refresh_sessions`
+2. **`interview`**: `sessions`, `session_questions`, `answers`
+3. **`evaluation`**: `jobs`, `feedback`, `appeals`
+4. **`content`**: `question_bank`, `rubrics`
+5. **`privacy`**: `consent_events`, `data_rights_requests`
+6. **`platform`**: `idempotency_keys`, `outbox_events`, `audit_logs`
 
 ---
 
 ## 9. สัญญาเชื่อมต่อ API หลัก (Core REST API Endpoints)
 
 อ้างอิงจาก [public-v1.openapi.yaml](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/interviewx-design/contracts/public-v1.openapi.yaml):
-- **Authentication:**
-  - `POST /v1/auth/register` : สมัครสมาชิก
-  - `POST /v1/auth/login` : ล็อกอิน รับ Access + Refresh Token
-  - `POST /v1/auth/refresh` : ขอ Token ใหม่
-  - `POST /v1/auth/logout` : ยกเลิก Session
-- **Interviews:**
-  - `POST /v1/interviews` : สร้าง Session จำลองการสัมภาษณ์ใหม่ (ระบุหมวดหมู่และโหมด)
-  - `GET /v1/interviews/{id}` : ดูสถานะและคำถามใน Session
-  - `POST /v1/interviews/{id}/answers` : ส่งคำตอบ (รองรับ `Idempotency-Key` header)
-  - `POST /v1/interviews/{id}/finish` : จบ Session
-  - `GET /v1/interviews` : ดึงประวัติการสัมภาษณ์ของผู้ใช้
-  - `DELETE /v1/interviews/{id}` : ลบประวัติสัมภาษณ์
-- **Evaluation & Feedback:**
-  - `GET /v1/evaluations/{jobId}` : Polling ตรวจสอบสถานะการประเมิน
-  - `GET /v1/feedback/{id}` : ดึงผลคะแนน Rubric และข้อเสนอแนะ
-  - `POST /v1/feedback/{id}/appeals` : ยื่นอุทธรณ์คะแนน
-- **Privacy & PDPA:**
-  - `GET /v1/privacy/consents` : ดูสถานะความยินยอม
-  - `POST /v1/privacy/consents` : บันทึกหรือยกเลิก Consent
-  - `POST /v1/privacy/data-requests` : ขอดาวน์โหลดข้อมูล (Export) หรือขอลบข้อมูลบัญชี (Delete Account)
+- **Authentication:** `POST /v1/auth/register`, `POST /v1/auth/login`, `POST /v1/auth/refresh`, `POST /v1/auth/logout`
+- **Interviews:** `POST /v1/interviews`, `GET /v1/interviews/{id}`, `POST /v1/interviews/{id}/answers`, `POST /v1/interviews/{id}/finish`, `GET /v1/interviews`, `DELETE /v1/interviews/{id}`
+- **Evaluation & Feedback:** `GET /v1/evaluations/{jobId}`, `GET /v1/feedback/{id}`, `POST /v1/feedback/{id}/appeals`
+- **Privacy & PDPA:** `GET /v1/privacy/consents`, `POST /v1/privacy/consents`, `POST /v1/privacy/data-requests`
 
 ---
 
 ## 10. คำสั่งกำกับการทำงานของ AI (System Instruction / Grounding Prompt)
 
-> เมื่อนำชุดข้อมูลนี้ไปใส่ใน **ChatGPT Custom GPT** หรือ **ChatGPT Project** ให้ใส่ข้อความกำกับดังนี้ในส่วน *Instructions*:
+> เมื่อนำชุดข้อมูลนี้ไปใส่ใน **ChatGPT Custom GPT** หรือ **ChatGPT Project** หรือ **Claude Project** ให้ใส่ข้อความกำกับดังนี้ในส่วน *Instructions*:
 > 
 > ```text
-> คุณคือ Software Architect & Senior Full-Stack Engineer ประจำโครงการ InterviewX
+> คุณคือ Senior Software Architect & Technical Lead ประจำโครงการ InterviewX
 > ให้ปฏิบัติตามกฎเกณฑ์ต่อไปนี้อย่างเคร่งครัด:
 > 1. ยึดข้อมูลใน InterviewX Knowledge Pack เป็น Single Source of Truth
-> 2. แยกขอบเขตการพัฒนาตาม Release อย่างเคร่งครัด (R1 = Text MVP, R2 = Voice/Dashboard, R3 = Billing/Research)
-> 3. ในการเขียนโค้ด ให้เคารพกฎ Single Ownership: ห้ามให้ AI Service เข้าถึงฐานข้อมูล Core Database โดยตรง
-> 4. ปฏิบัติตาม REST API Contracts และ DDL Database Schema ที่กำหนดไว้ในเอกสาร ห้ามสร้าง Endpoint หรือฟิลด์ตารางขึ้นมาเองโดยไม่มีในสเปก
-> 5. ปฏิบัติตามมาตรฐานความปลอดภัย PDPA, Transactional Outbox และ Idempotency ในทุกจุดที่มีการส่งคำตอบ
+> 2. แยกขอบเขตการพัฒนาตาม Release อย่างเคร่งครัด (R1 = Text MVP, R2 = Voice/Dashboard/Mobile, R3 = Billing/Research)
+> 3. เคารพโครงสร้างทีมพัฒนา (Development Team Roles) และกระจายคำตอบ/โค้ดให้ตรงกับความรับผิดชอบของสมาชิกทั้ง 5 คน
+> 4. ในการเขียนโค้ด ให้เคารพกฎ Single Ownership: ห้ามให้ AI Service เข้าถึงฐานข้อมูล Core Database โดยตรง
+> 5. ปฏิบัติตาม REST API Contracts และ DDL Database Schema ที่กำหนดไว้ในเอกสาร ห้ามสร้าง Endpoint หรือฟิลด์ตารางขึ้นมาเองโดยไม่มีในสเปก
+> 6. ปฏิบัติตามมาตรฐานความปลอดภัย PDPA, Transactional Outbox และ Idempotency ในทุกจุดที่มีการส่งคำตอบ
 > ```
+
+---
+
+## 11. โครงสร้างทีมพัฒนา บทบาทหน้าที่ และผู้รับผิดชอบระบบย่อย (Development Team Roles & Module Ownership)
+
+### 11.1 รายชื่อและตำแหน่งของสมาชิกทีมพัฒนา (Approved Team Roles)
+
+| ชื่อ-นามสกุล | รหัสนักศึกษา | ตำแหน่งและบทบาทหลัก (Approved Team Roles) | ขอบเขตงานและความรับผิดชอบหลัก |
+|---|:---:|---|---|
+| **นายนรงศักดิ์ ภูมิประเสริฐ** | 674259009 | **Tech Lead, Architecture, AI Layer, DevOps, Integration** | System Architecture, FastAPI AI Service, Rubric Engine, DevOps (Docker/CI/CD), Integration Standards |
+| **นายสมหมาย สุภาวงค์** | 674259024 | **UX/UI Lead, Design System, Frontend/Mobile** | UX Research, Design System, Responsive Web (Next.js), Mobile App (React Native/Expo), Accessibility |
+| **นายกิติกร เทศธรรม** | 674259003 | **Fullstack, NestJS Core Backend, API** | NestJS Core, Identity & Auth, REST API, DTOs & Validation, PostgreSQL & Prisma ORM, Backend Security |
+| **นายจิรเมธ วงษ์กัณหา** | 674259004 | **Fullstack, NestJS Core Backend, Integration** | Interview Session Flow, BullMQ Queue, Transactional Outbox, Idempotency, Session Resilience |
+| **นายณัฐพล กลิ่นจุ่น** | 674259006 | **BA, QA, Tester, Documentation** | Requirement Analysis, RTM, Test Scenarios & Test Cases, QA Testing, Defect Tracking, Technical Documentation |
+
+### 11.2 ตารางกำหนดผู้รับผิดชอบระบบย่อย (Module Ownership Matrix)
+
+| โมดูล / ระบบย่อย | ผู้รับผิดชอบหลัก (Primary Owner) | ผู้ร่วมสนับสนุน (Supporting Members) | Release |
+|---|---|---|:---:|
+| System Architecture & Standards | นายนรงศักดิ์ ภูมิประเสริฐ | นายกิติกร, นายจิรเมธ | R1–R3 |
+| AI Architecture & FastAPI AI Service | นายนรงศักดิ์ ภูมิประเสริฐ | นายจิรเมธ วงษ์กัณหา | R1–R3 |
+| DevOps, CI/CD & Deployment | นายนรงศักดิ์ ภูมิประเสริฐ | นายกิติกร, นายจิรเมธ | R1–R3 |
+| Authentication & Identity Module | นายกิติกร เทศธรรม | นายนรงศักดิ์ ภูมิประเสริฐ | R1 |
+| User Profile & Account Module | นายกิติกร เทศธรรม | นายสมหมาย สุภาวงค์ | R1 |
+| NestJS Core Backend Architecture | นายกิติกร เทศธรรม, นายจิรเมธ วงษ์กัณหา | นายนรงศักดิ์ ภูมิประเสริฐ | R1–R3 |
+| REST API & OpenAPI Contracts | นายกิติกร เทศธรรม | นายจิรเมธ วงษ์กัณหา | R1–R3 |
+| Interview Session & Question Module | นายจิรเมธ วงษ์กัณหา | นายกิติกร เทศธรรม | R1 |
+| Evaluation Job & Queue Integration | นายจิรเมธ วงษ์กัณหา | นายนรงศักดิ์ ภูมิประเสริฐ | R1 |
+| AI Evaluation & Rubric Engine | นายนรงศักดิ์ ภูมิประเสริฐ | นายจิรเมธ วงษ์กัณหา | R1–R2 |
+| UX/UI Design & InterviewX Design System | นายสมหมาย สุภาวงค์ | นายณัฐพล กลิ่นจุ่น | R1–R3 |
+| Responsive Web Application (Next.js) | นายสมหมาย สุภาวงค์ | นายกิติกร, นายจิรเมธ | R1–R3 |
+| Native Mobile Application (React Native) | นายสมหมาย สุภาวงค์ | นายกิติกร, นายจิรเมธ | R2 |
+| Database Design & Prisma Migrations | นายกิติกร เทศธรรม, นายจิรเมธ วงษ์กัณหา | นายนรงศักดิ์ ภูมิประเสริฐ | R1–R3 |
+| Requirements Analysis & RTM | นายณัฐพล กลิ่นจุ่น | สมาชิกทุกคน | R1–R3 |
+| QA & Software Testing | นายณัฐพล กลิ่นจุ่น | สมาชิกทุกคน | R1–R3 |
+| System Integration Testing | นายนรงศักดิ์ ภูมิประเสริฐ | ณัฐพล, กิติกร, จิรเมธ | R1–R3 |
+| Technical Documentation & Reports | นายณัฐพล กลิ่นจุ่น | สมาชิกทุกคน | R1–R3 |
+| Release Review & Acceptance (DoD) | นายณัฐพล กลิ่นจุ่น | นายนรงศักดิ์ และทุกคน | R1–R3 |

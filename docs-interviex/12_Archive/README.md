@@ -1,7 +1,7 @@
 # หมวดที่ 12: คลังเอกสารประวัติและเวอร์ชันเดิม (12_Archive)
 > **InterviewX — AI Job Interview Simulation System**  
 > **สถานะเอกสาร:** คลังเอกสารประวัติและสารบัญควบคุมเวอร์ชันเดิม (Historical Master Archive)  
-> **ปรับปรุงล่าสุด:** 17 พฤศจิกายน 2026  
+> **ปรับปรุงล่าสุด:** 23 พฤศจิกายน 2026 (ปรับปรุงดัชนีคลังประวัติครบทุกหมวดหมู่)
 
 ---
 
@@ -13,10 +13,18 @@
 
 ## 🗺️ แผนผังและลิงก์เชื่อมโยงคลังประวัติของโครงการ (Master Archive Map)
 
-```text
+`	ext
 คลังประวัติโครงการ InterviewX
 │
+├── 📂 01_Project_Management/archive/              # ประวัติการบริหารงานและ Sprint Brief
+│   └── 📄 InterviewX_Sprint2_Team_Alignment_Brief_v1.0.md # วาระ Sprint 2 ฉบับเดิม (ก่อนระบุรายชื่อผู้รับผิดชอบ)
+│
 ├── 📂 02_Research_Analysis/proposal/archive/      # ประวัติเอกสารข้อเสนอโครงการ
+│   ├── 📄 InterviewX_Research_Proposal_v1.3_draft.docx # ร่าง v1.3 ก่อนไฟนอล
+│   ├── 📄 InterviewX_Research_Proposal_v1.2.docx # เล่มข้อเสนอโครงการวิจัย v1.2 (Word)
+│   ├── 📄 InterviewX_Research_Proposal_v1.2.pdf  # เล่มข้อเสนอโครงการวิจัย v1.2 (PDF)
+│   ├── 📄 InterviewX_Research_Proposal_v1.1.docx # เล่มข้อเสนอโครงการวิจัย v1.1 (Word)
+│   ├── 📄 InterviewX_Research_Proposal_v1.1.pdf  # เล่มข้อเสนอโครงการวิจัย v1.1 (PDF)
 │   ├── 📄 InterviewX_Research_Proposal_v1.0.docx # เล่มข้อเสนอโครงการวิจัย v1.0 (Word)
 │   └── 📄 InterviewX_Research_Proposal_v1.0.pdf  # เล่มข้อเสนอโครงการวิจัย v1.0 (PDF)
 │
@@ -46,32 +54,24 @@
 │       ├── 📄 InterviewX_SRS_v1.1_DRAFT_TH.docx
 │       └── 📄 InterviewX_SRS_v1.1_DRAFT_TH.md
 │
-└── 📂 04_System_Architecture/archive/             # ประวัติแผนภาพและแบบจำลองสถาปัตยกรรม
-    ├── 📑 ARCHIVE_INDEX.md                        # ดัชนีแผนภาพประวัติ
-    ├── 📂 v1.0_baseline/                          # แผนภาพ v1.0 ชุดเดิม
-    │   ├── 📑 ALL_DIAGRAMS_v1.0.md
-    │   └── 📑 InterviewX_Architecture_Diagrams_v1.0.md
-    └── 📂 v1.1_drafts/                            # แผนภาพร่าง v1.1 DRAFT ก่อนอนุมัติ
-        ├── 📑 ALL_DIAGRAMS_v1.1_DRAFT_TH.md
-        └── 📑 ALL_DIAGRAMS_v1.1_DRAFT.md
-```
+├── 📂 04_System_Architecture/archive/             # ประวัติแผนภาพและแบบจำลองสถาปัตยกรรม
+│   ├── 📑 ARCHIVE_INDEX.md                        # ดัชนีแผนภาพประวัติ
+│   ├── 📂 v1.0_baseline/                          # แผนภาพ v1.0 ชุดเดิม
+│   │   ├── 📑 ALL_DIAGRAMS_v1.0.md
+│   │   └── 📑 InterviewX_Architecture_Diagrams_v1.0.md
+│   └── 📂 v1.1_drafts/                            # แผนภาพร่าง v1.1 DRAFT ก่อนอนุมัติ
+│       ├── 📑 ALL_DIAGRAMS_v1.1_DRAFT_TH.md
+│       └── 📑 ALL_DIAGRAMS_v1.1_DRAFT.md
+│
+└── 📂 07_Development_Documentation/archive/       # ประวัติคู่มือนักพัฒนา
+    ├── 📄 INTERVIEWX_MASTER_KNOWLEDGE_PACK_v1.0.md # Master Knowledge Pack ดั้งเดิม
+    └── 📄 REPOSITORY_STRUCTURE_v1.0.md            # โครงสร้าง Monorepo ดั้งเดิม
+`
 
 ---
 
-## 📜 ลำดับวิวัฒนาการเอกสาร (Version Lineage Summary)
+## 🔒 นโยบายการควบคุมเอกสารประวัติ (Archive Retention Policy)
 
-1. **ระยะเริ่มต้น (Pre-v1.0):**
-   - ร่างข้อกำหนดเบื้องต้นจากแนวคิดโครงการ รวบรวมฟังก์ชันหลักที่จำเป็นสำหรับการจำลองสัมภาษณ์
-2. **เวอร์ชันตั้งต้น (v1.0 Baseline — 8 ตุลาคม 2026):**
-   - จัดทำขึ้นโดยอ้างอิงผลสำรวจผู้ใช้ 102 ราย ครอบคลุม 40 FR และ 24 NFR
-   - โครงสร้างเป็น Monolithic Responsive Web ทั่วไป ยังไม่ได้แยก Native Mobile
-3. **เวอร์ชันปรับปรุง Phase 1 ฉบับร่างภาษาอังกฤษ (v1.1 EN Draft — 13 พฤศจิกายน 2026):**
-   - แยกสถาปัตยกรรมและขอบเขตฟังก์ชันระหว่าง Responsive Web และ Native Mobile
-   - เพิ่ม Platform Access Matrix, Subscription Matrix, และ Decision Register (D-M01 ถึง D-M11)
-4. **เวอร์ชันร่างภาษาไทย (v1.1 TH Draft — 13 พฤศจิกายน 2026):**
-   - จัดทำฉบับภาษาไทยเชิงวิชาการมาตรฐานสมบูรณ์ 14 หมวดเพื่อการทบทวนของทีม
-5. **เวอร์ชันหลักฐานทางการฉบับอนุมัติ (v1.1 FINAL Approved Baseline — 17 พฤศจิกายน 2026):**
-   - ผ่านการตรวจรับและอนุมัติอย่างเป็นทางการจากผู้มีส่วนได้ส่วนเสียทุกฝ่าย
-   - จัดกลุ่มเอกสารอย่างเป็นระบบไว้ที่:
-     - ข้อกำหนดระบบ: [03_SRS_Requirements/v1.1_approved/](file:///D:/workspaces/interviewx-datahub/docs-interviex/03_SRS_Requirements/v1.1_approved/)
-     - แผนภาพสถาปัตยกรรม: [04_System_Architecture/v1.1_diagrams/](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/)
+1. **ห้ามลบหรือเขียนทับ (Strict Read-Only & Immutability):** เอกสารในคลังประวัติทั้งหมดถือเป็นหลักฐานทางประวัติการวิเคราะห์และออกแบบ ห้ามแก้ไขหรือลบโดยเด็ดขาด
+2. **การอ้างอิงอย่างชัดเจน (Explicit Traceability):** การสืบค้นย้อนกลับจากเวอร์ชันปัจจุบันไปยังเวอร์ชันอดีต ต้องสามารถทำได้ผ่านรหัสเวอร์ชัน (v1.0, v1.1 Draft, v1.1 Approved)
+3. **การเข้าถึงแบบเปิดสำหรับทีมงาน (Open Team Access):** สมาชิกทุกคนในทีมพัฒนามีสิทธิ์เข้าถึงคลังประวัติเพื่อตรวจสอบเหตุผลเบื้องหลังการตัดสินใจทางสถาปัตยกรรม (Architectural Decision Records)

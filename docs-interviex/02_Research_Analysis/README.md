@@ -1,7 +1,7 @@
 # หมวดที่ 02: งานวิจัยและการวิเคราะห์ความต้องการ (02_Research_Analysis)
-> **InterviewX — AI Job Interview Simulation System**
-> **สถานะเอกสาร:** ควบคุมและเป็นหลักฐานอ้างอิงทางวิชาการ (Research & Empirical Baseline)
-> **ปรับปรุงล่าสุด:** 13 พฤศจิกายน 2026
+> **InterviewX — AI Job Interview Simulation System**  
+> **สถานะเอกสาร:** ควบคุมและเป็นหลักฐานอ้างอิงทางวิชาการ (Research & Empirical Baseline)  
+> **ปรับปรุงล่าสุด:** 21 พฤศจิกายน 2026 (ปรับปรุงเล่มข้อเสนอโครงการ v1.3 FINAL บรรจุโครงสร้างทีมและ Module Ownership)
 
 ---
 
@@ -13,13 +13,16 @@
 
 ## 📂 โครงสร้างและเอกสารในหมวด (Directory Structure & Deliverables)
 
-```text
+`	ext
 02_Research_Analysis/
 │
-├── 📂 proposal/                                   # เล่มข้อเสนอโครงการวิจัย
-│   ├── 📄 InterviewX_Research_Proposal_v1.2.docx # [ล่าสุด] ข้อเสนอโครงการ v1.2 (Word)
-│   ├── 📄 InterviewX_Research_Proposal_v1.2.pdf  # [ล่าสุด] ข้อเสนอโครงการ v1.2 (PDF)
-│   └── 📂 archive/                               # ประวัติข้อเสนอโครงการ v1.0 และ v1.1
+├── 📂 proposal/                                   # เล่มข้อเสนอโครงการวิจัย (Research Proposal)
+│   ├── 📄 InterviewX_Research_Proposal_v1.3_FINAL.docx # ⭐ [ล่าสุด] ข้อเสนอโครงการ v1.3 FINAL (Word)
+│   ├── 📄 InterviewX_Research_Proposal_v1.3_FINAL.pdf  # ⭐ [ล่าสุด] ข้อเสนอโครงการ v1.3 FINAL (PDF)
+│   └── 📂 archive/                               # ประวัติข้อเสนอโครงการ v1.0, v1.1, v1.2, v1.3 draft
+│       ├── 📄 InterviewX_Research_Proposal_v1.3_draft.docx
+│       ├── 📄 InterviewX_Research_Proposal_v1.2.docx
+│       ├── 📄 InterviewX_Research_Proposal_v1.2.pdf
 │       ├── 📄 InterviewX_Research_Proposal_v1.1.docx
 │       ├── 📄 InterviewX_Research_Proposal_v1.1.pdf
 │       ├── 📄 InterviewX_Research_Proposal_v1.0.docx
@@ -28,7 +31,7 @@
 └── 📂 survey/                                     # ข้อมูลการสำรวจความต้องการจริง (Empirical Data)
     ├── 📊 Interview X Requirement Survey Form (การตอบกลับ) - การตอบแบบฟอร์ม 1.csv # ข้อมูลดิบจากผู้ตอบแบบสอบถาม (n=102)
     └── 📊 InterviewX_Survey_Validated_Aggregates.xlsx # ผลวิเคราะห์ทางสถิติและผลสรุปความต้องการที่ผ่านการตรวจสอบ
-```
+`
 
 ---
 
