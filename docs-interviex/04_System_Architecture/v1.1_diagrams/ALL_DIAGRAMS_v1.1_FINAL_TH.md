@@ -1476,3 +1476,72 @@ sequenceDiagram
     end
 ```
 
+---
+
+## D26 ผังการไหลของข้อมูลสำหรับระบบ AI (AI Data Pipeline Flow)
+
+แสดงวงจรการไหลของข้อมูลการประเมินผล AI ตั้งแต่การรับคำตอบสัมภาษณ์ดิบ, การทำความสะอาดข้อมูลและป้องกัน Prompt Injection, การตรึงเวอร์ชันเกณฑ์รูบริกและคอนฟิก, การส่งประมวลผลผ่านโมเดล AI, และการตรวจสอบความสมบูรณ์ของโครงสร้างผลลัพธ์ด้วย Pydantic Schema
+
+```mermaid
+flowchart LR
+ subgraph Ingestion["1. รับข้อมูลคำตอบ"]
+  RawAnswer["คำตอบสัมภาษณ์<br/>(ข้อความ / ข้อความถอดเสียง)"]
+ end
+
+ subgraph ContextPrep["2. เตรียมบริบทและตรึงเวอร์ชัน"]
+  Rubric["เกณฑ์รูบริกที่ตรึงเวอร์ชัน<br/>(Rubric Version)"]
+  AIConfig["การตั้งค่าและพรอมต์ที่ตรึงเวอร์ชัน<br/>(AI Config Version)"]
+  Sanitizer["ตัวกรองความปลอดภัย<br/>(Prompt Injection & PII Filter)"]
+ end
+
+ subgraph Inference["3. เรียกประมวลผลโมเดล AI"]
+  LLMClient["อะแดปเตอร์เชื่อมต่อ LLM<br/>(Timeout 10s + 2 Retries)"]
+  RawOutput["ผลการประเมินดิบจาก AI<br/>(Raw JSON Response)"]
+ end
+
+ subgraph Validation["4. ตรวจสอบความถูกต้องเข้มงวด"]
+  Validator{"ตรวจสอบความถูกต้องตามเกณฑ์"}
+  ValCriteria["เกณฑ์ Pydantic Schema:<br/>- ครบ 4 มิติรูบริก<br/>- คะแนนอยู่ในช่วง 0 ถึง 100<br/>- มีข้อความหลักฐานอ้างอิง"]
+  Valid["ผ่านเกณฑ์สมบูรณ์<br/>(Status: completed)"]
+  Invalid["ไม่ผ่านเกณฑ์ / ค่าผิดปกติ<br/>(Status: needs_review)"]
+ end
+
+ RawAnswer --> Sanitizer
+ Sanitizer --> LLMClient
+ Rubric --> LLMClient
+ AIConfig --> LLMClient
+ LLMClient --> RawOutput
+ RawOutput --> Validator
+ Validator -.->|อิงตามเกณฑ์| ValCriteria
+ Validator -->|ใช่| Valid
+ Validator -->|ไม่ใช่| Invalid
+```
+
+---
+
+## D27 กลไกสำรองกรณีการประเมินของ AI ล้มเหลว (AI Fallback & Circuit Breaker)
+
+แสดงกระบวนการบริหารจัดการความพร้อมใช้งานสูง (HA) และกลไกรับมือข้อผิดพลาดของการประเมินผล AI ได้แก่ การดึงงานจากคิว Redis, การทำซ้ำด้วย Exponential Backoff, การตัดวงจร (Circuit Breaker) เมื่อล้มเหลวต่อเนื่องเกิน 5 ครั้ง, การสลับไปยังโมเดลสำรอง (Secondary Backup LLM) และการปรับสถานะเป็น `needs_review` เพื่อส่งแจ้งเตือนทีมผู้ดูแลระบบ
+
+```mermaid
+flowchart TD
+ Start["งานประเมินผลถูกดึงจากคิว Redis"] --> CallAI["เรียกใช้งานโมเดล AI หลัก (Primary LLM)"]
+ CallAI --> CheckSuccess{"โมเดลตอบกลับสำเร็จภายใน 10 วินาทีหรือไม่"}
+
+ CheckSuccess -->|สำเร็จ| Validate["ตรวจสอบโครงสร้างคะแนนด้วย Pydantic"]
+ Validate --> CheckValid{"คะแนนถูกต้องสมบูรณ์หรือไม่"}
+ CheckValid -->|ถูกต้อง| Complete["บันทึกผลสำเร็จ: สถานะ completed"]
+
+ CheckSuccess -->|ล้มเหลว หรือ Timeout| Trip{"ล้มเหลวติดต่อกัน 5 ครั้งขึ้นไปหรือไม่"}
+ Trip -->|เปิด Circuit| FallbackLLM["สลับไปยังโมเดลสำรอง (Secondary Backup LLM)"]
+ Trip -->|ยังไม่เปิด Circuit| Retry["เพิ่มรอบ Retry (Exponential Backoff สูงสุด 3 ครั้ง)"]
+ Retry --> CallAI
+
+ FallbackLLM --> CheckFallback{"โมเดลสำรองสำเร็จหรือไม่"}
+ CheckFallback -->|สำเร็จ| Validate
+ CheckFallback -->|ล้มเหลว| MarkReview["ปรับสถานะงานเป็น: needs_review<br/>(ส่งเข้าคิวทบทวนโดยผู้เชี่ยวชาญ)"]
+ CheckValid -->|ไม่ถูกต้อง| MarkReview
+
+ MarkReview --> Alert["ส่งแจ้งเตือนทีมงาน Admin On-call ทันที"]
+```
+

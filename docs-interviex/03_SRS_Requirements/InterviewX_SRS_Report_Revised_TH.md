@@ -64,7 +64,7 @@
   - [6.5 สถาปัตยกรรมระดับคอนเทนเนอร์ C4 (C4 Containers Architecture — แผนภาพ D02)](#65-สถาปัตยกรรมระดับคอนเทนเนอร์-c4-c4-containers-architecture--แผนภาพ-d02)
   - [6.6 ขอบเขตบริบทของระบบ (Bounded Contexts Architecture — แผนภาพ D03)](#66-ขอบเขตบริบทของระบบ-bounded-contexts-architecture--แผนภาพ-d03)
   - [6.7 วงจรชีวิตข้อมูลและความเป็นส่วนตัว (Privacy Lifecycle & Consent — แผนภาพ D10)](#67-วงจรชีวิตข้อมูลและความเป็นส่วนตัว-privacy-lifecycle--consent--แผนภาพ-d10)
-  - [6.8 สถาปัตยกรรมโครงสร้างพื้นฐาน การสังเกตการณ์ และโมโนรีโป (D14, D16, D17, D18)](#68-สถาปัตยกรรมโครงสร้างพื้นฐาน-การสังเกตการณ์-และโมโนรีโป-d14-d16-d17-d18)
+  - [6.7 สถาปัตยกรรมระบบขั้นสูงและการทำงานเบื้องหลัง (D14–D18, D26, D27)](#67-สถาปัตยกรรมระบบขั้นสูงและการทำงานเบื้องหลัง)
 - [7. ความต้องการของระบบและข้อกำหนดเชิงคุณภาพ (System Environment & Quality Requirements)](#7-ความต้องการของระบบและข้อกำหนดเชิงคุณภาพ-system-environment--quality-requirements)
   - [7.1 สภาพแวดล้อมในการพัฒนาระบบและรันไทม์จริง (Development & Runtime Environment)](#71-สภาพแวดล้อมในการพัฒนาระบบและรันไทม์จริง-development--runtime-environment)
   - [7.2 ข้อกำหนดที่ไม่ใช่เชิงหน้าที่ตามมาตรฐาน ISO/IEC 25010 (NFR01–NFR24)](#72-ข้อกำหนดที่ไม่ใช่เชิงหน้าที่ตามมาตรฐาน-isoiec-25010-nfr01nfr24)
@@ -2179,7 +2179,122 @@ flowchart TB
  MetricsStore --> Dashboard
 ```
 
-#### 6.7.2 ผังการไหลของข้อมูลสำหรับระบบ AI (Diagram D15: AI Data Pipeline Flow)
+#### 6.7.2 สภาพแวดล้อมจำลองบน Kubernetes (Diagram D15: Kubernetes Showcase Sandbox)
+
+แผนภาพนี้แสดงสถาปัตยกรรมสำหรับสภาพแวดล้อมทดสอบและสาธิต ซึ่งทำงานบนคลัสเตอร์ Kubernetes และใช้ข้อมูลจำลอง (Synthetic Data) 100% โดยตัดขาดจากข้อมูล Production โดยสิ้นเชิง เพื่อป้องกันข้อมูลรั่วไหลและรองรับการขยายตัวอัตโนมัติ (HPA):
+
+```mermaid
+flowchart TB
+ Demo["ผู้ใช้สาธิตข้อมูลจำลอง / ปริมาณโหลดทดสอบ"] --> Ingress["Ingress Controller + จัดการ TLS"]
+
+ subgraph Cluster["คลัสเตอร์ Kubernetes SHOWCASE (ไม่มีข้อมูลจริง Production เด็ดขาด)"]
+  Ingress --> Web["พ็อด Web (Next.js)"]
+  Ingress --> API["พ็อด Core API (NestJS)"]
+  API --> PG[("ฐานข้อมูล PostgreSQL ข้อมูลจำลอง")]
+  API --> Redis[("Redis สภาพแวดล้อมทดสอบ")]
+  Redis --> Worker["พ็อด Worker ประมวลผล"]
+  Worker --> PG
+  Worker --> AI["พ็อด FastAPI บริการ AI"]
+  AI --> Stub["ระบบจำลองโมเดล AI (Mock LLM Provider)"]
+
+  HPA["ตัวปรับขยายพ็อดอัตโนมัติ (HPA Autoscaler)"] -.->|"ปรับขยายแนวนอน"| API & Worker
+  OTel["OpenTelemetry DaemonSet ประจำโหนด"] --> Metrics["แดชบอร์ด Grafana + ร่องรอยการทำงาน Jaeger"]
+  API --> OTel
+  Worker --> OTel
+  AI --> OTel
+ end
+
+ GitOps["Argo CD - ตรวจสอบความสอดคล้องของแอป"] -.->|"ปรับสถานะระบบให้ตรงกับโค้ด"| Cluster
+ IaC["Terraform - จัดการคลัสเตอร์และเครือข่าย"] -.->|"สร้างโครงสร้างพื้นฐาน"| Cluster
+ ProdSource[("ข้อมูลจริง Production, ข้อมูลส่วนบุคคล และข้อมูลสำรอง")] -.->|"X ตัดขาดการเชื่อมต่ออย่างสิ้นเชิง (ป้องกันข้อมูลรั่วไหล 100%)"| Cluster
+```
+
+#### 6.7.3 ไปป์ไลน์การรวมโค้ดและส่งมอบระบบอย่างต่อเนื่อง (Diagram D16: CI/CD Pipeline)
+
+แผนภาพนี้แสดงวงจรการทดสอบ การสแกนความปลอดภัย การสร้าง Image แบบ Immutable และการ Deploy ไปยังระบบ Staging, Production และ Showcase Sandbox โดยรักษาความปลอดภัยด้วย Cosign และ SBOM:
+
+```mermaid
+flowchart TB
+ Commit["บันทึกโค้ดขึ้น Git (Main Branch / แท็ก Release)"] --> CI["GitHub Actions: ตรวจ Lint, เช็กไทป์, Unit Tests, สแกน Secret"]
+ CI --> Test["Integration Tests, ทดสอบรัน Migration ฐานข้อมูล, เบนช์มาร์กรูบริก AI, สแกนช่องโหว่คอนเทนเนอร์"]
+ Test --> Build["สร้าง OCI Container Image แบบ Immutable + สร้าง SBOM + เซ็นรับรองด้วย Cosign"]
+ Build --> Registry[("คลังเก็บคอนเทนเนอร์: ตรึง Digest แบบแก้ไขไม่ได้")]
+
+ Registry --> Staging["สภาพแวดล้อมทดสอบเสมือนจริง (Managed Staging)"]
+ Staging --> Gate{"การทดสอบอัตโนมัติ QA & การลงนามอนุมัติของผู้มีส่วนได้ส่วนเสีย"}
+ Gate -->|อนุมัติ| Prod["สภาพแวดล้อม Production (ติดตั้ง Image ตัวเดียวกัน 100%)"]
+ Gate -->|ไม่อนุมัติ| Stop["ระงับไปป์ไลน์ทันที & ส่งแจ้งเตือนไปยังทีมนักพัฒนา"]
+
+ Registry --> GitOpsPR["สร้าง Pull Request บน GitOps Showcase (ตรึงตาม Digest)"]
+ GitOpsPR --> Argo["Argo CD ปรับปรุงสถานะ"]
+ Argo --> Demo["สภาพแวดล้อมจำลอง Kubernetes Showcase"]
+
+ Prod --> RealDB[("ฐานข้อมูล Production ที่มีข้อมูลส่วนบุคคลจริง")]
+ Demo --> FakeDB[("ฐานข้อมูลที่มีเฉพาะข้อมูลจำลอง Synthetic Data เท่านั้น")]
+ RealDB -.->|"มาตรการความปลอดภัยขั้นสูงสุด: ห้ามคัดลอกข้อมูลจริงมายัง Sandbox เด็ดขาด"| FakeDB
+```
+
+#### 6.7.4 การสังเกตการณ์ระบบและการกู้คืนจากภัยพิบัติ (Diagram D17: Observability & Disaster Recovery)
+
+แผนภาพนี้แสดงการติดตามระบบด้วย OpenTelemetry, การส่งต่อ Correlation ID จากทั้ง Web และ Mobile, แดชบอร์ดตรวจสอบประสิทธิภาพ (SLA) และแผนการกู้คืนข้อมูล:
+
+```mermaid
+flowchart LR
+ Client["ผู้ใช้งาน Web & Native Mobile"] --> Trace["HTTP Header: x-correlation-id"]
+ Trace --> API["NestJS Core API"]
+ API --> Worker["Evaluation Worker"]
+ Worker --> AI["FastAPI บริการ AI"]
+
+ API & Worker & AI --> OTel["ตัวรวบรวม OpenTelemetry Collector"]
+ OTel --> Logs["บันทึกระบบที่ผ่านการปกปิดข้อมูลส่วนบุคคล (PII Masked)"]
+ OTel --> Metrics["สถิติระบบ: เวลาตอบสนอง P95, อัตราข้อผิดพลาด, ความยาวคิวงาน, ต้นทุนโทเค็น AI"]
+ OTel --> Traces["ร่องรอยการทำงานข้ามบริการ (Distributed Tracing)"]
+
+ Metrics & Logs --> Alerts["ระบบแจ้งเตือนอัตโนมัติ (Alerting Engine)"]
+ Alerts --> Oncall["วิศวกรผู้ดูแลระบบเวรประจำวัน (On-Call Team)"]
+
+ PG[("ฐานข้อมูลหลัก PostgreSQL")] --> Backups["การสำรองข้อมูลอัตโนมัติประจำวันพร้อมการเข้ารหัส"]
+ Backups --> Restore["การซักซ้อมกู้คืนระบบประจำไตรมาส (RPO ไม่เกิน 24 ชม., RTO ไม่เกิน 8 ชม.)"]
+
+ TokenCost["ตัวนับปริมาณการใช้โทเค็น AI และงบประมาณ"] --> Metrics
+ Note["เป้าหมายตามเอกสาร SRS: เวลาตอบสนอง Non-AI P95 ไม่เกิน 2s (Web), ไม่เกิน 2.5s (Mobile); ผลประเมิน AI ไม่เกิน 15s; ความพร้อมใช้งาน 99.5% ขึ้นไป; RPO ไม่เกิน 24h; RTO ไม่เกิน 8h"] -.->|เป้าหมายการเฝ้าระวัง| Metrics
+```
+
+#### 6.7.5 ขอบเขตโครงสร้างโปรเจกต์และโมโนรีโป (Diagram D18: Repository Boundaries & Monorepo Structure)
+
+```mermaid
+flowchart TB
+ subgraph Apps["โฟลเดอร์ apps/ (ส่วนของแอปพลิเคชัน)"]
+  Web["web (แอปพลิเคชันเว็บ Next.js แบบตอบสนอง)"]
+  Mobile["mobile (แอปพลิเคชันมือถือเนทีฟ React Native / Expo)"]
+  API["api (บริการหลังบ้านหลัก NestJS Modular Monolith)"]
+  Worker["evaluation-worker (คนงานประมวลผลพื้นหลัง BullMQ)"]
+  AI["ai-service (บริการประมวลผล AI ด้วย FastAPI)"]
+  Billing["billing-service (บริการบิลลิ่งและการเงินรอบ R3)"]
+  Research["research-service (บริการจัดการชุดข้อมูลวิจัยรอบ R3)"]
+ end
+
+ subgraph Packages["โฟลเดอร์ packages/ (ไลบรารีและสัญญาระบบที่ใช้ร่วมกัน)"]
+   Contracts["contracts (สัญญา OpenAPI, Zod Schemas, Event Contracts, DTOs)"]
+   CoreDB["db-core (โมเดล Prisma Client และไฟล์ Migration ของ PostgreSQL หลัก)"]
+   BillingDB["db-billing (Prisma Schema สำหรับระบบบิลลิ่ง R3)"]
+   ResearchDB["db-research (Schema สำหรับระบบงานวิจัย R3)"]
+   Obs["observability (เครื่องมือบันทึก Log และ Metrics ของ OpenTelemetry)"]
+   UI["ui (ดีไซน์โทเคนและคอมโพเนนต์ส่วนติดต่อผู้ใช้ที่ใช้ร่วมกัน)"]
+ end
+
+ Web --> Contracts & UI
+ Mobile --> Contracts & UI
+ API --> Contracts & CoreDB & Obs
+ Worker --> Contracts & CoreDB & Obs
+ AI --> Contracts
+ Billing --> Contracts & BillingDB & Obs
+ Research --> Contracts & ResearchDB & Obs
+```
+
+#### 6.7.6 ผังการไหลของข้อมูลสำหรับระบบ AI (Diagram D26: AI Data Pipeline Flow)
+
+แผนภาพนี้แสดงวงจรการไหลของข้อมูลการประเมินผล AI ตั้งแต่การรับคำตอบสัมภาษณ์ดิบ, การทำความสะอาดข้อมูลและป้องกัน Prompt Injection, การตรึงเวอร์ชันเกณฑ์รูบริกและคอนฟิก, การส่งประมวลผลผ่านโมเดล AI, และการตรวจสอบความสมบูรณ์ของโครงสร้างผลลัพธ์ด้วย Pydantic Schema:
 
 ```mermaid
 flowchart LR
@@ -2216,7 +2331,9 @@ flowchart LR
  Validator -->|ไม่ใช่| Invalid
 ```
 
-#### 6.7.3 กลไกสำรองกรณีการประเมินของ AI ล้มเหลว (Diagram D16: AI Fallback & Circuit Breaker)
+#### 6.7.7 กลไกสำรองกรณีการประเมินของ AI ล้มเหลว (Diagram D27: AI Fallback & Circuit Breaker)
+
+แผนภาพนี้แสดงกระบวนการบริหารจัดการความพร้อมใช้งานสูง (HA) และกลไกรับมือข้อผิดพลาดของการประเมินผล AI ได้แก่ การดึงงานจากคิว Redis, การทำซ้ำด้วย Exponential Backoff, การตัดวงจร (Circuit Breaker) เมื่อล้มเหลวต่อเนื่องเกิน 5 ครั้ง, การสลับไปยังโมเดลสำรอง (Secondary Backup LLM) และการปรับสถานะเป็น `needs_review` เพื่อส่งแจ้งเตือนทีมผู้ดูแลระบบ:
 
 ```mermaid
 flowchart TD
@@ -2239,65 +2356,6 @@ flowchart TD
 
  MarkReview --> Alert["ส่งแจ้งเตือนทีมงาน Admin On-call ทันที"]
 ```
-
-#### 6.7.4 การสื่อสารด้วยเหตุการณ์แบบอะซิงโครนัส (Diagram D17: Async Event-Driven Architecture)
-
-```mermaid
-flowchart LR
- Client["ผู้ใช้งาน Web & Native Mobile"] --> Trace["HTTP Header: x-correlation-id"]
- Trace --> API["NestJS Core API"]
- API --> Worker["Evaluation Worker"]
- Worker --> AI["FastAPI บริการ AI"]
-
- API --> OTel["ตัวรวบรวม OpenTelemetry Collector"]
- Worker --> OTel
- AI --> OTel
- OTel --> Logs["บันทึกระบบที่ผ่านการปกปิดข้อมูลส่วนบุคคล (PII Masked)"]
- OTel --> Metrics["สถิติระบบ: เวลาตอบสนอง P95, อัตราข้อผิดพลาด, ความยาวคิวงาน, ต้นทุนโทเค็น AI"]
- OTel --> Traces["ร่องรอยการทำงานข้ามบริการ (Distributed Tracing)"]
-
- Metrics & Logs --> Alerts["ระบบแจ้งเตือนอัตโนมัติ (Alerting Engine)"]
- Alerts --> Oncall["วิศวกรผู้ดูแลระบบเวรประจำวัน (On-Call Team)"]
-
- PG[("ฐานข้อมูลหลัก PostgreSQL")] --> Backups["การสำรองข้อมูลอัตโนมัติประจำวันพร้อมการเข้ารหัส"]
- Backups --> Restore["การซักซ้อมกู้คืนระบบประจำไตรมาส (RPO ไม่เกิน 24 ชม., RTO ไม่เกิน 8 ชม.)"]
-
- TokenCost["ตัวนับปริมาณการใช้โทเค็น AI และงบประมาณ"] --> Metrics
-```
-
-#### 6.7.5 ขอบเขตโครงสร้างโปรเจกต์และโมโนรีโป (Diagram D18: Repository Boundaries & Monorepo Structure)
-
-```mermaid
-flowchart TB
- subgraph Apps["โฟลเดอร์ apps/ (ส่วนของแอปพลิเคชัน)"]
-  Web["web (แอปพลิเคชันเว็บ Next.js แบบตอบสนอง)"]
-  Mobile["mobile (แอปพลิเคชันมือถือเนทีฟ React Native / Expo)"]
-  API["api (บริการหลังบ้านหลัก NestJS Modular Monolith)"]
-  Worker["evaluation-worker (คนงานประมวลผลพื้นหลัง BullMQ)"]
-  AI["ai-service (บริการประมวลผล AI ด้วย FastAPI)"]
-  Billing["billing-service (บริการบิลลิ่งและการเงินรอบ R3)"]
-  Research["research-service (บริการจัดการชุดข้อมูลวิจัยรอบ R3)"]
- end
-
- subgraph Packages["โฟลเดอร์ packages/ (ไลบรารีและสัญญาระบบที่ใช้ร่วมกัน)"]
-  Contracts["contracts (สัญญา OpenAPI, Zod Schemas, Event Contracts, DTOs)"]
-  CoreDB["db-core (โมเดล Prisma Client และไฟล์ Migration ของ PostgreSQL หลัก)"]
-  BillingDB["db-billing (Prisma Schema สำหรับระบบบิลลิ่ง R3)"]
-  ResearchDB["db-research (Schema สำหรับระบบงานวิจัย R3)"]
-  Obs["observability (เครื่องมือบันทึก Log และ Metrics ของ OpenTelemetry)"]
-  UI["ui (ดีไซน์โทเคนและคอมโพเนนต์ส่วนติดต่อผู้ใช้ที่ใช้ร่วมกัน)"]
- end
-
- Web --> Contracts & UI
- Mobile --> Contracts & UI
- API --> Contracts & CoreDB & Obs
- Worker --> Contracts & CoreDB & Obs
- AI --> Contracts
- Billing --> Contracts & BillingDB & Obs
- Research --> Contracts & ResearchDB & Obs
-```
-
-
 ---
 
 ## 7. สภาพแวดล้อมทางเทคโนโลยีและข้อกำหนดที่ไม่ใช่ฟังก์ชัน (System Environment & ISO/IEC 25010 NFRs)
@@ -2438,7 +2496,7 @@ flowchart TB
 | **FR33** | FR | สถาปัตยกรรมความทนทานต่อข้อผิดพลาด | Web & Mobile | Registered User | D07, D25 | `interview.answers` | Simulated Network Disconnection & Recovery Test |
 | **FR34** | FR | สถาปัตยกรรมธรรมาภิบาลโมเดล AI | เฉพาะบนเว็บ (Admin) | System Admin | D06, D23 | `content.rubric_versions`, `content.ai_config_versions` | Immutable Version Pinning & Rollback Test |
 | **FR35** | FR | พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA มาตรา 30-33) | Web & Mobile (Admin Web) | Registered User, Admin | D10, D12, D22 | `privacy.data_rights_requests` | DSR Request Export & 30-Day SLA Workflow Test |
-| **FR36** | FR | สถาปัตยกรรมความพร้อมใช้งานสูง (HA) | ระบบบริการหลังบ้าน | System Engine | D08, D16 | `evaluation.jobs` | Circuit Breaker Trip & Fallback Model Test |
+| **FR36** | FR | สถาปัตยกรรมความพร้อมใช้งานสูง (HA) | ระบบบริการหลังบ้าน | System Engine | D08, D16, D27 | `evaluation.jobs` | Circuit Breaker Trip & Fallback Model Test |
 | **FR21-R3**| FR | แผนงาน R3 / รูปแบบธุรกิจเพื่อความยั่งยืน | Web & Mobile | Registered User | D09, D12, D23 | `billing.packages`, `billing.subscriptions` | Tier Entitlement Boundary Test |
 | **FR22-R3**| FR | แผนงาน R3 / ระบบชำระเงินดิจิทัล | Web & Mobile (Checkout) | Registered User | D12, D23 | `billing.transactions` | Payment Gateway Redirect & Session Creation Test |
 | **FR23-R3**| FR | แผนงาน R3 / ความปลอดภัยทางธุรกรรม | ระบบบริการหลังบ้าน | System Engine | D12 | `billing.payment_events` | HMAC Signature Verification & Anti-Replay Test |
@@ -2452,7 +2510,7 @@ flowchart TB
 | **FR31-R3**| FR | แผนงาน R3 / แดชบอร์ดผู้บริหาร | เฉพาะบนเว็บ (Admin) | Finance Admin | D06, D23 | `billing.transactions` | MRR / Churn Calculation Accuracy Test |
 | **FR32.1**| FR | ธรรมาภิบาลข้อมูลงานวิจัย | เฉพาะบนเว็บ (Admin) | Researcher, Admin | D06, D13, D23 | `research.access_log` | Immutable Research Audit Logging Test |
 | **NFR01** | NFR | ความมั่นคงปลอดภัยระดับสากล | Web & Mobile | ทุกบทบาท | D06, D09, D24 | `identity.auth_identities`, `identity.refresh_sessions` | Penetration Testing + TLS 1.3 Cipher Suite Check |
-| **NFR02** | NFR | ธรรมาภิบาลและการอธิบายผล AI | ระบบบริการหลังบ้าน | ทุกบทบาท | D07, D15 | `evaluation.feedback` | Hallucination Detection Test + Evidence Citation Check |
+| **NFR02** | NFR | ธรรมาภิบาลและการอธิบายผล AI | ระบบบริการหลังบ้าน | ทุกบทบาท | D07, D26 | `evaluation.feedback` | Hallucination Detection Test + Evidence Citation Check |
 | **NFR03** | NFR | ความพึงพอใจของผู้ใช้จริง | Web & Mobile | Registered User | D24, D25 | - | Standard System Usability Scale (SUS) Assessment (>= 70) |
 | **NFR04** | NFR | ประสิทธิภาพระบบและเวลาตอบสนอง | Web & Mobile | ทุกบทบาท | D07, D14, D25 | Redis, PostgreSQL | Load Testing (Non-AI P95 <= 2.0s, AI P95 <= 15.0s) |
 | **NFR05** | NFR | ความพร้อมใช้งานของระบบ | ระบบบริการหลังบ้าน | ทุกบทบาท | D14, D18 | API Gateway | High Availability Uptime Monitoring (>= 99.5%) |
@@ -2471,7 +2529,7 @@ flowchart TB
 | **NFR18** | NFR | ความถูกต้องของบันทึกความยินยอม | ระบบบริการหลังบ้าน | ทุกบทบาท | D10, D22 | `privacy.consent_events` | Tamper-proof Consent Event Chain Test |
 | **NFR19** | NFR | ความปลอดภัยของรหัสผ่าน | Web & Mobile | ทุกบทบาท | D06, D22 | `identity.auth_identities` | Password Brute Force Lockout & Token Invalidation Test |
 | **NFR20** | NFR | การกักกันข้อมูลส่วนบุคคลเพื่องานวิจัย| ระบบบริการหลังบ้าน | Researcher | D05, D13 | `research.datasets` | Cross-database Foreign Key Isolation Audit Test |
-| **NFR21** | NFR | ความสม่ำเสมอของผลประเมิน AI | ระบบบริการหลังบ้าน | Registered User | D07, D15 | `evaluation.feedback` | Repetitive Prompt Scoring Variance Test (Variance <= ±5%) |
+| **NFR21** | NFR | ความสม่ำเสมอของผลประเมิน AI | ระบบบริการหลังบ้าน | Registered User | D07, D26 | `evaluation.feedback` | Repetitive Prompt Scoring Variance Test (Variance <= ±5%) |
 | **NFR22** | NFR | การรองรับปริมาณผู้ใช้พร้อมกัน | Web & Mobile | ทุกบทบาท | D14, D17 | API Gateway, Redis | 100 Concurrent Active Sessions Load Test (Error < 1%) |
 | **NFR23** | NFR | การกู้คืนระบบจากภัยพิบัติ | โครงสร้างพื้นฐาน | ทีมวิศวกร | D14, D17 | PostgreSQL Backups | Quarterly Disaster Recovery Drill (RPO <= 24h, RTO <= 8h) |
 | **NFR24** | NFR | การสังเกตการณ์และตรวจสอบย้อนหลัง | โครงสร้างพื้นฐาน | ทีมวิศวกร | D17, D18 | OpenTelemetry Collector | Correlation ID Propagation & PII Masking Verification Test |
@@ -2578,7 +2636,7 @@ flowchart TB
 
 > [!NOTE]
 > **การรับรองความถูกต้องของเอกสาร:**  
-> เอกสารแสดงความต้องการของระบบ (SRS Report v1.1 Revised) ฉบับนี้ ได้รับการตรวจทาน ปรับปรุงโครงสร้าง และบรรจุข้อมูลทางวิศวกรรมซอฟต์แวร์อย่างละเอียดสมบูรณ์ โดยบูรณาการผลสำรวจความต้องการใช้งานจริง (n=102), ข้อกำหนดเชิงฟังก์ชัน 40 ข้อ (FR01–FR40), ข้อกำหนดเชิงคุณภาพ 24 ข้อ (NFR01–NFR24), เมทริกซ์การตรวจสอบย้อนกลับ 64 รายการ (RTM), กฎบัตรการควบคุมสิทธิ์ RBAC, พจนานุกรมข้อมูลทางกายภาพฉบับสมบูรณ์ และแผนภาพสถาปัตยกรรมระบบรวมทั้งสิ้น 25 แผนภาพ (Diagrams D01–D25) เพื่อใช้เป็นเอกสารอ้างอิงหลักสำหรับการวิจัย พัฒนา และประเมินผลโครงการต่อไป
+> เอกสารแสดงความต้องการของระบบ (SRS Report v1.1 Revised) ฉบับนี้ ได้รับการตรวจทาน ปรับปรุงโครงสร้าง และบรรจุข้อมูลทางวิศวกรรมซอฟต์แวร์อย่างละเอียดสมบูรณ์ โดยบูรณาการผลสำรวจความต้องการใช้งานจริง (n=102), ข้อกำหนดเชิงฟังก์ชัน 40 ข้อ (FR01–FR40), ข้อกำหนดเชิงคุณภาพ 24 ข้อ (NFR01–NFR24), เมทริกซ์การตรวจสอบย้อนกลับ 64 รายการ (RTM), กฎบัตรการควบคุมสิทธิ์ RBAC, พจนานุกรมข้อมูลทางกายภาพฉบับสมบูรณ์ และแผนภาพสถาปัตยกรรมระบบรวมทั้งสิ้น 27 แผนภาพ (Diagrams D01–D27) เพื่อใช้เป็นเอกสารอ้างอิงหลักสำหรับการวิจัย พัฒนา และประเมินผลโครงการต่อไป
 
 ---
 *สิ้นสุดรายงานเอกสารแสดงความต้องการของระบบ (Software Requirements Specification — SRS) แพลตฟอร์ม InterviewX*

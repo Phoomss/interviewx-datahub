@@ -13,17 +13,17 @@
 
 ## 🌟 แผนภาพสถาปัตยกรรมระบบฉบับทางการที่ผ่านการอนุมัติ (Active Primary Baseline — v1.1 FINAL)
 
-แผนภาพทั้งหมดถูกออกแบบด้วย Mermaid และจัดทำทั้งฉบับภาษาไทยและภาษาอังกฤษ รวมทั้งสิ้น 25 แผนภาพ (D01 ถึง D25) จัดเก็บอย่างเป็นระบบที่:  
+แผนภาพทั้งหมดถูกออกแบบด้วย Mermaid และจัดทำทั้งฉบับภาษาไทยและภาษาอังกฤษ รวมทั้งสิ้น 27 แผนภาพ (D01 ถึง D27) จัดเก็บอย่างเป็นระบบที่:  
 👉 **โฟลเดอร์หลัก:** [v1.1_diagrams/](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/)
 
 | แผนภาพผลลัพธ์ | ลิงก์เปิดไฟล์ (Clickable Link) | ขนาดไฟล์ | คำอธิบายสาระสำคัญ |
 |---|---|:---:|---|
-| **แผนภาพสถาปัตยกรรมระบบ (ภาษาไทย v1.1 FINAL)** | [ALL_DIAGRAMS_v1.1_FINAL_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/ALL_DIAGRAMS_v1.1_FINAL_TH.md) | ~99 KB | รวมครบทั้ง 25 แผนภาพ (D01–D25) พร้อมคำอธิบายและป้ายกำกับภาษาไทยมาตรฐาน |
-| **แผนภาพสถาปัตยกรรมระบบ (English v1.1 FINAL)** | [ALL_DIAGRAMS_v1.1_FINAL.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/ALL_DIAGRAMS_v1.1_FINAL.md) | ~54 KB | รวมครบทั้ง 25 แผนภาพฉบับภาษาอังกฤษสำหรับทีมพัฒนาสากล |
+| **แผนภาพสถาปัตยกรรมระบบ (ภาษาไทย v1.1 FINAL)** | [ALL_DIAGRAMS_v1.1_FINAL_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/ALL_DIAGRAMS_v1.1_FINAL_TH.md) | ~105 KB | รวมครบทั้ง 27 แผนภาพ (D01–D27) พร้อมคำอธิบายและป้ายกำกับภาษาไทยมาตรฐาน |
+| **แผนภาพสถาปัตยกรรมระบบ (English v1.1 FINAL)** | [ALL_DIAGRAMS_v1.1_FINAL.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/ALL_DIAGRAMS_v1.1_FINAL.md) | ~58 KB | รวมครบทั้ง 27 แผนภาพฉบับภาษาอังกฤษสำหรับทีมพัฒนาสากล |
 | **แบบจำลองกรณีการใช้งานระบบ (Use Case Model v1.1)** | [InterviewX_Use_Case_Diagrams_v1.1.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/InterviewX_Use_Case_Diagrams_v1.1.md) | ~48 KB | รวมแผนภาพกรณีการใช้งานทั้งระดับระบบ (D20) และระบบย่อย 3 ด้าน (D21–D23) พร้อมตาราง Traceability |
-| **ซอร์สโค้ด Mermaid (.mmd รายไฟล์)** | [diagrams/](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/diagrams/) | 25 ไฟล์ | ซอร์สโค้ด Mermaid สำหรับเรนเดอร์แผนภาพ D01–D25 |
+| **ซอร์สโค้ด Mermaid (.mmd รายไฟล์)** | [diagrams/](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/diagrams/) | 27 ไฟล์ | ซอร์สโค้ด Mermaid สำหรับเรนเดอร์แผนภาพ D01–D27 |
 
-### รายการแผนภาพย่อย (Diagram Breakdown: D01–D25)
+### รายการแผนภาพย่อย (Diagram Breakdown: D01–D27)
 - **D01:** บริบทระบบระดับสูง (System Context)
 - **D02:** C4 Containers (Decoupled Web, Mobile, NestJS, FastAPI, Storage)
 - **D03:** การแบ่งขอบเขตบริบทตามหลัก DDD (Bounded Contexts)
@@ -49,6 +49,8 @@
 - **D23:** แผนภาพระบบย่อย: การบริหารระบบ การเงิน และชุดข้อมูลวิจัย (Administration, Billing & Research)
 - **D24:** การจัดแนวทางสถาปัตยกรรมระหว่าง Web และ Mobile (Web & Mobile Architecture Alignment)
 - **D25:** ลำดับการทำงานและการสลับรูปแบบระหว่าง Web และ Mobile (Web vs Mobile Interaction Sequence)
+- **D26:** ผังการไหลของข้อมูลสำหรับระบบ AI (AI Data Pipeline Flow)
+- **D27:** กลไกสำรองกรณีการประเมินของ AI ล้มเหลว (AI Fallback & Circuit Breaker)
 
 ---
 

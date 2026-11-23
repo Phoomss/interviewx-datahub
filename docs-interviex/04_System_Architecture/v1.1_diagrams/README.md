@@ -7,7 +7,7 @@
 
 ## 📌 ภาพรวมชุดแผนภาพ (Diagrams Baseline Overview)
 
-โฟลเดอร์นี้รวบรวม **แผนภาพสถาปัตยกรรมระบบ แผนผังลำดับการทำงาน (Sequence Diagrams) แบบจำลองข้อมูล (ERD) และแบบจำลองกรณีการใช้งาน (Use Cases) รวมทั้งสิ้น 25 แผนภาพ (D01 ถึง D25) ในเวอร์ชัน 1.1 ที่ผ่านการอนุมัติแล้ว** โดยครอบคลุมการแบ่งแยกขอบเขตระหว่าง Responsive Web Application และ Native Mobile Application (iOS/Android) ร่วมกับสถาปัตยกรรมบริการหลังบ้านร่วมกัน (Shared Backend Architecture)
+โฟลเดอร์นี้รวบรวม **แผนภาพสถาปัตยกรรมระบบ แผนผังลำดับการทำงาน (Sequence Diagrams) แบบจำลองข้อมูล (ERD) และแบบจำลองกรณีการใช้งาน (Use Cases) รวมทั้งสิ้น 27 แผนภาพ (D01 ถึง D27) ในเวอร์ชัน 1.1 ที่ผ่านการอนุมัติแล้ว** โดยครอบคลุมการแบ่งแยกขอบเขตระหว่าง Responsive Web Application และ Native Mobile Application (iOS/Android) ร่วมกับสถาปัตยกรรมบริการหลังบ้านร่วมกัน (Shared Backend Architecture)
 
 ---
 
@@ -15,14 +15,14 @@
 
 | เอกสารแผนภาพ | ลิงก์เปิดไฟล์ (Clickable Link) | ขนาดไฟล์ | คำอธิบายสาระสำคัญ |
 |---|---|:---:|---|
-| **แผนภาพสถาปัตยกรรมระบบ (ภาษาไทย v1.1 FINAL)** | [ALL_DIAGRAMS_v1.1_FINAL_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/ALL_DIAGRAMS_v1.1_FINAL_TH.md) | ~99 KB | รวมครบ 25 แผนภาพ (D01–D25) พร้อมคำอธิบายและป้ายกำกับภาษาไทยมาตรฐาน |
-| **แผนภาพสถาปัตยกรรมระบบ (English v1.1 FINAL)** | [ALL_DIAGRAMS_v1.1_FINAL.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/ALL_DIAGRAMS_v1.1_FINAL.md) | ~54 KB | รวมครบ 25 แผนภาพฉบับภาษาอังกฤษสำหรับทีมพัฒนาสากล |
+| **แผนภาพสถาปัตยกรรมระบบ (ภาษาไทย v1.1 FINAL)** | [ALL_DIAGRAMS_v1.1_FINAL_TH.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/ALL_DIAGRAMS_v1.1_FINAL_TH.md) | ~105 KB | รวมครบ 27 แผนภาพ (D01–D27) พร้อมคำอธิบายและป้ายกำกับภาษาไทยมาตรฐาน |
+| **แผนภาพสถาปัตยกรรมระบบ (English v1.1 FINAL)** | [ALL_DIAGRAMS_v1.1_FINAL.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/ALL_DIAGRAMS_v1.1_FINAL.md) | ~58 KB | รวมครบ 27 แผนภาพฉบับภาษาอังกฤษสำหรับทีมพัฒนาสากล |
 | **แบบจำลองกรณีการใช้งานระบบ (Use Case Model v1.1)** | [InterviewX_Use_Case_Diagrams_v1.1.md](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/InterviewX_Use_Case_Diagrams_v1.1.md) | ~48 KB | รวมแผนภาพ Use Case ระดับระบบ (D20) และระบบย่อย 3 ด้าน (D21–D23) พร้อมตาราง Traceability |
-| **โฟลเดอร์ไฟล์ซอร์สโค้ด Mermaid (.mmd)** | [diagrams/](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/diagrams/) | 25 ไฟล์ | ซอร์สโค้ด Mermaid รายไฟล์ D01 ถึง D25 สำหรับเรนเดอร์และแก้ไข |
+| **โฟลเดอร์ไฟล์ซอร์สโค้ด Mermaid (.mmd)** | [diagrams/](file:///D:/workspaces/interviewx-datahub/docs-interviex/04_System_Architecture/v1.1_diagrams/diagrams/) | 27 ไฟล์ | ซอร์สโค้ด Mermaid รายไฟล์ D01 ถึง D27 สำหรับเรนเดอร์และแก้ไข |
 
 ---
 
-## 🗺️ รายการแผนภาพสถาปัตยกรรมทั้งหมด 25 รูป (D01 ถึง D25)
+## 🗺️ รายการแผนภาพสถาปัตยกรรมทั้งหมด 27 รูป (D01 ถึง D27)
 
 1. **D01:** บริบทระบบระดับสูง (System Context)
 2. **D02:** C4 Containers (Decoupled Web, Mobile, NestJS, FastAPI, Storage)
@@ -49,6 +49,8 @@
 23. **D23:** แผนภาพระบบย่อย: การบริหารระบบ การเงิน และชุดข้อมูลวิจัย (Administration, Billing & Research)
 24. **D24:** การจัดแนวทางสถาปัตยกรรมระหว่าง Web และ Mobile (Web & Mobile Architecture Alignment)
 25. **D25:** ลำดับการทำงานและการสลับรูปแบบระหว่าง Web และ Mobile (Web vs Mobile Interaction Sequence)
+26. **D26:** ผังการไหลของข้อมูลสำหรับระบบ AI (AI Data Pipeline Flow)
+27. **D27:** กลไกสำรองกรณีการประเมินของ AI ล้มเหลว (AI Fallback & Circuit Breaker)
 
 ---
 

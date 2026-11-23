@@ -1435,3 +1435,72 @@ sequenceDiagram
     ClientMobile->>UserMobile: Render feedback score, strengths, and improvements
     end
 ```
+
+---
+
+## D26 AI DATA PIPELINE FLOW
+
+Illustrates the end-to-end data lifecycle for AI evaluation, from ingesting candidate responses, sanitizing prompt injections and PII, pinning rubric and prompt configuration versions, dispatching LLM inference calls, to rigorous schema validation via Pydantic.
+
+```mermaid
+flowchart LR
+ subgraph Ingestion["1. Answer Ingestion"]
+  RawAnswer["Interview Answer<br/>(Text / STT Transcript)"]
+ end
+
+ subgraph ContextPrep["2. Context & Version Pinning"]
+  Rubric["Pinned Rubric Definition<br/>(Rubric Version)"]
+  AIConfig["Pinned AI System Prompts<br/>(AI Config Version)"]
+  Sanitizer["Security Sanitizer<br/>(Prompt Injection & PII Filter)"]
+ end
+
+ subgraph Inference["3. AI Inference Dispatch"]
+  LLMClient["LLM Adapter Client<br/>(10s Timeout + 2 Retries)"]
+  RawOutput["Raw LLM JSON Response"]
+ end
+
+ subgraph Validation["4. Strict Output Validation"]
+  Validator{"Schema & Criteria Check"}
+  ValCriteria["Pydantic Validation Criteria:<br/>- 4 Rubric Dimensions Present<br/>- Score Range 0-100<br/>- Evidence Excerpts Present"]
+  Valid["Valid & Conforming<br/>(Status: completed)"]
+  Invalid["Schema Violation / Anomaly<br/>(Status: needs_review)"]
+ end
+
+ RawAnswer --> Sanitizer
+ Sanitizer --> LLMClient
+ Rubric --> LLMClient
+ AIConfig --> LLMClient
+ LLMClient --> RawOutput
+ RawOutput --> Validator
+ Validator -.->|Evaluated Against| ValCriteria
+ Validator -->|Pass| Valid
+ Validator -->|Fail| Invalid
+```
+
+---
+
+## D27 AI FALLBACK & CIRCUIT BREAKER
+
+Illustrates High Availability (HA) and fault-tolerance architecture for AI evaluation jobs, including BullMQ/Redis worker job consumption, exponential backoff retries, circuit breaking after 5 consecutive failures, secondary backup LLM failover, and `needs_review` on-call alerting fallback.
+
+```mermaid
+flowchart TD
+ Start["Evaluation Job dequeued from Redis Queue"] --> CallAI["Invoke Primary LLM Provider"]
+ CallAI --> CheckSuccess{"Response received within 10s?"}
+
+ CheckSuccess -->|Success| Validate["Validate Output via Pydantic Schema"]
+ Validate --> CheckValid{"Is score payload valid?"}
+ CheckValid -->|Valid| Complete["Persist Result: status completed"]
+
+ CheckSuccess -->|Failure / Timeout| Trip{"5 or more consecutive failures?"}
+ Trip -->|Trip Circuit Open| FallbackLLM["Failover to Secondary Backup LLM"]
+ Trip -->|Circuit Closed| Retry["Exponential Backoff Retry (Max 3 attempts)"]
+ Retry --> CallAI
+
+ FallbackLLM --> CheckFallback{"Backup LLM call succeeded?"}
+ CheckFallback -->|Success| Validate
+ CheckFallback -->|Failure| MarkReview["Mark Job Status: needs_review<br/>(Queued for Human Expert Review)"]
+ CheckValid -->|Invalid Payload| MarkReview
+
+ MarkReview --> Alert["Trigger Immediate Admin On-Call Alert"]
+```
