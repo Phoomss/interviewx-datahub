@@ -15,23 +15,23 @@ flowchart TD
     end
 
     subgraph PresentationLayer["ชั้นการแสดงผล (Presentation Layer)"]
-        NextJS["Next.js Web App\n(TypeScript, Tailwind, shadcn/ui, TanStack Query)"]
+        NextJS["Next.js Web App<br/>(TypeScript, Tailwind, shadcn/ui, TanStack Query)"]
     end
 
     subgraph CoreBackendLayer["ชั้นตรรกะธุรกิจหลัก (Core Business Layer)"]
-        NestJS["NestJS Backend API\n(TypeScript, Prisma ORM, Swagger, BullMQ)"]
+        NestJS["NestJS Backend API<br/>(TypeScript, Prisma ORM, Swagger, BullMQ)"]
     end
 
     subgraph AIServiceLayer["ชั้นบริการปัญญาประดิษฐ์ (AI & Processing Layer)"]
-        FastAPI["FastAPI AI Service\n(Python, Pydantic, PyMuPDF, python-docx, Polars)"]
-        ExtLLM["External LLM Providers\n(Gemini / OpenAI API)"]
+        FastAPI["FastAPI AI Service<br/>(Python, Pydantic, PyMuPDF, python-docx, Polars)"]
+        ExtLLM["External LLM Providers<br/>(Gemini / OpenAI API)"]
     end
 
     subgraph InfrastructureLayer["ชั้นโครงสร้างพื้นฐานและข้อมูล (Data & Infrastructure)"]
-        Postgres[("PostgreSQL\n(Metadata, Structured Data, Audit Logs)")]
-        MinIO[("MinIO S3 Compatible\n(Raw PDFs, DOCX, Export Artifacts)")]
-        Redis[("Redis\n(Job Queue, Cache, Pub/Sub)")]
-        MLflowDVC[("MLflow & DVC\n(Dataset & Artifact Versioning)")]
+        Postgres[("PostgreSQL<br/>(Metadata, Structured Data, Audit Logs)")]
+        MinIO[("MinIO S3 Compatible<br/>(Raw PDFs, DOCX, Export Artifacts)")]
+        Redis[("Redis<br/>(Job Queue, Cache, Pub/Sub)")]
+        MLflowDVC[("MLflow & DVC<br/>(Dataset & Artifact Versioning)")]
     end
 
     UserBrowser -->|HTTPS / REST| NextJS

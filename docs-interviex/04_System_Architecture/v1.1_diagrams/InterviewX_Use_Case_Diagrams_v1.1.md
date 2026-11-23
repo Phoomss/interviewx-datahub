@@ -15,22 +15,22 @@ flowchart LR
   subgraph NotationRule["กฎทิศทางลูกศรตามมาตรฐาน UML (Arrow Direction Standards)"]
     direction TB
     subgraph IncludeConcept["1. ความสัมพันธ์แบบ «include» (จำเป็นต้องทำ - Mandatory)"]
-      Base1(["กรณีการใช้งานหลัก (Base UC)"]) -. "«include»" .-> Inc1(["กรณีการใช้งานย่อยที่ถูกรวม (Included UC)"])
-      note1["• ลูกศรพุ่งจาก Base UC ไปยัง Included UC เสมอ\n• ทำงานทุกครั้งที่ Base UC ถูกเรียก ขาดไม่ได้"]
+      Base1(["กรณีการใช้งานหลัก (Base UC)"]) -.->|"«include»"| Inc1(["กรณีการใช้งานย่อยที่ถูกรวม (Included UC)"])
+      note1["• ลูกศรพุ่งจาก Base UC ไปยัง Included UC เสมอ<br/>• ทำงานทุกครั้งที่ Base UC ถูกเรียก ขาดไม่ได้"]
     end
     subgraph ExtendConcept["2. ความสัมพันธ์แบบ «extend» (ส่วนขยายตามเงื่อนไข - Optional)"]
-      Ext1(["กรณีการใช้งานส่วนขยาย (Extending UC)"]) -. "«extend»\n[ระบุเงื่อนไข/Extension Point]" .-> Base2(["กรณีการใช้งานหลัก (Base UC)"])
-      note2["• ลูกศรพุ่งจาก Extending UC ย้อนกลับมายัง Base UC เสมอ\n• ทำงานเฉพาะเมื่อเงื่อนไข (Extension Condition) เป็นจริงเท่านั้น"]
+      Ext1(["กรณีการใช้งานส่วนขยาย (Extending UC)"]) -.->|"«extend»<br/>(ระบุเงื่อนไข/Extension Point)"| Base2(["กรณีการใช้งานหลัก (Base UC)"])
+      note2["• ลูกศรพุ่งจาก Extending UC ย้อนกลับมายัง Base UC เสมอ<br/>• ทำงานเฉพาะเมื่อเงื่อนไข (Extension Condition) เป็นจริงเท่านั้น"]
     end
   end
 
-  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
-  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
-  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4
 
-  class Base1,Base2 baseStyle;
-  class Inc1 incStyle;
-  class Ext1 extStyle;
+  class Base1,Base2 baseStyle
+  class Inc1 incStyle
+  class Ext1 extStyle
 ```
 
 ### คำอธิบายสัญลักษณ์และสีในแผนภาพ (Color Legend)
@@ -177,43 +177,43 @@ flowchart LR
   User --> UC06
   User --> UC07
   User --> UC08
-  User -. "สมัครสมาชิก" .-> UC09
+  User -.->|"สมัครสมาชิก"| UC09
 
   Admin --> UC10
-  Admin -. "จัดการสิทธิ์ข้อมูล DSR" .-> UC08
+  Admin -.->|"จัดการสิทธิ์ข้อมูล DSR"| UC08
   Finance --> UC09
-  Researcher -. "สกัดชุดข้อมูลวิจัยนิรนาม" .-> UC08
+  Researcher -.->|"สกัดชุดข้อมูลวิจัยนิรนาม"| UC08
 
   %% Includes
-  UC02 -. "«include»" .-> INC_Verify
-  UC04 -. "«include»" .-> INC_GenQ
-  UC04 -. "«include»" .-> INC_CheckQuota
-  UC04 -. "«include»" .-> INC_SubmitAnswer
+  UC02 -.->|"«include»"| INC_Verify
+  UC04 -.->|"«include»"| INC_GenQ
+  UC04 -.->|"«include»"| INC_CheckQuota
+  UC04 -.->|"«include»"| INC_SubmitAnswer
 
-  UC05 -. "«include»" .-> INC_VoiceConsent
-  UC05 -. "«include»" .-> INC_STT
-  UC05 -. "«include»" .-> INC_GenQ
-  UC05 -. "«include»" .-> INC_SubmitAnswer
+  UC05 -.->|"«include»"| INC_VoiceConsent
+  UC05 -.->|"«include»"| INC_STT
+  UC05 -.->|"«include»"| INC_GenQ
+  UC05 -.->|"«include»"| INC_SubmitAnswer
 
-  UC06 -. "«include»" .-> INC_RubricScore
-  UC06 -. "«include»" .-> INC_STARAnalysis
+  UC06 -.->|"«include»"| INC_RubricScore
+  UC06 -.->|"«include»"| INC_STARAnalysis
 
-  UC08 -. "«include»" .-> INC_AuditLog
-  UC10 -. "«include»" .-> INC_AuditLog
+  UC08 -.->|"«include»"| INC_AuditLog
+  UC10 -.->|"«include»"| INC_AuditLog
 
   %% Extends (Points FROM Extension TO Base)
-  EXT_Autosave -. "«extend»\n[พิมพ์ยังไม่เสร็จ/เน็ตหลุด]" .-> UC04
-  EXT_Pressure -. "«extend»\n[เลือกโหมดท้าทาย]" .-> UC04
-  EXT_Pressure -. "«extend»\n[เลือกโหมดท้าทาย]" .-> UC05
+  EXT_Autosave -.->|"«extend»<br/>(พิมพ์ยังไม่เสร็จ/เน็ตหลุด)"| UC04
+  EXT_Pressure -.->|"«extend»<br/>(เลือกโหมดท้าทาย)"| UC04
+  EXT_Pressure -.->|"«extend»<br/>(เลือกโหมดท้าทาย)"| UC05
 
-  EXT_Guidance -. "«extend»\n[ต้องการตัวอย่างคำตอบที่ดี]" .-> UC06
-  EXT_Appeal -. "«extend»\n[พบผลคะแนนคลาดเคลื่อน]" .-> UC06
-  EXT_ExportPDF -. "«extend»\n[ต้องการเก็บไฟล์ไว้อ่าน]" .-> UC06
+  EXT_Guidance -.->|"«extend»<br/>(ต้องการตัวอย่างคำตอบที่ดี)"| UC06
+  EXT_Appeal -.->|"«extend»<br/>(พบผลคะแนนคลาดเคลื่อน)"| UC06
+  EXT_ExportPDF -.->|"«extend»<br/>(ต้องการเก็บไฟล์ไว้อ่าน)"| UC06
 
-  EXT_Portability -. "«extend»\n[ยื่นคำขอรับไฟล์]" .-> UC08
-  EXT_Erasure -. "«extend»\n[ยื่นคำขอยกเลิกบัญชี]" .-> UC08
+  EXT_Portability -.->|"«extend»<br/>(ยื่นคำขอรับไฟล์)"| UC08
+  EXT_Erasure -.->|"«extend»<br/>(ยื่นคำขอยกเลิกบัญชี)"| UC08
 
-  EXT_Refund -. "«extend»\n[มีคำขอคืนเงินในเงื่อนไข]" .-> UC09
+  EXT_Refund -.->|"«extend»<br/>(มีคำขอคืนเงินในเงื่อนไข)"| UC09
 
   %% External System Connections
   INC_Verify --> EmailGateway
@@ -225,17 +225,17 @@ flowchart LR
   EXT_Refund --> PaymentGW
 
   %% Styling
-  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
-  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
-  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
-  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
-  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px
 
-  class UC01,UC02,UC03,UC04,UC05,UC06,UC07,UC08,UC09,UC10 baseStyle;
-  class INC_Verify,INC_GenQ,INC_CheckQuota,INC_SubmitAnswer,INC_VoiceConsent,INC_STT,INC_RubricScore,INC_STARAnalysis,INC_AuditLog incStyle;
-  class EXT_Autosave,EXT_Pressure,EXT_Guidance,EXT_Appeal,EXT_ExportPDF,EXT_Portability,EXT_Erasure,EXT_Refund extStyle;
-  class Guest,User,Admin,Finance,Researcher actorStyle;
-  class EmailGateway,LLMService,STTService,PaymentGW extSysStyle;
+  class UC01,UC02,UC03,UC04,UC05,UC06,UC07,UC08,UC09,UC10 baseStyle
+  class INC_Verify,INC_GenQ,INC_CheckQuota,INC_SubmitAnswer,INC_VoiceConsent,INC_STT,INC_RubricScore,INC_STARAnalysis,INC_AuditLog incStyle
+  class EXT_Autosave,EXT_Pressure,EXT_Guidance,EXT_Appeal,EXT_ExportPDF,EXT_Portability,EXT_Erasure,EXT_Refund extStyle
+  class Guest,User,Admin,Finance,Researcher actorStyle
+  class EmailGateway,LLMService,STTService,PaymentGW extSysStyle
 ```
 
 ---
@@ -340,32 +340,32 @@ flowchart LR
   User --> UC_ReviewEval
 
   %% Start Session Relationships
-  UC_StartSession -. "«include»" .-> INC_FetchQ
-  UC_StartSession -. "«include»" .-> INC_CheckQuota
-  EXT_DifficultyScaling -. "«extend»\n[เมื่อผู้ใช้ระบุระดับทักษะ]" .-> UC_StartSession
-  EXT_PressureMode -. "«extend»\n[เมื่อผู้ใช้ต้องการฝึกกดดัน]" .-> UC_StartSession
-  EXT_FollowupQ -. "«extend»\n[เมื่อคำตอบก่อนหน้าเปิดประเด็น]" .-> INC_FetchQ
+  UC_StartSession -.->|"«include»"| INC_FetchQ
+  UC_StartSession -.->|"«include»"| INC_CheckQuota
+  EXT_DifficultyScaling -.->|"«extend»<br/>(เมื่อผู้ใช้ระบุระดับทักษะ)"| UC_StartSession
+  EXT_PressureMode -.->|"«extend»<br/>(เมื่อผู้ใช้ต้องการฝึกกดดัน)"| UC_StartSession
+  EXT_FollowupQ -.->|"«extend»<br/>(เมื่อคำตอบก่อนหน้าเปิดประเด็น)"| INC_FetchQ
 
   %% Practice Text Relationships
-  UC_PracticeText -. "«include»" .-> INC_SubmitAnswer
-  EXT_Autosave -. "«extend»\n[ขณะพิมพ์ / สัญญาณเน็ตสะดุด]" .-> UC_PracticeText
+  UC_PracticeText -.->|"«include»"| INC_SubmitAnswer
+  EXT_Autosave -.->|"«extend»<br/>(ขณะพิมพ์ / สัญญาณเน็ตสะดุด)"| UC_PracticeText
 
   %% Practice Voice Relationships
-  UC_PracticeVoice -. "«include»" .-> INC_VoiceConsent
-  UC_PracticeVoice -. "«include»" .-> INC_STT
-  UC_PracticeVoice -. "«include»" .-> INC_SubmitAnswer
-  EXT_EditTranscript -. "«extend»\n[เมื่อพบข้อความถอดเสียงผิด]" .-> UC_PracticeVoice
+  UC_PracticeVoice -.->|"«include»"| INC_VoiceConsent
+  UC_PracticeVoice -.->|"«include»"| INC_STT
+  UC_PracticeVoice -.->|"«include»"| INC_SubmitAnswer
+  EXT_EditTranscript -.->|"«extend»<br/>(เมื่อพบข้อความถอดเสียงผิด)"| UC_PracticeVoice
 
   %% Review Evaluation Relationships
-  UC_ReviewEval -. "«include»" .-> INC_RubricScore
-  UC_ReviewEval -. "«include»" .-> INC_STARRelevance
-  UC_ReviewEval -. "«include»" .-> INC_StrengthsReport
+  UC_ReviewEval -.->|"«include»"| INC_RubricScore
+  UC_ReviewEval -.->|"«include»"| INC_STARRelevance
+  UC_ReviewEval -.->|"«include»"| INC_StrengthsReport
 
-  EXT_GrammarAnalysis -. "«extend»\n[เมื่อตอบสัมภาษณ์ภาษาอังกฤษ]" .-> UC_ReviewEval
-  EXT_SpeechPace -. "«extend»\n[เฉพาะเซสชันสัมภาษณ์ด้วยเสียง R2]" .-> UC_ReviewEval
-  EXT_ImprovementTips -. "«extend»\n[เมื่อผู้ใช้ต้องการแนวทางปรับปรุง]" .-> UC_ReviewEval
-  EXT_AppealScore -. "«extend»\n[เมื่อพบผลคะแนนไม่สอดคล้อง]" .-> UC_ReviewEval
-  EXT_ExportPDF -. "«extend»\n[เมื่อต้องการดาวน์โหลดเก็บไว้]" .-> UC_ReviewEval
+  EXT_GrammarAnalysis -.->|"«extend»<br/>(เมื่อตอบสัมภาษณ์ภาษาอังกฤษ)"| UC_ReviewEval
+  EXT_SpeechPace -.->|"«extend»<br/>(เฉพาะเซสชันสัมภาษณ์ด้วยเสียง R2)"| UC_ReviewEval
+  EXT_ImprovementTips -.->|"«extend»<br/>(เมื่อผู้ใช้ต้องการแนวทางปรับปรุง)"| UC_ReviewEval
+  EXT_AppealScore -.->|"«extend»<br/>(เมื่อพบผลคะแนนไม่สอดคล้อง)"| UC_ReviewEval
+  EXT_ExportPDF -.->|"«extend»<br/>(เมื่อต้องการดาวน์โหลดเก็บไว้)"| UC_ReviewEval
 
   %% External Connections
   INC_FetchQ --> LLM
@@ -376,17 +376,17 @@ flowchart LR
   EXT_GrammarAnalysis --> LLM
   EXT_ImprovementTips --> LLM
 
-  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
-  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
-  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
-  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
-  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px
 
-  class UC_StartSession,UC_PracticeText,UC_PracticeVoice,UC_ReviewEval baseStyle;
-  class INC_FetchQ,INC_CheckQuota,INC_SubmitAnswer,INC_VoiceConsent,INC_STT,INC_RubricScore,INC_STARRelevance,INC_StrengthsReport incStyle;
-  class EXT_DifficultyScaling,EXT_PressureMode,EXT_FollowupQ,EXT_Autosave,EXT_EditTranscript,EXT_GrammarAnalysis,EXT_SpeechPace,EXT_ImprovementTips,EXT_AppealScore,EXT_ExportPDF extStyle;
-  class User actorStyle;
-  class LLM,STT extSysStyle;
+  class UC_StartSession,UC_PracticeText,UC_PracticeVoice,UC_ReviewEval baseStyle
+  class INC_FetchQ,INC_CheckQuota,INC_SubmitAnswer,INC_VoiceConsent,INC_STT,INC_RubricScore,INC_STARRelevance,INC_StrengthsReport incStyle
+  class EXT_DifficultyScaling,EXT_PressureMode,EXT_FollowupQ,EXT_Autosave,EXT_EditTranscript,EXT_GrammarAnalysis,EXT_SpeechPace,EXT_ImprovementTips,EXT_AppealScore,EXT_ExportPDF extStyle
+  class User actorStyle
+  class LLM,STT extSysStyle
 ```
 
 ---
@@ -463,37 +463,37 @@ flowchart LR
   Admin --> UC_DSRWorkflow
 
   %% Includes
-  UC_Register -. "«include»" .-> INC_VerifyEmail
-  UC_Login -. "«include»" .-> INC_IssueTokens
-  UC_ConsentDashboard -. "«include»" .-> INC_AuditRecord
+  UC_Register -.->|"«include»"| INC_VerifyEmail
+  UC_Login -.->|"«include»"| INC_IssueTokens
+  UC_ConsentDashboard -.->|"«include»"| INC_AuditRecord
 
   %% Extends
-  EXT_ResetPassword -. "«extend»\n[เมื่อผู้ใช้ลืมรหัสผ่าน]" .-> UC_Login
-  EXT_ChangePassword -. "«extend»\n[เมื่อต้องการเปลี่ยนรหัสผ่าน]" .-> UC_Login
-  EXT_LogoutAll -. "«extend»\n[เมื่อพบอุปกรณ์ต้องสงสัย]" .-> UC_Login
+  EXT_ResetPassword -.->|"«extend»<br/>(เมื่อผู้ใช้ลืมรหัสผ่าน)"| UC_Login
+  EXT_ChangePassword -.->|"«extend»<br/>(เมื่อต้องการเปลี่ยนรหัสผ่าน)"| UC_Login
+  EXT_LogoutAll -.->|"«extend»<br/>(เมื่อพบอุปกรณ์ต้องสงสัย)"| UC_Login
 
-  EXT_RevokeConsent -. "«extend»\n[เมื่อต้องการระงับการใช้ข้อมูล]" .-> UC_ConsentDashboard
-  EXT_DataPortability -. "«extend»\n[เมื่อยื่นคำขอรับไฟล์ JSON/CSV]" .-> UC_ConsentDashboard
-  EXT_AccountErasure -. "«extend»\n[เมื่อยืนยันขอลบบัญชีถาวร]" .-> UC_ConsentDashboard
+  EXT_RevokeConsent -.->|"«extend»<br/>(เมื่อต้องการระงับการใช้ข้อมูล)"| UC_ConsentDashboard
+  EXT_DataPortability -.->|"«extend»<br/>(เมื่อยื่นคำขอรับไฟล์ JSON/CSV)"| UC_ConsentDashboard
+  EXT_AccountErasure -.->|"«extend»<br/>(เมื่อยืนยันขอลบบัญชีถาวร)"| UC_ConsentDashboard
 
   %% DSR Inclusion
-  EXT_DataPortability -. "«include»" .-> UC_DSRWorkflow
-  EXT_AccountErasure -. "«include»" .-> UC_DSRWorkflow
+  EXT_DataPortability -.->|"«include»"| UC_DSRWorkflow
+  EXT_AccountErasure -.->|"«include»"| UC_DSRWorkflow
 
   INC_VerifyEmail --> EmailGateway
   EXT_ResetPassword --> EmailGateway
 
-  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
-  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
-  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
-  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
-  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px
 
-  class UC_Register,UC_Login,UC_ManageProfile,UC_ConsentDashboard,UC_DSRWorkflow baseStyle;
-  class INC_VerifyEmail,INC_IssueTokens,INC_AuditRecord incStyle;
-  class EXT_ResetPassword,EXT_ChangePassword,EXT_LogoutAll,EXT_RevokeConsent,EXT_DataPortability,EXT_AccountErasure extStyle;
-  class Guest,User,Admin actorStyle;
-  class EmailGateway extSysStyle;
+  class UC_Register,UC_Login,UC_ManageProfile,UC_ConsentDashboard,UC_DSRWorkflow baseStyle
+  class INC_VerifyEmail,INC_IssueTokens,INC_AuditRecord incStyle
+  class EXT_ResetPassword,EXT_ChangePassword,EXT_LogoutAll,EXT_RevokeConsent,EXT_DataPortability,EXT_AccountErasure extStyle
+  class Guest,User,Admin actorStyle
+  class EmailGateway extSysStyle
 ```
 
 ---
@@ -534,7 +534,7 @@ flowchart LR
 (Audit Log Event Record)"])
     INC_DiffPrivacy(["«include»
 ตัด PII และใส่สัญญาณรบกวน DP
-(Differential Privacy & Cell >= 10)"])
+(Differential Privacy & Cell ไม่ต่ำกว่า 10)"])
     INC_PaymentAPI(["«include»
 ส่งคำสั่งผ่าน API ธนาคาร/เกตเวย์
 (Execute Payment API Call)"])
@@ -566,30 +566,30 @@ flowchart LR
   Researcher --> UC_ResearchExport
 
   %% Includes
-  UC_ManageQuestions -. "«include»" .-> INC_ImmutableVersion
-  UC_ManageQuestions -. "«include»" .-> INC_AuditTrail
-  UC_ManageUsers -. "«include»" .-> INC_AuditTrail
-  UC_ResearchExport -. "«include»" .-> INC_DiffPrivacy
-  EXT_ProcessRefund -. "«include»" .-> INC_PaymentAPI
+  UC_ManageQuestions -.->|"«include»"| INC_ImmutableVersion
+  UC_ManageQuestions -.->|"«include»"| INC_AuditTrail
+  UC_ManageUsers -.->|"«include»"| INC_AuditTrail
+  UC_ResearchExport -.->|"«include»"| INC_DiffPrivacy
+  EXT_ProcessRefund -.->|"«include»"| INC_PaymentAPI
   INC_PaymentAPI --> PaymentGateway
 
   %% Extends
-  EXT_ConfigPrompt -. "«extend»\n[เมื่อปรับปรุงหรือเปลี่ยนเวอร์ชันโมเดล]" .-> UC_ManageQuestions
-  EXT_SuspendAccount -. "«extend»\n[เมื่อพบบัญชีทุจริตหรือละเมิดกฎ]" .-> UC_ManageUsers
-  EXT_ResolveAppeal -. "«extend»\n[เมื่อมีคำขออุทธรณ์คะแนนในคิว]" .-> UC_ManageQuestions
-  EXT_ProcessRefund -. "«extend»\n[เมื่อมีคำขอคืนเงินตามเงื่อนไข]" .-> UC_FinancialDashboard
+  EXT_ConfigPrompt -.->|"«extend»<br/>(เมื่อปรับปรุงหรือเปลี่ยนเวอร์ชันโมเดล)"| UC_ManageQuestions
+  EXT_SuspendAccount -.->|"«extend»<br/>(เมื่อพบบัญชีทุจริตหรือละเมิดกฎ)"| UC_ManageUsers
+  EXT_ResolveAppeal -.->|"«extend»<br/>(เมื่อมีคำขออุทธรณ์คะแนนในคิว)"| UC_ManageQuestions
+  EXT_ProcessRefund -.->|"«extend»<br/>(เมื่อมีคำขอคืนเงินตามเงื่อนไข)"| UC_FinancialDashboard
 
-  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
-  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
-  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
-  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
-  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px
 
-  class UC_ManageQuestions,UC_ManageUsers,UC_AuditViewer,UC_FinancialDashboard,UC_ResearchExport baseStyle;
-  class INC_ImmutableVersion,INC_AuditTrail,INC_DiffPrivacy,INC_PaymentAPI incStyle;
-  class EXT_ConfigPrompt,EXT_SuspendAccount,EXT_ResolveAppeal,EXT_ProcessRefund extStyle;
-  class Admin,Finance,Researcher actorStyle;
-  class PaymentGateway extSysStyle;
+  class UC_ManageQuestions,UC_ManageUsers,UC_AuditViewer,UC_FinancialDashboard,UC_ResearchExport baseStyle
+  class INC_ImmutableVersion,INC_AuditTrail,INC_DiffPrivacy,INC_PaymentAPI incStyle
+  class EXT_ConfigPrompt,EXT_SuspendAccount,EXT_ResolveAppeal,EXT_ProcessRefund extStyle
+  class Admin,Finance,Researcher actorStyle
+  class PaymentGateway extSysStyle
 ```
 
 ---

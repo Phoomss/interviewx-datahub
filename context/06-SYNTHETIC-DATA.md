@@ -33,18 +33,18 @@
 
 ```mermaid
 flowchart TD
-    Config["1. กำหนดพารามิเตอร์การสร้าง\n(Role, Seniority, Tech Stack, Target Count)"] --> PromptBuild["2. ประกอบ Prompt ด้วย Persona Template\nและกฎการจำลอง (Anti-cliché Rules)"]
+    Config["1. กำหนดพารามิเตอร์การสร้าง<br/>(Role, Seniority, Tech Stack, Target Count)"] --> PromptBuild["2. ประกอบ Prompt ด้วย Persona Template<br/>และกฎการจำลอง (Anti-cliché Rules)"]
     PromptBuild --> LLMCall["3. เรียก LLM ผ่าน FastAPI AI Service"]
-    LLMCall --> PydanticVal["4. Validate โครงสร้างด้วย Pydantic Schema\n(Strict JSON Schema Enforced)"]
+    LLMCall --> PydanticVal["4. Validate โครงสร้างด้วย Pydantic Schema<br/>(Strict JSON Schema Enforced)"]
     
-    PydanticVal -- Schema ผ่าน --> SanityCheck{"5. ตรวจสอบความสมเหตุสมผล\n(Timeline, Skill Alignment, Realism)"}
+    PydanticVal -- Schema ผ่าน --> SanityCheck{"5. ตรวจสอบความสมเหตุสมผล<br/>(Timeline, Skill Alignment, Realism)"}
     PydanticVal -- Schema ไม่ผ่าน --> RetryGen["ลองสร้างซ้ำ (Retry Max 3)"]
     RetryGen --> LLMCall
 
-    SanityCheck -- ผ่านเกณฑ์ --> TagSynthetic["6. ประทับตรา Metadata:\n- is_synthetic = true\n- generation_job_id\n- generator_model"]
+    SanityCheck -- ผ่านเกณฑ์ --> TagSynthetic["6. ประทับตรา Metadata:<br/>- is_synthetic = true<br/>- generation_job_id<br/>- generator_model"]
     SanityCheck -- ล้มเหลว --> Discard["ตัดทิ้ง / บันทึกสาเหตุ Log"]
 
-    TagSynthetic --> SaveDB["7. บันทึกลง PostgreSQL (Document & ParsedProfile)\nสถานะ: PARSED (รอการ Review หรือ Export)"]
+    TagSynthetic --> SaveDB["7. บันทึกลง PostgreSQL (Document & ParsedProfile)<br/>สถานะ: PARSED (รอการ Review หรือ Export)"]
 ```
 
 ### 3.1 การควบคุมคุณภาพและป้องกันความจำเจ (Anti-Cliché & Quality Rules)

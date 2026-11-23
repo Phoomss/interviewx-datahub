@@ -8,12 +8,12 @@
 
 ```mermaid
 flowchart LR
-    Phase1["Phase 1: Security & Infrastructure\n✅ COMPLETED 100%\n(JWT RBAC, AES-256 PII Vault, BullMQ)"] --> Phase2["Phase 2: True Document Intelligence\n✅ COMPLETED 100%\n(PyMuPDF Raster OCR, Gemini/GPT Deep Parse, Subject PDPA)"]
-    Phase2 --> Phase3["Phase 3: Taxonomy & Generation\n✅ COMPLETED 100%\n(SkillSelector UI, LLM Synthetic Enhancer, Soft Delete)"]
-    Phase3 --> Phase4["Phase 4: Non-destructive Provenance\n✅ COMPLETED 100%\n(Original vs Human Corrected Separation, Review Audit)"]
-    Phase4 --> Phase5["Phase 5: Reproducible Dataset Preparation\n✅ COMPLETED 100%\n(Cryptographic Manifest, DVC Hash, Split Locking)"]
-    Phase5 --> Phase6["Phase 6: Fine-Tuning Pipeline & Benchmark\n✅ COMPLETED 100%\n(PEFT LoRA/QLoRA Runner, STAR/Fluency Benchmark)"]
-    Phase6 --> Phase7["Phase 7: Model Registry & Publishing Gate\n✅ COMPLETED 100%\n(ModelVersion Lifecycle, Zero-PII Production Gate)"]
+    Phase1["Phase 1: Security & Infrastructure<br/>✅ COMPLETED 100%<br/>(JWT RBAC, AES-256 PII Vault, BullMQ)"] --> Phase2["Phase 2: True Document Intelligence<br/>✅ COMPLETED 100%<br/>(PyMuPDF Raster OCR, Gemini/GPT Deep Parse, Subject PDPA)"]
+    Phase2 --> Phase3["Phase 3: Taxonomy & Generation<br/>✅ COMPLETED 100%<br/>(SkillSelector UI, LLM Synthetic Enhancer, Soft Delete)"]
+    Phase3 --> Phase4["Phase 4: Non-destructive Provenance<br/>✅ COMPLETED 100%<br/>(Original vs Human Corrected Separation, Review Audit)"]
+    Phase4 --> Phase5["Phase 5: Reproducible Dataset Preparation<br/>✅ COMPLETED 100%<br/>(Cryptographic Manifest, DVC Hash, Split Locking)"]
+    Phase5 --> Phase6["Phase 6: Fine-Tuning Pipeline & Benchmark<br/>✅ COMPLETED 100%<br/>(PEFT LoRA/QLoRA Runner, STAR/Fluency Benchmark)"]
+    Phase6 --> Phase7["Phase 7: Model Registry & Publishing Gate<br/>✅ COMPLETED 100%<br/>(ModelVersion Lifecycle, Zero-PII Production Gate)"]
 ```
 
 ---

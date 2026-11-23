@@ -29,9 +29,9 @@ flowchart TB
   AI --> LLM[LLM Provider]
   Worker --> PG
   API --> Store[(Private Object Storage — optional R2)]
-  API -. R3 .-> Billing[NestJS Billing Service]
+  API -.->|"R3"| Billing[NestJS Billing Service]
   Billing --> Pay[Payment Gateway]
-  API -. R3 .-> Research[Research Release Service]
+  API -.->|"R3"| Research[Research Release Service]
   Research --> Approved[(Approved Aggregates)]
 ```
 
@@ -51,9 +51,9 @@ flowchart TB
   API --> Telemetry[Managed Logs, Metrics, Traces]
   Worker --> Telemetry
   AI --> Telemetry
-  Secrets[Production Secret Manager] -. scoped secrets .-> API
-  Secrets -. scoped secrets .-> Worker
-  Secrets -. scoped secrets .-> AI
+  Secrets[Production Secret Manager] -.->|"scoped secrets"| API
+  Secrets -.->|"scoped secrets"| Worker
+  Secrets -.->|"scoped secrets"| AI
 ```
 
 ## 3. Kubernetes Showcase Deployment
@@ -68,12 +68,12 @@ flowchart TB
   Redis --> Work[Worker Deployment]
   Work --> AI[FastAPI Deployment]
   AI --> LLM[LLM Sandbox / Stub Provider]
-  HPA[HPA: CPU / Queue Metrics] -. scale .-> API
-  HPA -. scale .-> Work
-  Argo[Argo CD GitOps Controller] -. desired state .-> WEB
-  Argo -. desired state .-> API
-  Argo -. desired state .-> Work
-  Argo -. desired state .-> AI
+  HPA[HPA: CPU / Queue Metrics] -.->|"scale"| API
+  HPA -.->|"scale"| Work
+  Argo[Argo CD GitOps Controller] -.->|"desired state"| WEB
+  Argo -.->|"desired state"| API
+  Argo -.->|"desired state"| Work
+  Argo -.->|"desired state"| AI
   OTEL[OTel Collector] --> Grafana[Grafana / Metrics / Traces]
   API --> OTEL
   Work --> OTEL

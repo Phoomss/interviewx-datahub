@@ -28,8 +28,8 @@ flowchart LR
   end
 
   subgraph ClientFrontends["Client Application Frontends"]
-    Web["InterviewX Responsive Web App\n(Desktop / Tablet / Mobile Browser)"]
-    Mobile["InterviewX Native Mobile App\n(iOS & Android - End Users Only)"]
+    Web["InterviewX Responsive Web App<br/>(Desktop / Tablet / Mobile Browser)"]
+    Mobile["InterviewX Native Mobile App<br/>(iOS & Android - End Users Only)"]
   end
 
   Guest --> Web
@@ -41,13 +41,13 @@ flowchart LR
   Researcher --> Web
   Finance --> Web
 
-  Web --> Platform["InterviewX Shared Backend Platform\n(NestJS Modular Monolith + AI Service)"]
+  Web --> Platform["InterviewX Shared Backend Platform<br/>(NestJS Modular Monolith + AI Service)"]
   Mobile --> Platform
 
   Platform --> Email["Transactional email provider"]
   Platform --> LLM["Hosted LLM provider"]
-  Platform -. "R2 STT" .-> STT["Speech-to-text provider"]
-  Platform -. "R3 payments" .-> Gateway["Payment gateway"]
+  Platform -.->|"R2 STT"| STT["Speech-to-text provider"]
+  Platform -.->|"R3 payments"| Gateway["Payment gateway"]
   Platform --> Telemetry["Monitoring and alerting"]
 
   classDef optional stroke-dasharray:5 5
@@ -61,8 +61,8 @@ flowchart LR
 ```mermaid
 flowchart TB
   subgraph Clients["Client Frontends (Untrusted)"]
-    Browser["Next.js Responsive Web App\n(Desktop / Tablet / Mobile Browser)"]
-    Mobile["Native Mobile App\n(iOS & Android - End Users Only)"]
+    Browser["Next.js Responsive Web App<br/>(Desktop / Tablet / Mobile Browser)"]
+    Mobile["Native Mobile App<br/>(iOS & Android - End Users Only)"]
   end
 
   Edge["CDN / WAF / Reverse Proxy / TLS"]
@@ -81,7 +81,7 @@ flowchart TB
   end
 
   API --> ID & Content & Interview & Eval & Privacy & PlatformModule
-  ID & Content & Interview & Eval & Privacy & PlatformModule --> PG[("Core PostgreSQL:\nschema per bounded context")]
+  ID & Content & Interview & Eval & Privacy & PlatformModule --> PG[("Core PostgreSQL:<br/>schema per bounded context")]
 
   PlatformModule --> Redis[("Redis / BullMQ")]
   Redis --> Worker["Evaluation Worker"]
@@ -89,9 +89,9 @@ flowchart TB
   AI --> Provider["Hosted LLM Provider (External)"]
   Worker --> PG
 
-  API -. "R2 Voice Uploads" .-> Store[("Private Audio Object Storage\n(MinIO / S3)")]
-  API -. "R3 authenticated API" .-> Billing["Billing Service R3"]
-  API -. "R3 authenticated API" .-> Research["Research Release Service R3\n(Web Only Access)"]
+  API -.->|"R2 Voice Uploads"| Store[("Private Audio Object Storage<br/>(MinIO / S3)")]
+  API -.->|"R3 authenticated API"| Billing["Billing Service R3"]
+  API -.->|"R3 authenticated API"| Research["Research Release Service R3<br/>(Web Only Access)"]
 
   Billing --> BillingDB[("Billing PostgreSQL")]
   Research --> ResearchDB[("Research PostgreSQL")]
@@ -116,7 +116,7 @@ flowchart LR
   Plat["Platform: idempotency / outbox / audit"]
  end
 
- ClientFrontends["Client Frontends\n(Responsive Web & Native Mobile)"] --> API["Public API Gateway / BFF"]
+ ClientFrontends["Client Frontends<br/>(Responsive Web & Native Mobile)"] --> API["Public API Gateway / BFF"]
  API --> Access & Interview & Eval & Privacy & Content
  Interview --> Content
  Interview --> Access
@@ -126,12 +126,12 @@ flowchart LR
  Eval --> Plat
  Plat --> Worker["Worker deployable"]
  Worker --> AI["AI FastAPI - no DB connection"]
- API -. "R3 contract" .-> Billing["Billing - own DB"]
- API -. "R3 contract (Web Only)" .-> Research["Research - own DB"]
- Billing -. "versioned events" .-> Plat
- Privacy -. "approved release channel R3" .-> Research
+ API -.->|"R3 contract"| Billing["Billing - own DB"]
+ API -.->|"R3 contract (Web Only)"| Research["Research - own DB"]
+ Billing -.->|"versioned events"| Plat
+ Privacy -.->|"approved release channel R3"| Research
  note["Cross-context access via exported application contracts; no repository imports across owners. Role & Platform boundaries enforced at Gateway."]
- note -. rule .-> CORE
+ note -.->|"rule"| CORE
 ```
 
 ---
@@ -347,14 +347,14 @@ erDiagram
 ```mermaid
 flowchart LR
  subgraph UntrustedClients["Untrusted Client Frontends"]
-  Web["Responsive Web Client\n(Desktop / Tablet / Mobile Browser)"]
-  Mobile["Native Mobile Client\n(iOS & Android - End Users Only)"]
+  Web["Responsive Web Client<br/>(Desktop / Tablet / Mobile Browser)"]
+  Mobile["Native Mobile Client<br/>(iOS & Android - End Users Only)"]
  end
 
  subgraph PublicEdge["Public Edge & Ingress"]
   WAF["CDN / WAF / TLS Termination"]
   Gateway["API Gateway / NestJS Core REST /v1"]
-  RBACGate{"Platform & RBAC Gate\n(Admin/Research blocked for Mobile)"}
+  RBACGate{"Platform & RBAC Gate<br/>(Admin/Research blocked for Mobile)"}
  end
 
  subgraph PrivateNetwork["Private Network"]
@@ -376,8 +376,8 @@ flowchart LR
  Worker -->|authenticated + timeouts| AI
  AI -->|provider adapter| LLM["External Hosted LLM"]
 
- RBACGate -. "R3 Billing (Web & Mobile)" .-> Billing["Billing service"]
- RBACGate -. "R3 Research (WEB ONLY)" .-> Research["Research service"]
+ RBACGate -.->|"R3 Billing (Web & Mobile)"| Billing["Billing service"]
+ RBACGate -.->|"R3 Research (WEB ONLY)"| Research["Research service"]
 
  classDef future stroke-dasharray:5 5
  class Billing,Research future
@@ -438,7 +438,7 @@ stateDiagram-v2
  pending --> processing : worker claims job
  processing --> completed : valid checked result
  processing --> retry_wait : transient error / timeout
- retry_wait --> processing : retry <= max attempts
+ retry_wait --> processing : retry ไม่เกิน max attempts
  processing --> needs_review : invalid schema / weak evidence citation
  processing --> failed : permanent error / max retries exceeded
  pending --> canceled : user deletion workflow (DSR)
@@ -466,14 +466,14 @@ stateDiagram-v2
 flowchart TD
  Request["Incoming Request (Web or Mobile)"] --> Auth{"Authenticated?"}
  Auth -->|No| Public{"Public Endpoint?"}
- Public -->|Yes| Allow["Allow Public Action\n(Landing, Onboarding, Catalog)"]
+ Public -->|Yes| Allow["Allow Public Action<br/>(Landing, Onboarding, Catalog)"]
  Public -->|No| Deny["401 Unauthorized"]
 
  Auth -->|Yes| Active{"Account Active & Token Valid?"}
  Active -->|No| Deny
 
- Active -->|Yes| PlatCheck{"Platform Allowed for Endpoint?\n(Admin/Research on Web Only)"}
- PlatCheck -->|Violated| PlatformDeny["403 Forbidden\n(Administrative/Research blocked on Mobile)"]
+ Active -->|Yes| PlatCheck{"Platform Allowed for Endpoint?<br/>(Admin/Research on Web Only)"}
+ PlatCheck -->|Violated| PlatformDeny["403 Forbidden<br/>(Administrative/Research blocked on Mobile)"]
 
  PlatCheck -->|Allowed| Role{"Has Required Role Permission?"}
  Role -->|No| Forbidden["403 Forbidden"]
@@ -485,13 +485,13 @@ flowchart TD
  Scope -->|Missing| Forbidden
 
  Scope -->|Satisfied| Quota{"Entitlement / Quota Required?"}
- Quota -->|Exceeded| QuotaReject["402 / 429 Quota Exceeded\n(Server-side atomic check)"]
+ Quota -->|Exceeded| QuotaReject["402 / 429 Quota Exceeded<br/>(Server-side atomic check)"]
 
  Quota -->|Satisfied| DB["Apply Database Defense-in-Depth / RLS"]
  DB --> Final["Execute Action + Append Masked Audit Log"]
 
- note["Free / Basic / Pro = package tiers, not RBAC roles"] -. rule .-> Role
- note2["Platform does not grant role; backend strictly validates token"] -. rule .-> PlatCheck
+ note["Free / Basic / Pro = package tiers, not RBAC roles"] -.->|"rule"| Role
+ note2["Platform does not grant role; backend strictly validates token"] -.->|"rule"| PlatCheck
 ```
 
 ---
@@ -500,16 +500,16 @@ flowchart TD
 
 ```mermaid
 flowchart TB
- Notice["Versioned Processing Notice + Lawful Basis"] --> Core["service_core processing R1\n(Mandatory for service delivery)"]
- Notice --> Choices["Optional Per-Purpose Consent Event\n(Synced across Web and Mobile)"]
+ Notice["Versioned Processing Notice + Lawful Basis"] --> Core["service_core processing R1<br/>(Mandatory for service delivery)"]
+ Notice --> Choices["Optional Per-Purpose Consent Event<br/>(Synced across Web and Mobile)"]
  Choices --> Analysis["research_analysis R3"]
  Choices --> Contact["research_contact R3"]
  Choices --> Voice["voice_retention R2"]
  Choices --> Marketing["marketing future"]
 
- Analysis --> Release["Eligible Data Release Approval Pipeline\n(Strictly Web / Admin Portal)"]
- Contact --> ContactService["Approved Contact API\n(Dedicated Purpose-Scoped Service)"]
- Voice --> AudioPolicy["Audio Lifecycle + Storage Expiry\n(<=24h default; <=90d opt-in; mobile cache purge)"]
+ Analysis --> Release["Eligible Data Release Approval Pipeline<br/>(Strictly Web / Admin Portal)"]
+ Contact --> ContactService["Approved Contact API<br/>(Dedicated Purpose-Scoped Service)"]
+ Voice --> AudioPolicy["Audio Lifecycle + Storage Expiry<br/>(ไม่เกิน 24h default; ไม่เกิน 90d opt-in; mobile cache purge)"]
 
  User["User (Web / Native Mobile)"] --> Request["Data-Rights Request R1 (FR35)"]
  Request --> Verify["Verify Identity / Scope / Legal Exceptions"]
@@ -557,9 +557,9 @@ sequenceDiagram
  C->>A: POST /v1/interviews/{id}/answers (with transcript + Idempotency-Key)
  
  alt User opted out of voice retention
-   A->>S: Schedule hard purge of raw audio after processing (<=24h hard cap)
+   A->>S: Schedule hard purge of raw audio after processing (ไม่เกิน 24h hard cap)
  else Explicit opt-in granted
-   A->>S: Apply approved retention lifecycle (<=90d draft)
+   A->>S: Apply approved retention lifecycle (ไม่เกิน 90d draft)
  end
  
  Note over C: Mobile: Purge local transient audio cache immediately upon upload
@@ -617,24 +617,24 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
- Request["Researcher Request R3\n(STRICTLY VIA WEB PORTAL)"] --> Gate{"Purpose Approval + Role Scope + Valid Lawful Basis?"}
+ Request["Researcher Request R3<br/>(STRICTLY VIA WEB PORTAL)"] --> Gate{"Purpose Approval + Role Scope + Valid Lawful Basis?"}
  Gate -->|No| Deny["403 Denied + Append Immutable Audit Log"]
- Gate -->|Yes| Pipeline["Privileged Data Release Pipeline\n(Isolated Privileged Service)"]
+ Gate -->|Yes| Pipeline["Privileged Data Release Pipeline<br/>(Isolated Privileged Service)"]
 
- Source[("Core Production Database\n(Strictly Restricted)")] --> Pipeline
- Pipeline --> Eligibility["Verify research_analysis Purpose Eligibility\n(Do NOT confuse with contact opt-in)"]
+ Source[("Core Production Database<br/>(Strictly Restricted)")] --> Pipeline
+ Pipeline --> Eligibility["Verify research_analysis Purpose Eligibility<br/>(Do NOT confuse with contact opt-in)"]
  Eligibility --> Aggregate["Group by Category/Difficulty + Count Distinct Users"]
- Aggregate --> Risk{"Cell Size >= 10 Distinct Users\n& Differencing Suppression Checks?"}
+ Aggregate --> Risk{"Cell Size ไม่ต่ำกว่า 10 Distinct Users<br/>& Differencing Suppression Checks?"}
 
  Risk -->|Failed| Suppress["Suppress Cell / Reject Automated Release"]
  Risk -->|Passed| Approve["Authorized Release Approval"]
 
- Suppress --> Review["Human Privacy Officer Review\n(Strictly Web Portal)"]
+ Suppress --> Review["Human Privacy Officer Review<br/>(Strictly Web Portal)"]
  Review --> Approve
 
- Approve --> Store[("Research DB Approved Aggregates\n(Isolated Schema)")]
- Store --> API["Research Scoped REST API\n(WEB ONLY)"]
- API --> Result["Deliver Aggregated Statistics Only\n(Never Raw Transcripts or Audio)"]
+ Approve --> Store[("Research DB Approved Aggregates<br/>(Isolated Schema)")]
+ Store --> API["Research Scoped REST API<br/>(WEB ONLY)"]
+ API --> Result["Deliver Aggregated Statistics Only<br/>(Never Raw Transcripts or Audio)"]
 
  API --> Log["Audit Log: Researcher ID, Query Hash, Cell Counts, Timestamp"]
  Deny --> Log
@@ -650,40 +650,40 @@ flowchart TD
 ```mermaid
 flowchart TB
  subgraph InternetUsers["Public Internet Users"]
-  WebUsers["Web Users\n(Desktop / Tablet / Mobile Browser)"]
-  MobileUsers["Native Mobile Users\n(Apple iOS & Google Android)"]
+  WebUsers["Web Users<br/>(Desktop / Tablet / Mobile Browser)"]
+  MobileUsers["Native Mobile Users<br/>(Apple iOS & Google Android)"]
  end
 
  WAF["CDN + Cloudflare / AWS WAF + TLS 1.3 Termination"]
  WebUsers --> WAF
  MobileUsers --> WAF
 
- WAF --> WEBHOST["Managed Next.js Web Hosting\n(Vercel / Cloud Run)"]
- WAF --> API["Managed NestJS Core API Gateway\n(Modular Monolith Cluster)"]
+ WAF --> WEBHOST["Managed Next.js Web Hosting<br/>(Vercel / Cloud Run)"]
+ WAF --> API["Managed NestJS Core API Gateway<br/>(Modular Monolith Cluster)"]
 
  subgraph PrivateProd["Private Production Network (VPC / Private Subnet)"]
-  PG[("Managed Core PostgreSQL\n(Multi-AZ Primary + Read Replica)")]
-  Redis[("Managed Redis Cluster\n(BullMQ Evaluator Queue)")]
+  PG[("Managed Core PostgreSQL<br/>(Multi-AZ Primary + Read Replica)")]
+  Redis[("Managed Redis Cluster<br/>(BullMQ Evaluator Queue)")]
   Worker["Managed Evaluation Workers"]
-  AI["Private FastAPI Inference Service\n(No Direct Database Access)"]
-  Buck[("Private Object Storage R2\n(Encrypted MinIO / AWS S3)")]
+  AI["Private FastAPI Inference Service<br/>(No Direct Database Access)"]
+  Buck[("Private Object Storage R2<br/>(Encrypted MinIO / AWS S3)")]
  end
 
  API --> PG & Redis
- API -. "R2 Voice Uploads" .-> Buck
+ API -.->|"R2 Voice Uploads"| Buck
  Redis --> Worker
  Worker --> PG & AI
- AI --> LLM["External Hosted LLM Provider\n(Anthropic / OpenAI / Vertex via API Key)"]
+ AI --> LLM["External Hosted LLM Provider<br/>(Anthropic / OpenAI / Vertex via API Key)"]
 
- API --> Otel["OpenTelemetry Collector\n(Tracing / Metrics / Logs)"]
+ API --> Otel["OpenTelemetry Collector<br/>(Tracing / Metrics / Logs)"]
  Worker --> Otel
  AI --> Otel
 
- Secrets["Production Secret Manager\n(KMS / Vault)"] -. "Injected credentials" .-> API & Worker & AI
+ Secrets["Production Secret Manager<br/>(KMS / Vault)"] -.->|"Injected credentials"| API & Worker & AI
  Backup["Automated Backup & Disaster Recovery Engine"] --> PG
 
- API -. "R3 Authenticated Call" .-> Billing["Billing Deployable + Isolated DB"]
- API -. "R3 Authenticated Call (WEB ONLY)" .-> Research["Research Deployable + Isolated DB"]
+ API -.->|"R3 Authenticated Call"| Billing["Billing Deployable + Isolated DB"]
+ API -.->|"R3 Authenticated Call (WEB ONLY)"| Research["Research Deployable + Isolated DB"]
 
  classDef future stroke-dasharray:5 5
  class Buck,Billing,Research future
@@ -707,16 +707,16 @@ flowchart TB
   Worker --> AI["FastAPI AI Deployment"]
   AI --> Stub["LLM Stub / Mock Provider"]
 
-  HPA["HPA CPU & Queue Metric Autoscaler"] -. "Horizontal Scale" .-> API & Worker
+  HPA["HPA CPU & Queue Metric Autoscaler"] -.->|"Horizontal Scale"| API & Worker
   OTel["OpenTelemetry Collector DaemonSet"] --> Metrics["Grafana Dashboards + Jaeger Traces"]
   API --> OTel
   Worker --> OTel
   AI --> OTel
  end
 
- GitOps["Argo CD - Application Declarative Sync"] -. "Reconciles State" .-> Cluster
- IaC["Terraform - Cluster, Network & Node Pools"] -. "Provisions Infrastructure" .-> Cluster
- ProdSource[("Production Accounts, Real PII & Backups")] -. "X NEVER CONNECT (Zero Data Leakage)" .-> Cluster
+ GitOps["Argo CD - Application Declarative Sync"] -.->|"Reconciles State"| Cluster
+ IaC["Terraform - Cluster, Network & Node Pools"] -.->|"Provisions Infrastructure"| Cluster
+ ProdSource[("Production Accounts, Real PII & Backups")] -.->|"X NEVER CONNECT (Zero Data Leakage)"| Cluster
 ```
 
 ---
@@ -741,7 +741,7 @@ flowchart TB
 
  Prod --> RealDB[("Real Personal Production Database")]
  Demo --> FakeDB[("Synthetic Data Only")]
- RealDB -. "STRICT PRIVACY BOUNDARY: Never Copied to Sandbox" .-> FakeDB
+ RealDB -.->|"STRICT PRIVACY BOUNDARY: Never Copied to Sandbox"| FakeDB
 ```
 
 ---
@@ -764,10 +764,10 @@ flowchart LR
  Alerts --> Oncall["Engineering On-Call Team"]
 
  PG[("Managed Core PostgreSQL")] --> Backups["Encrypted Automated Daily Backups"]
- Backups --> Restore["Quarterly Restore Verification Drill (RPO <=24h, RTO <=8h)"]
+ Backups --> Restore["Quarterly Restore Verification Drill (RPO ไม่เกิน 24h, RTO ไม่เกิน 8h)"]
 
  TokenCost["LLM Token Usage & Budget Counter"] --> Metrics
- Note["SRS Targets: Non-AI P95 <=2s (Web), <=2.5s (Mobile); Feedback <=15s; Availability >=99.5%; RPO <=24h; RTO <=8h"] -. "Monitored Target" .-> Metrics
+ Note["SRS Targets: Non-AI P95 ไม่เกิน 2s (Web), ไม่เกิน 2.5s (Mobile); Feedback ไม่เกิน 15s; Availability ไม่ต่ำกว่า 99.5%; RPO ไม่เกิน 24h; RTO ไม่เกิน 8h"] -.->|"Monitored Target"| Metrics
 ```
 
 ---
@@ -806,7 +806,7 @@ flowchart TB
  Infra["infra/ (Terraform, Helm, Kubernetes, Argo CD)"] --> Apps
  Tests["tests/ (E2E, Security, IDOR, AI Evaluation Benchmarks)"] --> Contracts
 
- Rule["ARCHITECTURAL RULES:\n1. Mobile and Web share backend Contracts & validation schemas.\n2. No cross-context database imports.\n3. AI service has zero direct database connectivity.\n4. Admin and Research routes strictly unavailable to Mobile."] -. "Enforce via CI" .-> Tests
+ Rule["ARCHITECTURAL RULES:<br/>1. Mobile and Web share backend Contracts & validation schemas.<br/>2. No cross-context database imports.<br/>3. AI service has zero direct database connectivity.<br/>4. Admin and Research routes strictly unavailable to Mobile."] -.->|"Enforce via CI"| Tests
 ```
 
 ---
@@ -815,15 +815,15 @@ flowchart TB
 
 ```mermaid
 flowchart LR
- R1["R1 CORE MVP\nResponsive Web, Identity/Auth, Text Mock Interview,\nAI Rubric Scoring, History, Privacy Controls, Audit Log"] --> R2["R2 ENHANCED AI & MOBILE\nVoice/STT Practice, Observable Speech Indicators,\nEnglish Feedback, Progress Dashboard, Native Mobile App (D-M01)"]
+ R1["R1 CORE MVP<br/>Responsive Web, Identity/Auth, Text Mock Interview,<br/>AI Rubric Scoring, History, Privacy Controls, Audit Log"] --> R2["R2 ENHANCED AI & MOBILE<br/>Voice/STT Practice, Observable Speech Indicators,<br/>English Feedback, Progress Dashboard, Native Mobile App (D-M01)"]
  
- R2 --> R3["R3 COMMERCIAL & RESEARCH\nSubscription Tiers, Quota Ledger, Payment Gateway,\nRefunds, Finance Admin, Governed Research Release (Web Only)"]
+ R2 --> R3["R3 COMMERCIAL & RESEARCH<br/>Subscription Tiers, Quota Ledger, Payment Gateway,<br/>Refunds, Finance Admin, Governed Research Release (Web Only)"]
 
  R1 --> Production["Managed Production Environment"]
  R1 --> Showcase["Kubernetes Synthetic Showcase Sandbox"]
 
- R2 -. "Mobile & Voice Quality Approval Gate" .-> Production
- R3 -. "Legal, Tax & Research Approval Gate" .-> Production
+ R2 -.->|"Mobile & Voice Quality Approval Gate"| Production
+ R3 -.->|"Legal, Tax & Research Approval Gate"| Production
 
- Note["R1 core backend APIs designed to be mobile-ready from launch.\nNative mobile application implementation aligned to R2 milestone (D-M01).\nAdmin and Research portals remain permanently Web-only."] -. "Roadmap Rule" .-> R1
+ Note["R1 core backend APIs designed to be mobile-ready from launch.<br/>Native mobile application implementation aligned to R2 milestone (D-M01).<br/>Admin and Research portals remain permanently Web-only."] -.->|"Roadmap Rule"| R1
 ```

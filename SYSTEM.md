@@ -16,30 +16,30 @@ The platform bridges real-world candidate documents and synthetic interview data
 ```mermaid
 flowchart TD
     subgraph Client["Client Interface"]
-        UI["Next.js 14 Frontend Studio\n(/resumes, /consent, /synthetic, /datasets, /taxonomy)"]
+        UI["Next.js 14 Frontend Studio<br/>(/resumes, /consent, /synthetic, /datasets, /taxonomy)"]
     end
 
     subgraph CoreBackend["Core Business, Fine-Tuning & Governance (NestJS 10 / Bun)"]
         API["REST Controllers & Swagger"]
-        AuthModule["AuthModule & Server-Side RBAC\n(PBKDF2/SHA-512 & HMAC-SHA256 JWT)"]
-        AuthDecision["AuthorizationDecisionService\n(Purpose Limitation Engine)"]
-        VaultService["PiiVaultService\n(AES-256-GCM Encrypted & Isolated)"]
-        DocService["DocumentsService\n(Ingestion & Provenance Orchestrator)"]
-        TrainService["TrainingService & Model Registry\n(LoRA/QLoRA Jobs & Publishing Gate)"]
-        ExportGate["ExportService\n(Pre-Export Safety Gate & Manifest Gen)"]
+        AuthModule["AuthModule & Server-Side RBAC<br/>(PBKDF2/SHA-512 & HMAC-SHA256 JWT)"]
+        AuthDecision["AuthorizationDecisionService<br/>(Purpose Limitation Engine)"]
+        VaultService["PiiVaultService<br/>(AES-256-GCM Encrypted & Isolated)"]
+        DocService["DocumentsService<br/>(Ingestion & Provenance Orchestrator)"]
+        TrainService["TrainingService & Model Registry<br/>(LoRA/QLoRA Jobs & Publishing Gate)"]
+        ExportGate["ExportService<br/>(Pre-Export Safety Gate & Manifest Gen)"]
     end
 
     subgraph AIService["AI, Fine-Tuning & Deep Extraction (FastAPI / Python 3.14)"]
-        DocParser["Multi-Format Parser & Real OCR\n(PyMuPDF, python-docx, openpyxl, python-pptx)"]
-        DeepExtractor["Deep Structured Extractor\n(Gemini 2.0 / GPT-4o-mini / Heuristic Engine)"]
-        TrainingRunner["TrainingRunnerService\n(PEFT LoRA Config & Automated Benchmark Harness)"]
+        DocParser["Multi-Format Parser & Real OCR<br/>(PyMuPDF, python-docx, openpyxl, python-pptx)"]
+        DeepExtractor["Deep Structured Extractor<br/>(Gemini 2.0 / GPT-4o-mini / Heuristic Engine)"]
+        TrainingRunner["TrainingRunnerService<br/>(PEFT LoRA Config & Automated Benchmark Harness)"]
     end
 
     subgraph Storage["Persistence & Infrastructure Layer"]
-        PG[("PostgreSQL 16\n(Prisma ORM, JSONB, Append-Only Logs)")]
-        S3[("MinIO S3\n(Private Raw Documents, Exports & Model Adapters)")]
-        Queue[("Redis 7 / BullMQ\n(Document Processing & Export Queues)")]
-        MLflowStore[("MLflow 2.17\n(Lineage, DVC Hash & Experiment Tracking)")]
+        PG[("PostgreSQL 16<br/>(Prisma ORM, JSONB, Append-Only Logs)")]
+        S3[("MinIO S3<br/>(Private Raw Documents, Exports & Model Adapters)")]
+        Queue[("Redis 7 / BullMQ<br/>(Document Processing & Export Queues)")]
+        MLflowStore[("MLflow 2.17<br/>(Lineage, DVC Hash & Experiment Tracking)")]
     end
 
     UI <-->|HTTPS REST + Bearer JWT| API
@@ -179,23 +179,23 @@ The `TrainingEligibilityService` acts as an absolute barrier separating general 
 ```mermaid
 flowchart TD
     Doc["Uploaded Document"] --> CheckSynthetic{Is Synthetic?}
-    CheckSynthetic -->|Yes| AutoApprove["APPROVED_FOR_TRAINING\n(Synthetic Zero-PII by design)"]
+    CheckSynthetic -->|Yes| AutoApprove["APPROVED_FOR_TRAINING<br/>(Synthetic Zero-PII by design)"]
     CheckSynthetic -->|No (Real Data)| CheckConsent{Valid Consent ID?}
     
-    CheckConsent -->|No| BlockNoConsent["RESTRICTED_NO_CONSENT\n(Blocked from training)"]
+    CheckConsent -->|No| BlockNoConsent["RESTRICTED_NO_CONSENT<br/>(Blocked from training)"]
     CheckConsent -->|Yes| CheckRevoked{Consent Active?}
     
-    CheckRevoked -->|Revoked / Expired| BlockRevoked["REVOKED_CONSENT_RESTRICTED\n(Permanent block & PII purged)"]
-    CheckRevoked -->|Active| CheckTrainingPurpose{AI_MODEL_TRAINING\npurpose granted?}
+    CheckRevoked -->|Revoked / Expired| BlockRevoked["REVOKED_CONSENT_RESTRICTED<br/>(Permanent block & PII purged)"]
+    CheckRevoked -->|Active| CheckTrainingPurpose{"AI_MODEL_TRAINING<br/>purpose granted?"}
     
-    CheckTrainingPurpose -->|No| ProfileOnly["APPROVED_FOR_PROFILE_MANAGEMENT\n(Profile allowed, Training BLOCKED)"]
+    CheckTrainingPurpose -->|No| ProfileOnly["APPROVED_FOR_PROFILE_MANAGEMENT<br/>(Profile allowed, Training BLOCKED)"]
     CheckTrainingPurpose -->|Yes| CheckHumanReview{Human Review Status?}
     
-    CheckHumanReview -->|Pending / Needs Correction| AwaitReview["PENDING_HUMAN_REVIEW\n(Awaiting verification)"]
-    CheckHumanReview -->|Rejected| Rejected["REJECTED_QUALITY\n(Excluded)"]
+    CheckHumanReview -->|Pending / Needs Correction| AwaitReview["PENDING_HUMAN_REVIEW<br/>(Awaiting verification)"]
+    CheckHumanReview -->|Rejected| Rejected["REJECTED_QUALITY<br/>(Excluded)"]
     CheckHumanReview -->|Approved| QualityCheck{Level 1-4 Quality Pass?}
     
-    QualityCheck -->|Pass| ApprovedTraining["APPROVED_FOR_TRAINING\n(Eligible for LLM Export)"]
+    QualityCheck -->|Pass| ApprovedTraining["APPROVED_FOR_TRAINING<br/>(Eligible for LLM Export)"]
     QualityCheck -->|Fail| QualityBlocked["RESTRICTED_QUALITY_ISSUES"]
 ```
 
@@ -217,9 +217,9 @@ The Next.js 14 frontend studio provides an enterprise-grade, clean light-themed 
 ```mermaid
 flowchart TD
     subgraph Navbar["Floating Capsule Navbar (Light Theme)"]
-        Logo["InterviewX Logo\n(Dynamic 'X' + DataHub Node + Spark ✦)"]
-        MainTrigger["Single Main Menu Trigger\n(❖ เมนูระบบทั้งหมด ▾)"]
-        RolePill["Role Switcher & Action Pill\n(👑 Admin / DPO ▾ + Copied ✅)"]
+        Logo["InterviewX Logo<br/>(Dynamic 'X' + DataHub Node + Spark ✦)"]
+        MainTrigger["Single Main Menu Trigger<br/>(❖ เมนูระบบทั้งหมด ▾)"]
+        RolePill["Role Switcher & Action Pill<br/>(👑 Admin / DPO ▾ + Copied ✅)"]
     end
 
     subgraph Flyout["Floating Navigation Card (rounded-[28px])"]
@@ -323,14 +323,14 @@ InterviewX DataHub extends beyond dataset collection into autonomous model fine-
 
 ```mermaid
 flowchart LR
-    Dataset["Locked Dataset Export\n(manifest.json + DVC Hash)"] --> JobRunner["TrainingRunnerService\n(PEFT LoRA / QLoRA 4-bit)"]
-    JobRunner --> Checkpoint["Adapter Weights Checkpoint\n(MinIO S3 URI)"]
-    Checkpoint --> Benchmark["Automated Benchmark Harness\n(STAR, Tech Depth, Thai Fluency, Zero-PII)"]
-    Benchmark --> Gate{"Integrity Gate\n(Score >= 0.80 & Zero-PII?)"}
-    Gate -- Passed --> RegCandidate["Model Registry\n(Status: CANDIDATE)"]
-    RegCandidate --> Promote["Admin Promotion\n(CANDIDATE ➔ STAGING ➔ PRODUCTION)"]
-    Promote --> Core["InterviewX Core Serving\n(/training/models/active)"]
-    Gate -- Failed --> Blocked["Promotion Blocked\n(Audit Flagged)"]
+    Dataset["Locked Dataset Export<br/>(manifest.json + DVC Hash)"] --> JobRunner["TrainingRunnerService<br/>(PEFT LoRA / QLoRA 4-bit)"]
+    JobRunner --> Checkpoint["Adapter Weights Checkpoint<br/>(MinIO S3 URI)"]
+    Checkpoint --> Benchmark["Automated Benchmark Harness<br/>(STAR, Tech Depth, Thai Fluency, Zero-PII)"]
+    Benchmark --> Gate{"Integrity Gate<br/>(Score ไม่ต่ำกว่า 0.80 & Zero-PII?)"}
+    Gate -- Passed --> RegCandidate["Model Registry<br/>(Status: CANDIDATE)"]
+    RegCandidate --> Promote["Admin Promotion<br/>(CANDIDATE ➔ STAGING ➔ PRODUCTION)"]
+    Promote --> Core["InterviewX Core Serving<br/>(/training/models/active)"]
+    Gate -- Failed --> Blocked["Promotion Blocked<br/>(Audit Flagged)"]
 ```
 
 ### 9.1 LoRA & QLoRA Fine-Tuning Runner

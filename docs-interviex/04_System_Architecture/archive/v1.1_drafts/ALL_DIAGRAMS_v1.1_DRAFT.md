@@ -28,8 +28,8 @@ flowchart LR
   end
 
   subgraph ClientFrontends["Client Application Frontends"]
-    Web["InterviewX Responsive Web App\n(Desktop / Tablet / Mobile Browser)"]
-    Mobile["InterviewX Native Mobile App\n(iOS & Android - End Users Only)"]
+    Web["InterviewX Responsive Web App<br/>(Desktop / Tablet / Mobile Browser)"]
+    Mobile["InterviewX Native Mobile App<br/>(iOS & Android - End Users Only)"]
   end
 
   Guest --> Web
@@ -41,13 +41,13 @@ flowchart LR
   Researcher --> Web
   Finance --> Web
 
-  Web --> Platform["InterviewX Shared Backend Platform\n(NestJS Modular Monolith + AI Service)"]
+  Web --> Platform["InterviewX Shared Backend Platform<br/>(NestJS Modular Monolith + AI Service)"]
   Mobile --> Platform
 
   Platform --> Email["Transactional email provider"]
   Platform --> LLM["Hosted LLM provider"]
-  Platform -. "R2 STT" .-> STT["Speech-to-text provider"]
-  Platform -. "R3 payments" .-> Gateway["Payment gateway"]
+  Platform -.->|"R2 STT"| STT["Speech-to-text provider"]
+  Platform -.->|"R3 payments"| Gateway["Payment gateway"]
   Platform --> Telemetry["Monitoring and alerting"]
 
   classDef optional stroke-dasharray:5 5
@@ -61,8 +61,8 @@ flowchart LR
 ```mermaid
 flowchart TB
   subgraph Clients["Client Frontends (Untrusted)"]
-    Browser["Next.js Responsive Web App\n(Desktop / Tablet / Mobile Browser)"]
-    Mobile["Native Mobile App\n(iOS & Android - End Users Only)"]
+    Browser["Next.js Responsive Web App<br/>(Desktop / Tablet / Mobile Browser)"]
+    Mobile["Native Mobile App<br/>(iOS & Android - End Users Only)"]
   end
 
   Edge["CDN / WAF / Reverse Proxy / TLS"]
@@ -81,7 +81,7 @@ flowchart TB
   end
 
   API --> ID & Content & Interview & Eval & Privacy & PlatformModule
-  ID & Content & Interview & Eval & Privacy & PlatformModule --> PG[("Core PostgreSQL:\nschema per bounded context")]
+  ID & Content & Interview & Eval & Privacy & PlatformModule --> PG[("Core PostgreSQL:<br/>schema per bounded context")]
 
   PlatformModule --> Redis[("Redis / BullMQ")]
   Redis --> Worker["Evaluation Worker"]
@@ -89,9 +89,9 @@ flowchart TB
   AI --> Provider["Hosted LLM Provider (External)"]
   Worker --> PG
 
-  API -. "R2 Voice Uploads" .-> Store[("Private Audio Object Storage\n(MinIO / S3)")]
-  API -. "R3 authenticated API" .-> Billing["Billing Service R3"]
-  API -. "R3 authenticated API" .-> Research["Research Release Service R3\n(Web Only Access)"]
+  API -.->|"R2 Voice Uploads"| Store[("Private Audio Object Storage<br/>(MinIO / S3)")]
+  API -.->|"R3 authenticated API"| Billing["Billing Service R3"]
+  API -.->|"R3 authenticated API"| Research["Research Release Service R3<br/>(Web Only Access)"]
 
   Billing --> BillingDB[("Billing PostgreSQL")]
   Research --> ResearchDB[("Research PostgreSQL")]
@@ -116,7 +116,7 @@ flowchart LR
   Plat["Platform: idempotency / outbox / audit"]
  end
 
- ClientFrontends["Client Frontends\n(Responsive Web & Native Mobile)"] --> API["Public API Gateway / BFF"]
+ ClientFrontends["Client Frontends<br/>(Responsive Web & Native Mobile)"] --> API["Public API Gateway / BFF"]
  API --> Access & Interview & Eval & Privacy & Content
  Interview --> Content
  Interview --> Access
@@ -126,12 +126,12 @@ flowchart LR
  Eval --> Plat
  Plat --> Worker["Worker deployable"]
  Worker --> AI["AI FastAPI - no DB connection"]
- API -. "R3 contract" .-> Billing["Billing - own DB"]
- API -. "R3 contract (Web Only)" .-> Research["Research - own DB"]
- Billing -. "versioned events" .-> Plat
- Privacy -. "approved release channel R3" .-> Research
+ API -.->|"R3 contract"| Billing["Billing - own DB"]
+ API -.->|"R3 contract (Web Only)"| Research["Research - own DB"]
+ Billing -.->|"versioned events"| Plat
+ Privacy -.->|"approved release channel R3"| Research
  note["Cross-context access via exported application contracts; no repository imports across owners. Role & Platform boundaries enforced at Gateway."]
- note -. rule .-> CORE
+ note -.->|"rule"| CORE
 ```
 
 ---
@@ -347,14 +347,14 @@ erDiagram
 ```mermaid
 flowchart LR
  subgraph UntrustedClients["Untrusted Client Frontends"]
-  Web["Responsive Web Client\n(Desktop / Tablet / Mobile Browser)"]
-  Mobile["Native Mobile Client\n(iOS & Android - End Users Only)"]
+  Web["Responsive Web Client<br/>(Desktop / Tablet / Mobile Browser)"]
+  Mobile["Native Mobile Client<br/>(iOS & Android - End Users Only)"]
  end
 
  subgraph PublicEdge["Public Edge & Ingress"]
   WAF["CDN / WAF / TLS Termination"]
   Gateway["API Gateway / NestJS Core REST /v1"]
-  RBACGate{"Platform & RBAC Gate\n(Admin/Research blocked for Mobile)"}
+  RBACGate{"Platform & RBAC Gate<br/>(Admin/Research blocked for Mobile)"}
  end
 
  subgraph PrivateNetwork["Private Network"]
@@ -376,8 +376,8 @@ flowchart LR
  Worker -->|authenticated + timeouts| AI
  AI -->|provider adapter| LLM["External Hosted LLM"]
 
- RBACGate -. "R3 Billing (Web & Mobile)" .-> Billing["Billing service"]
- RBACGate -. "R3 Research (WEB ONLY)" .-> Research["Research service"]
+ RBACGate -.->|"R3 Billing (Web & Mobile)"| Billing["Billing service"]
+ RBACGate -.->|"R3 Research (WEB ONLY)"| Research["Research service"]
 
  classDef future stroke-dasharray:5 5
  class Billing,Research future
@@ -438,7 +438,7 @@ stateDiagram-v2
  pending --> processing : worker claims job
  processing --> completed : valid checked result
  processing --> retry_wait : transient error / timeout
- retry_wait --> processing : retry <= max attempts
+ retry_wait --> processing : retry ไม่เกิน max attempts
  processing --> needs_review : invalid schema / weak evidence citation
  processing --> failed : permanent error / max retries exceeded
  pending --> canceled : user deletion workflow (DSR)
@@ -466,14 +466,14 @@ stateDiagram-v2
 flowchart TD
  Request["Incoming Request (Web or Mobile)"] --> Auth{"Authenticated?"}
  Auth -->|No| Public{"Public Endpoint?"}
- Public -->|Yes| Allow["Allow Public Action\n(Landing, Onboarding, Catalog)"]
+ Public -->|Yes| Allow["Allow Public Action<br/>(Landing, Onboarding, Catalog)"]
  Public -->|No| Deny["401 Unauthorized"]
 
  Auth -->|Yes| Active{"Account Active & Token Valid?"}
  Active -->|No| Deny
 
- Active -->|Yes| PlatCheck{"Platform Allowed for Endpoint?\n(Admin/Research on Web Only)"}
- PlatCheck -->|Violated| PlatformDeny["403 Forbidden\n(Administrative/Research blocked on Mobile)"]
+ Active -->|Yes| PlatCheck{"Platform Allowed for Endpoint?<br/>(Admin/Research on Web Only)"}
+ PlatCheck -->|Violated| PlatformDeny["403 Forbidden<br/>(Administrative/Research blocked on Mobile)"]
 
  PlatCheck -->|Allowed| Role{"Has Required Role Permission?"}
  Role -->|No| Forbidden["403 Forbidden"]
@@ -485,13 +485,13 @@ flowchart TD
  Scope -->|Missing| Forbidden
 
  Scope -->|Satisfied| Quota{"Entitlement / Quota Required?"}
- Quota -->|Exceeded| QuotaReject["402 / 429 Quota Exceeded\n(Server-side atomic check)"]
+ Quota -->|Exceeded| QuotaReject["402 / 429 Quota Exceeded<br/>(Server-side atomic check)"]
 
  Quota -->|Satisfied| DB["Apply Database Defense-in-Depth / RLS"]
  DB --> Final["Execute Action + Append Masked Audit Log"]
 
- note["Free / Basic / Pro = package tiers, not RBAC roles"] -. rule .-> Role
- note2["Platform does not grant role; backend strictly validates token"] -. rule .-> PlatCheck
+ note["Free / Basic / Pro = package tiers, not RBAC roles"] -.->|"rule"| Role
+ note2["Platform does not grant role; backend strictly validates token"] -.->|"rule"| PlatCheck
 ```
 
 ---
@@ -500,16 +500,16 @@ flowchart TD
 
 ```mermaid
 flowchart TB
- Notice["Versioned Processing Notice + Lawful Basis"] --> Core["service_core processing R1\n(Mandatory for service delivery)"]
- Notice --> Choices["Optional Per-Purpose Consent Event\n(Synced across Web and Mobile)"]
+ Notice["Versioned Processing Notice + Lawful Basis"] --> Core["service_core processing R1<br/>(Mandatory for service delivery)"]
+ Notice --> Choices["Optional Per-Purpose Consent Event<br/>(Synced across Web and Mobile)"]
  Choices --> Analysis["research_analysis R3"]
  Choices --> Contact["research_contact R3"]
  Choices --> Voice["voice_retention R2"]
  Choices --> Marketing["marketing future"]
 
- Analysis --> Release["Eligible Data Release Approval Pipeline\n(Strictly Web / Admin Portal)"]
- Contact --> ContactService["Approved Contact API\n(Dedicated Purpose-Scoped Service)"]
- Voice --> AudioPolicy["Audio Lifecycle + Storage Expiry\n(<=24h default; <=90d opt-in; mobile cache purge)"]
+ Analysis --> Release["Eligible Data Release Approval Pipeline<br/>(Strictly Web / Admin Portal)"]
+ Contact --> ContactService["Approved Contact API<br/>(Dedicated Purpose-Scoped Service)"]
+ Voice --> AudioPolicy["Audio Lifecycle + Storage Expiry<br/>(ไม่เกิน 24h default; ไม่เกิน 90d opt-in; mobile cache purge)"]
 
  User["User (Web / Native Mobile)"] --> Request["Data-Rights Request R1 (FR35)"]
  Request --> Verify["Verify Identity / Scope / Legal Exceptions"]
@@ -557,9 +557,9 @@ sequenceDiagram
  C->>A: POST /v1/interviews/{id}/answers (with transcript + Idempotency-Key)
  
  alt User opted out of voice retention
-   A->>S: Schedule hard purge of raw audio after processing (<=24h hard cap)
+   A->>S: Schedule hard purge of raw audio after processing (ไม่เกิน 24h hard cap)
  else Explicit opt-in granted
-   A->>S: Apply approved retention lifecycle (<=90d draft)
+   A->>S: Apply approved retention lifecycle (ไม่เกิน 90d draft)
  end
  
  Note over C: Mobile: Purge local transient audio cache immediately upon upload
@@ -617,24 +617,24 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
- Request["Researcher Request R3\n(STRICTLY VIA WEB PORTAL)"] --> Gate{"Purpose Approval + Role Scope + Valid Lawful Basis?"}
+ Request["Researcher Request R3<br/>(STRICTLY VIA WEB PORTAL)"] --> Gate{"Purpose Approval + Role Scope + Valid Lawful Basis?"}
  Gate -->|No| Deny["403 Denied + Append Immutable Audit Log"]
- Gate -->|Yes| Pipeline["Privileged Data Release Pipeline\n(Isolated Privileged Service)"]
+ Gate -->|Yes| Pipeline["Privileged Data Release Pipeline<br/>(Isolated Privileged Service)"]
 
- Source[("Core Production Database\n(Strictly Restricted)")] --> Pipeline
- Pipeline --> Eligibility["Verify research_analysis Purpose Eligibility\n(Do NOT confuse with contact opt-in)"]
+ Source[("Core Production Database<br/>(Strictly Restricted)")] --> Pipeline
+ Pipeline --> Eligibility["Verify research_analysis Purpose Eligibility<br/>(Do NOT confuse with contact opt-in)"]
  Eligibility --> Aggregate["Group by Category/Difficulty + Count Distinct Users"]
- Aggregate --> Risk{"Cell Size >= 10 Distinct Users\n& Differencing Suppression Checks?"}
+ Aggregate --> Risk{"Cell Size ไม่ต่ำกว่า 10 Distinct Users<br/>& Differencing Suppression Checks?"}
 
  Risk -->|Failed| Suppress["Suppress Cell / Reject Automated Release"]
  Risk -->|Passed| Approve["Authorized Release Approval"]
 
- Suppress --> Review["Human Privacy Officer Review\n(Strictly Web Portal)"]
+ Suppress --> Review["Human Privacy Officer Review<br/>(Strictly Web Portal)"]
  Review --> Approve
 
- Approve --> Store[("Research DB Approved Aggregates\n(Isolated Schema)")]
- Store --> API["Research Scoped REST API\n(WEB ONLY)"]
- API --> Result["Deliver Aggregated Statistics Only\n(Never Raw Transcripts or Audio)"]
+ Approve --> Store[("Research DB Approved Aggregates<br/>(Isolated Schema)")]
+ Store --> API["Research Scoped REST API<br/>(WEB ONLY)"]
+ API --> Result["Deliver Aggregated Statistics Only<br/>(Never Raw Transcripts or Audio)"]
 
  API --> Log["Audit Log: Researcher ID, Query Hash, Cell Counts, Timestamp"]
  Deny --> Log
@@ -650,40 +650,40 @@ flowchart TD
 ```mermaid
 flowchart TB
  subgraph InternetUsers["Public Internet Users"]
-  WebUsers["Web Users\n(Desktop / Tablet / Mobile Browser)"]
-  MobileUsers["Native Mobile Users\n(Apple iOS & Google Android)"]
+  WebUsers["Web Users<br/>(Desktop / Tablet / Mobile Browser)"]
+  MobileUsers["Native Mobile Users<br/>(Apple iOS & Google Android)"]
  end
 
  WAF["CDN + Cloudflare / AWS WAF + TLS 1.3 Termination"]
  WebUsers --> WAF
  MobileUsers --> WAF
 
- WAF --> WEBHOST["Managed Next.js Web Hosting\n(Vercel / Cloud Run)"]
- WAF --> API["Managed NestJS Core API Gateway\n(Modular Monolith Cluster)"]
+ WAF --> WEBHOST["Managed Next.js Web Hosting<br/>(Vercel / Cloud Run)"]
+ WAF --> API["Managed NestJS Core API Gateway<br/>(Modular Monolith Cluster)"]
 
  subgraph PrivateProd["Private Production Network (VPC / Private Subnet)"]
-  PG[("Managed Core PostgreSQL\n(Multi-AZ Primary + Read Replica)")]
-  Redis[("Managed Redis Cluster\n(BullMQ Evaluator Queue)")]
+  PG[("Managed Core PostgreSQL<br/>(Multi-AZ Primary + Read Replica)")]
+  Redis[("Managed Redis Cluster<br/>(BullMQ Evaluator Queue)")]
   Worker["Managed Evaluation Workers"]
-  AI["Private FastAPI Inference Service\n(No Direct Database Access)"]
-  Buck[("Private Object Storage R2\n(Encrypted MinIO / AWS S3)")]
+  AI["Private FastAPI Inference Service<br/>(No Direct Database Access)"]
+  Buck[("Private Object Storage R2<br/>(Encrypted MinIO / AWS S3)")]
  end
 
  API --> PG & Redis
- API -. "R2 Voice Uploads" .-> Buck
+ API -.->|"R2 Voice Uploads"| Buck
  Redis --> Worker
  Worker --> PG & AI
- AI --> LLM["External Hosted LLM Provider\n(Anthropic / OpenAI / Vertex via API Key)"]
+ AI --> LLM["External Hosted LLM Provider<br/>(Anthropic / OpenAI / Vertex via API Key)"]
 
- API --> Otel["OpenTelemetry Collector\n(Tracing / Metrics / Logs)"]
+ API --> Otel["OpenTelemetry Collector<br/>(Tracing / Metrics / Logs)"]
  Worker --> Otel
  AI --> Otel
 
- Secrets["Production Secret Manager\n(KMS / Vault)"] -. "Injected credentials" .-> API & Worker & AI
+ Secrets["Production Secret Manager<br/>(KMS / Vault)"] -.->|"Injected credentials"| API & Worker & AI
  Backup["Automated Backup & Disaster Recovery Engine"] --> PG
 
- API -. "R3 Authenticated Call" .-> Billing["Billing Deployable + Isolated DB"]
- API -. "R3 Authenticated Call (WEB ONLY)" .-> Research["Research Deployable + Isolated DB"]
+ API -.->|"R3 Authenticated Call"| Billing["Billing Deployable + Isolated DB"]
+ API -.->|"R3 Authenticated Call (WEB ONLY)"| Research["Research Deployable + Isolated DB"]
 
  classDef future stroke-dasharray:5 5
  class Buck,Billing,Research future
@@ -707,16 +707,16 @@ flowchart TB
   Worker --> AI["FastAPI AI Deployment"]
   AI --> Stub["LLM Stub / Mock Provider"]
 
-  HPA["HPA CPU & Queue Metric Autoscaler"] -. "Horizontal Scale" .-> API & Worker
+  HPA["HPA CPU & Queue Metric Autoscaler"] -.->|"Horizontal Scale"| API & Worker
   OTel["OpenTelemetry Collector DaemonSet"] --> Metrics["Grafana Dashboards + Jaeger Traces"]
   API --> OTel
   Worker --> OTel
   AI --> OTel
  end
 
- GitOps["Argo CD - Application Declarative Sync"] -. "Reconciles State" .-> Cluster
- IaC["Terraform - Cluster, Network & Node Pools"] -. "Provisions Infrastructure" .-> Cluster
- ProdSource[("Production Accounts, Real PII & Backups")] -. "X NEVER CONNECT (Zero Data Leakage)" .-> Cluster
+ GitOps["Argo CD - Application Declarative Sync"] -.->|"Reconciles State"| Cluster
+ IaC["Terraform - Cluster, Network & Node Pools"] -.->|"Provisions Infrastructure"| Cluster
+ ProdSource[("Production Accounts, Real PII & Backups")] -.->|"X NEVER CONNECT (Zero Data Leakage)"| Cluster
 ```
 
 ---
@@ -741,7 +741,7 @@ flowchart TB
 
  Prod --> RealDB[("Real Personal Production Database")]
  Demo --> FakeDB[("Synthetic Data Only")]
- RealDB -. "STRICT PRIVACY BOUNDARY: Never Copied to Sandbox" .-> FakeDB
+ RealDB -.->|"STRICT PRIVACY BOUNDARY: Never Copied to Sandbox"| FakeDB
 ```
 
 ---
@@ -764,10 +764,10 @@ flowchart LR
  Alerts --> Oncall["Engineering On-Call Team"]
 
  PG[("Managed Core PostgreSQL")] --> Backups["Encrypted Automated Daily Backups"]
- Backups --> Restore["Quarterly Restore Verification Drill (RPO <=24h, RTO <=8h)"]
+ Backups --> Restore["Quarterly Restore Verification Drill (RPO ไม่เกิน 24h, RTO ไม่เกิน 8h)"]
 
  TokenCost["LLM Token Usage & Budget Counter"] --> Metrics
- Note["SRS Targets: Non-AI P95 <=2s (Web), <=2.5s (Mobile); Feedback <=15s; Availability >=99.5%; RPO <=24h; RTO <=8h"] -. "Monitored Target" .-> Metrics
+ Note["SRS Targets: Non-AI P95 ไม่เกิน 2s (Web), ไม่เกิน 2.5s (Mobile); Feedback ไม่เกิน 15s; Availability ไม่ต่ำกว่า 99.5%; RPO ไม่เกิน 24h; RTO ไม่เกิน 8h"] -.->|"Monitored Target"| Metrics
 ```
 
 ---
@@ -806,7 +806,7 @@ flowchart TB
  Infra["infra/ (Terraform, Helm, Kubernetes, Argo CD)"] --> Apps
  Tests["tests/ (E2E, Security, IDOR, AI Evaluation Benchmarks)"] --> Contracts
 
- Rule["ARCHITECTURAL RULES:\n1. Mobile and Web share backend Contracts & validation schemas.\n2. No cross-context database imports.\n3. AI service has zero direct database connectivity.\n4. Admin and Research routes strictly unavailable to Mobile."] -. "Enforce via CI" .-> Tests
+ Rule["ARCHITECTURAL RULES:<br/>1. Mobile and Web share backend Contracts & validation schemas.<br/>2. No cross-context database imports.<br/>3. AI service has zero direct database connectivity.<br/>4. Admin and Research routes strictly unavailable to Mobile."] -.->|"Enforce via CI"| Tests
 ```
 
 ---
@@ -815,17 +815,17 @@ flowchart TB
 
 ```mermaid
 flowchart LR
- R1["R1 CORE MVP\nResponsive Web, Identity/Auth, Text Mock Interview,\nAI Rubric Scoring, History, Privacy Controls, Audit Log"] --> R2["R2 ENHANCED AI & MOBILE\nVoice/STT Practice, Observable Speech Indicators,\nEnglish Feedback, Progress Dashboard, Native Mobile App (D-M01)"]
+ R1["R1 CORE MVP<br/>Responsive Web, Identity/Auth, Text Mock Interview,<br/>AI Rubric Scoring, History, Privacy Controls, Audit Log"] --> R2["R2 ENHANCED AI & MOBILE<br/>Voice/STT Practice, Observable Speech Indicators,<br/>English Feedback, Progress Dashboard, Native Mobile App (D-M01)"]
  
- R2 --> R3["R3 COMMERCIAL & RESEARCH\nSubscription Tiers, Quota Ledger, Payment Gateway,\nRefunds, Finance Admin, Governed Research Release (Web Only)"]
+ R2 --> R3["R3 COMMERCIAL & RESEARCH<br/>Subscription Tiers, Quota Ledger, Payment Gateway,<br/>Refunds, Finance Admin, Governed Research Release (Web Only)"]
 
  R1 --> Production["Managed Production Environment"]
  R1 --> Showcase["Kubernetes Synthetic Showcase Sandbox"]
 
- R2 -. "Mobile & Voice Quality Approval Gate" .-> Production
- R3 -. "Legal, Tax & Research Approval Gate" .-> Production
+ R2 -.->|"Mobile & Voice Quality Approval Gate"| Production
+ R3 -.->|"Legal, Tax & Research Approval Gate"| Production
 
- Note["R1 core backend APIs designed to be mobile-ready from launch.\nNative mobile application implementation aligned to R2 milestone (D-M01).\nAdmin and Research portals remain permanently Web-only."] -. "Roadmap Rule" .-> R1
+ Note["R1 core backend APIs designed to be mobile-ready from launch.<br/>Native mobile application implementation aligned to R2 milestone (D-M01).<br/>Admin and Research portals remain permanently Web-only."] -.->|"Roadmap Rule"| R1
 ```
 
 ---
@@ -905,43 +905,43 @@ flowchart LR
   User --> UC06
   User --> UC07
   User --> UC08
-  User -. "Subscribe" .-> UC09
+  User -.->|"Subscribe"| UC09
 
   Admin --> UC10
-  Admin -. "Manage DSR" .-> UC08
+  Admin -.->|"Manage DSR"| UC08
   Finance --> UC09
-  Researcher -. "Export Research Dataset" .-> UC08
+  Researcher -.->|"Export Research Dataset"| UC08
 
   %% Includes
-  UC02 -. "«include»" .-> INC_Verify
-  UC04 -. "«include»" .-> INC_GenQ
-  UC04 -. "«include»" .-> INC_CheckQuota
-  UC04 -. "«include»" .-> INC_SubmitAnswer
+  UC02 -.->|"«include»"| INC_Verify
+  UC04 -.->|"«include»"| INC_GenQ
+  UC04 -.->|"«include»"| INC_CheckQuota
+  UC04 -.->|"«include»"| INC_SubmitAnswer
 
-  UC05 -. "«include»" .-> INC_VoiceConsent
-  UC05 -. "«include»" .-> INC_STT
-  UC05 -. "«include»" .-> INC_GenQ
-  UC05 -. "«include»" .-> INC_SubmitAnswer
+  UC05 -.->|"«include»"| INC_VoiceConsent
+  UC05 -.->|"«include»"| INC_STT
+  UC05 -.->|"«include»"| INC_GenQ
+  UC05 -.->|"«include»"| INC_SubmitAnswer
 
-  UC06 -. "«include»" .-> INC_RubricScore
-  UC06 -. "«include»" .-> INC_STARAnalysis
+  UC06 -.->|"«include»"| INC_RubricScore
+  UC06 -.->|"«include»"| INC_STARAnalysis
 
-  UC08 -. "«include»" .-> INC_AuditLog
-  UC10 -. "«include»" .-> INC_AuditLog
+  UC08 -.->|"«include»"| INC_AuditLog
+  UC10 -.->|"«include»"| INC_AuditLog
 
   %% Extends (Points FROM Extension TO Base)
-  EXT_Autosave -. "«extend»\n[Typing / Network Jitter]" .-> UC04
-  EXT_Pressure -. "«extend»\n[Select Pressure Mode]" .-> UC04
-  EXT_Pressure -. "«extend»\n[Select Pressure Mode]" .-> UC05
+  EXT_Autosave -.->|"«extend»<br/>(Typing / Network Jitter)"| UC04
+  EXT_Pressure -.->|"«extend»<br/>(Select Pressure Mode)"| UC04
+  EXT_Pressure -.->|"«extend»<br/>(Select Pressure Mode)"| UC05
 
-  EXT_Guidance -. "«extend»\n[Request Exemplar]" .-> UC06
-  EXT_Appeal -. "«extend»\n[Disputed Score]" .-> UC06
-  EXT_ExportPDF -. "«extend»\n[Save Offline Report]" .-> UC06
+  EXT_Guidance -.->|"«extend»<br/>(Request Exemplar)"| UC06
+  EXT_Appeal -.->|"«extend»<br/>(Disputed Score)"| UC06
+  EXT_ExportPDF -.->|"«extend»<br/>(Save Offline Report)"| UC06
 
-  EXT_Portability -. "«extend»\n[Submit Export Request]" .-> UC08
-  EXT_Erasure -. "«extend»\n[Confirm Account Deletion]" .-> UC08
+  EXT_Portability -.->|"«extend»<br/>(Submit Export Request)"| UC08
+  EXT_Erasure -.->|"«extend»<br/>(Confirm Account Deletion)"| UC08
 
-  EXT_Refund -. "«extend»\n[Eligible Refund Claim]" .-> UC09
+  EXT_Refund -.->|"«extend»<br/>(Eligible Refund Claim)"| UC09
 
   %% External System Connections
   INC_Verify --> EmailGateway
@@ -953,17 +953,17 @@ flowchart LR
   EXT_Refund --> PaymentGW
 
   %% Styling
-  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
-  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
-  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
-  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
-  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px
 
-  class UC01,UC02,UC03,UC04,UC05,UC06,UC07,UC08,UC09,UC10 baseStyle;
-  class INC_Verify,INC_GenQ,INC_CheckQuota,INC_SubmitAnswer,INC_VoiceConsent,INC_STT,INC_RubricScore,INC_STARAnalysis,INC_AuditLog incStyle;
-  class EXT_Autosave,EXT_Pressure,EXT_Guidance,EXT_Appeal,EXT_ExportPDF,EXT_Portability,EXT_Erasure,EXT_Refund extStyle;
-  class Guest,User,Admin,Finance,Researcher actorStyle;
-  class EmailGateway,LLMService,STTService,PaymentGW extSysStyle;
+  class UC01,UC02,UC03,UC04,UC05,UC06,UC07,UC08,UC09,UC10 baseStyle
+  class INC_Verify,INC_GenQ,INC_CheckQuota,INC_SubmitAnswer,INC_VoiceConsent,INC_STT,INC_RubricScore,INC_STARAnalysis,INC_AuditLog incStyle
+  class EXT_Autosave,EXT_Pressure,EXT_Guidance,EXT_Appeal,EXT_ExportPDF,EXT_Portability,EXT_Erasure,EXT_Refund extStyle
+  class Guest,User,Admin,Finance,Researcher actorStyle
+  class EmailGateway,LLMService,STTService,PaymentGW extSysStyle
 ```
 
 ---
@@ -1028,32 +1028,32 @@ flowchart LR
   User --> UC_ReviewEval
 
   %% Start Session Relationships
-  UC_StartSession -. "«include»" .-> INC_FetchQ
-  UC_StartSession -. "«include»" .-> INC_CheckQuota
-  EXT_DifficultyScaling -. "«extend»\n[Specific Skill Level]" .-> UC_StartSession
-  EXT_PressureMode -. "«extend»\n[High Pressure Drill]" .-> UC_StartSession
-  EXT_FollowupQ -. "«extend»\n[Answer Opens Inquiry]" .-> INC_FetchQ
+  UC_StartSession -.->|"«include»"| INC_FetchQ
+  UC_StartSession -.->|"«include»"| INC_CheckQuota
+  EXT_DifficultyScaling -.->|"«extend»<br/>(Specific Skill Level)"| UC_StartSession
+  EXT_PressureMode -.->|"«extend»<br/>(High Pressure Drill)"| UC_StartSession
+  EXT_FollowupQ -.->|"«extend»<br/>(Answer Opens Inquiry)"| INC_FetchQ
 
   %% Practice Text Relationships
-  UC_PracticeText -. "«include»" .-> INC_SubmitAnswer
-  EXT_Autosave -. "«extend»\n[Typing / Network Disruption]" .-> UC_PracticeText
+  UC_PracticeText -.->|"«include»"| INC_SubmitAnswer
+  EXT_Autosave -.->|"«extend»<br/>(Typing / Network Disruption)"| UC_PracticeText
 
   %% Practice Voice Relationships
-  UC_PracticeVoice -. "«include»" .-> INC_VoiceConsent
-  UC_PracticeVoice -. "«include»" .-> INC_STT
-  UC_PracticeVoice -. "«include»" .-> INC_SubmitAnswer
-  EXT_EditTranscript -. "«extend»\n[Transcription Correction]" .-> UC_PracticeVoice
+  UC_PracticeVoice -.->|"«include»"| INC_VoiceConsent
+  UC_PracticeVoice -.->|"«include»"| INC_STT
+  UC_PracticeVoice -.->|"«include»"| INC_SubmitAnswer
+  EXT_EditTranscript -.->|"«extend»<br/>(Transcription Correction)"| UC_PracticeVoice
 
   %% Review Evaluation Relationships
-  UC_ReviewEval -. "«include»" .-> INC_RubricScore
-  UC_ReviewEval -. "«include»" .-> INC_STARRelevance
-  UC_ReviewEval -. "«include»" .-> INC_StrengthsReport
+  UC_ReviewEval -.->|"«include»"| INC_RubricScore
+  UC_ReviewEval -.->|"«include»"| INC_STARRelevance
+  UC_ReviewEval -.->|"«include»"| INC_StrengthsReport
 
-  EXT_GrammarAnalysis -. "«extend»\n[English Response]" .-> UC_ReviewEval
-  EXT_SpeechPace -. "«extend»\n[R2 Voice Session Only]" .-> UC_ReviewEval
-  EXT_ImprovementTips -. "«extend»\n[Guidance Requested]" .-> UC_ReviewEval
-  EXT_AppealScore -. "«extend»\n[Disputed AI Score]" .-> UC_ReviewEval
-  EXT_ExportPDF -. "«extend»\n[Export Requested]" .-> UC_ReviewEval
+  EXT_GrammarAnalysis -.->|"«extend»<br/>(English Response)"| UC_ReviewEval
+  EXT_SpeechPace -.->|"«extend»<br/>(R2 Voice Session Only)"| UC_ReviewEval
+  EXT_ImprovementTips -.->|"«extend»<br/>(Guidance Requested)"| UC_ReviewEval
+  EXT_AppealScore -.->|"«extend»<br/>(Disputed AI Score)"| UC_ReviewEval
+  EXT_ExportPDF -.->|"«extend»<br/>(Export Requested)"| UC_ReviewEval
 
   %% External Connections
   INC_FetchQ --> LLM
@@ -1064,17 +1064,17 @@ flowchart LR
   EXT_GrammarAnalysis --> LLM
   EXT_ImprovementTips --> LLM
 
-  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
-  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
-  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
-  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
-  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px
 
-  class UC_StartSession,UC_PracticeText,UC_PracticeVoice,UC_ReviewEval baseStyle;
-  class INC_FetchQ,INC_CheckQuota,INC_SubmitAnswer,INC_VoiceConsent,INC_STT,INC_RubricScore,INC_STARRelevance,INC_StrengthsReport incStyle;
-  class EXT_DifficultyScaling,EXT_PressureMode,EXT_FollowupQ,EXT_Autosave,EXT_EditTranscript,EXT_GrammarAnalysis,EXT_SpeechPace,EXT_ImprovementTips,EXT_AppealScore,EXT_ExportPDF extStyle;
-  class User actorStyle;
-  class LLM,STT extSysStyle;
+  class UC_StartSession,UC_PracticeText,UC_PracticeVoice,UC_ReviewEval baseStyle
+  class INC_FetchQ,INC_CheckQuota,INC_SubmitAnswer,INC_VoiceConsent,INC_STT,INC_RubricScore,INC_STARRelevance,INC_StrengthsReport incStyle
+  class EXT_DifficultyScaling,EXT_PressureMode,EXT_FollowupQ,EXT_Autosave,EXT_EditTranscript,EXT_GrammarAnalysis,EXT_SpeechPace,EXT_ImprovementTips,EXT_AppealScore,EXT_ExportPDF extStyle
+  class User actorStyle
+  class LLM,STT extSysStyle
 ```
 
 ---
@@ -1128,37 +1128,37 @@ flowchart LR
   Admin --> UC_DSRWorkflow
 
   %% Includes
-  UC_Register -. "«include»" .-> INC_VerifyEmail
-  UC_Login -. "«include»" .-> INC_IssueTokens
-  UC_ConsentDashboard -. "«include»" .-> INC_AuditRecord
+  UC_Register -.->|"«include»"| INC_VerifyEmail
+  UC_Login -.->|"«include»"| INC_IssueTokens
+  UC_ConsentDashboard -.->|"«include»"| INC_AuditRecord
 
   %% Extends
-  EXT_ResetPassword -. "«extend»\n[Forgot Password]" .-> UC_Login
-  EXT_ChangePassword -. "«extend»\n[Update Credentials]" .-> UC_Login
-  EXT_LogoutAll -. "«extend»\n[Security Compromise]" .-> UC_Login
+  EXT_ResetPassword -.->|"«extend»<br/>(Forgot Password)"| UC_Login
+  EXT_ChangePassword -.->|"«extend»<br/>(Update Credentials)"| UC_Login
+  EXT_LogoutAll -.->|"«extend»<br/>(Security Compromise)"| UC_Login
 
-  EXT_RevokeConsent -. "«extend»\n[Withdraw Consent]" .-> UC_ConsentDashboard
-  EXT_DataPortability -. "«extend»\n[Export JSON/CSV]" .-> UC_ConsentDashboard
-  EXT_AccountErasure -. "«extend»\n[Confirm Account Deletion]" .-> UC_ConsentDashboard
+  EXT_RevokeConsent -.->|"«extend»<br/>(Withdraw Consent)"| UC_ConsentDashboard
+  EXT_DataPortability -.->|"«extend»<br/>(Export JSON/CSV)"| UC_ConsentDashboard
+  EXT_AccountErasure -.->|"«extend»<br/>(Confirm Account Deletion)"| UC_ConsentDashboard
 
   %% DSR Inclusion
-  EXT_DataPortability -. "«include»" .-> UC_DSRWorkflow
-  EXT_AccountErasure -. "«include»" .-> UC_DSRWorkflow
+  EXT_DataPortability -.->|"«include»"| UC_DSRWorkflow
+  EXT_AccountErasure -.->|"«include»"| UC_DSRWorkflow
 
   INC_VerifyEmail --> EmailGateway
   EXT_ResetPassword --> EmailGateway
 
-  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
-  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
-  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
-  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
-  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px
 
-  class UC_Register,UC_Login,UC_ManageProfile,UC_ConsentDashboard,UC_DSRWorkflow baseStyle;
-  class INC_VerifyEmail,INC_IssueTokens,INC_AuditRecord incStyle;
-  class EXT_ResetPassword,EXT_ChangePassword,EXT_LogoutAll,EXT_RevokeConsent,EXT_DataPortability,EXT_AccountErasure extStyle;
-  class Guest,User,Admin actorStyle;
-  class EmailGateway extSysStyle;
+  class UC_Register,UC_Login,UC_ManageProfile,UC_ConsentDashboard,UC_DSRWorkflow baseStyle
+  class INC_VerifyEmail,INC_IssueTokens,INC_AuditRecord incStyle
+  class EXT_ResetPassword,EXT_ChangePassword,EXT_LogoutAll,EXT_RevokeConsent,EXT_DataPortability,EXT_AccountErasure extStyle
+  class Guest,User,Admin actorStyle
+  class EmailGateway extSysStyle
 ```
 
 ---
@@ -1210,30 +1210,30 @@ flowchart LR
   Researcher --> UC_ResearchExport
 
   %% Includes
-  UC_ManageQuestions -. "«include»" .-> INC_ImmutableVersion
-  UC_ManageQuestions -. "«include»" .-> INC_AuditTrail
-  UC_ManageUsers -. "«include»" .-> INC_AuditTrail
-  UC_ResearchExport -. "«include»" .-> INC_DiffPrivacy
-  EXT_ProcessRefund -. "«include»" .-> INC_PaymentAPI
+  UC_ManageQuestions -.->|"«include»"| INC_ImmutableVersion
+  UC_ManageQuestions -.->|"«include»"| INC_AuditTrail
+  UC_ManageUsers -.->|"«include»"| INC_AuditTrail
+  UC_ResearchExport -.->|"«include»"| INC_DiffPrivacy
+  EXT_ProcessRefund -.->|"«include»"| INC_PaymentAPI
   INC_PaymentAPI --> PaymentGateway
 
   %% Extends
-  EXT_ConfigPrompt -. "«extend»\n[Tune or Upgrade AI Model]" .-> UC_ManageQuestions
-  EXT_SuspendAccount -. "«extend»\n[Fraud / Policy Violation]" .-> UC_ManageUsers
-  EXT_ResolveAppeal -. "«extend»\n[Pending Score Appeal]" .-> UC_ManageQuestions
-  EXT_ProcessRefund -. "«extend»\n[Eligible Refund Claim]" .-> UC_FinancialDashboard
+  EXT_ConfigPrompt -.->|"«extend»<br/>(Tune or Upgrade AI Model)"| UC_ManageQuestions
+  EXT_SuspendAccount -.->|"«extend»<br/>(Fraud / Policy Violation)"| UC_ManageUsers
+  EXT_ResolveAppeal -.->|"«extend»<br/>(Pending Score Appeal)"| UC_ManageQuestions
+  EXT_ProcessRefund -.->|"«extend»<br/>(Eligible Refund Claim)"| UC_FinancialDashboard
 
-  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
-  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
-  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
-  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
-  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px
 
-  class UC_ManageQuestions,UC_ManageUsers,UC_AuditViewer,UC_FinancialDashboard,UC_ResearchExport baseStyle;
-  class INC_ImmutableVersion,INC_AuditTrail,INC_DiffPrivacy,INC_PaymentAPI incStyle;
-  class EXT_ConfigPrompt,EXT_SuspendAccount,EXT_ResolveAppeal,EXT_ProcessRefund extStyle;
-  class Admin,Finance,Researcher actorStyle;
-  class PaymentGateway extSysStyle;
+  class UC_ManageQuestions,UC_ManageUsers,UC_AuditViewer,UC_FinancialDashboard,UC_ResearchExport baseStyle
+  class INC_ImmutableVersion,INC_AuditTrail,INC_DiffPrivacy,INC_PaymentAPI incStyle
+  class EXT_ConfigPrompt,EXT_SuspendAccount,EXT_ResolveAppeal,EXT_ProcessRefund extStyle
+  class Admin,Finance,Researcher actorStyle
+  class PaymentGateway extSysStyle
 ```
 
 ---
@@ -1247,13 +1247,13 @@ Illustrates the architectural alignment, responsibility boundaries, shared monor
 ```mermaid
 flowchart TD
     %% Styling & Classes
-    classDef clientWeb fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
-    classDef clientMobile fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#b45309;
-    classDef sharedContracts fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#5b21b6;
-    classDef securityGate fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#991b1b;
-    classDef backendCore fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#047857;
-    classDef dataStore fill:#f1f5f9,stroke:#475569,stroke-width:2px,color:#1e293b;
-    classDef external fill:#f3f4f6,stroke:#9ca3af,stroke-width:1px,color:#374151;
+    classDef clientWeb fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1
+    classDef clientMobile fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#b45309
+    classDef sharedContracts fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#5b21b6
+    classDef securityGate fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#991b1b
+    classDef backendCore fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#047857
+    classDef dataStore fill:#f1f5f9,stroke:#475569,stroke-width:2px,color:#1e293b
+    classDef external fill:#f3f4f6,stroke:#9ca3af,stroke-width:1px,color:#374151
 
     %% 1. Client Layer
     subgraph ClientLayer["1. Frontend Clients Layer"]
@@ -1353,13 +1353,13 @@ flowchart TD
     MobileApp -.->|D-M04: In-App Browser Redirect| WebCheckout
 
     %% Apply Classes
-    class WebApp,W_Tech,W_Roles,W_Auth,W_View clientWeb;
-    class MobileApp,M_Tech,M_Roles,M_Auth,M_Storage clientMobile;
-    class MonorepoLayer,Contracts,UI_Shared sharedContracts;
-    class GatewayLayer,CDN_WAF,IngressGateway,AuthGuard,ClientGuard,IdempotencyMW,RateLimiter,RejectAdmin securityGate;
-    class BackendCore,NestJS,Mod_Identity,Mod_Interview,Mod_Eval,Mod_Privacy,AsyncQueue,OutboxPoll,BullQueue,EvalWorker,AIService,FastAPI,PydanticVal backendCore;
-    class DataLayer,Postgres,ObjectStore dataStore;
-    class ExternalServices,ExtLLM,WebCheckout external;
+    class W_Tech,W_Roles,W_Auth,W_View clientWeb
+    class M_Tech,M_Roles,M_Auth,M_Storage clientMobile
+    class Contracts,UI_Shared sharedContracts
+    class CDN_WAF,AuthGuard,ClientGuard,IdempotencyMW,RateLimiter,RejectAdmin securityGate
+    class Mod_Identity,Mod_Interview,Mod_Eval,Mod_Privacy,OutboxPoll,BullQueue,EvalWorker,FastAPI,PydanticVal backendCore
+    class Postgres,ObjectStore dataStore
+    class ExtLLM,WebCheckout external
 ```
 
 ---
@@ -1397,7 +1397,7 @@ sequenceDiagram
     rect rgb(255, 240, 240)
     note over UserMobile, API: 2. Strict Client RBAC Enforcement
     UserMobile->>ClientMobile: Attempt to access Admin / Finance route
-    ClientMobile->>API: GET /api/v1/admin/dashboard (Authorization: Bearer <JWT>)
+    ClientMobile->>API: GET /api/v1/admin/dashboard (Authorization: Bearer [JWT])
     API->>API: Client-Type Check: Detected request from Mobile Client
     API-->>ClientMobile: 403 Forbidden (Admin functions are restricted to Web only)
     end
@@ -1411,7 +1411,7 @@ sequenceDiagram
     end
     UserMobile->>ClientMobile: Tap "Submit Answer"
     ClientMobile->>ClientMobile: Generate UUIDv4 for Idempotency-Key
-    ClientMobile->>API: POST /api/v1/interviews/{id}/answers<br/>Header: Idempotency-Key: 550e8400-e29b...<br/>Header: Authorization: Bearer <JWT>
+    ClientMobile->>API: POST /api/v1/interviews/{id}/answers<br/>Header: Idempotency-Key: 550e8400-e29b...<br/>Header: Authorization: Bearer [JWT]
     
     API->>API: Verify Bearer JWT + Session Ownership Check
     API->>DB: Check if Idempotency-Key already exists

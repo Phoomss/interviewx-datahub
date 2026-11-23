@@ -14,8 +14,8 @@ flowchart LR
   Web --> Platform[InterviewX Platform]
   Platform --> Email[Transactional email provider]
   Platform --> LLM[LLM provider]
-  Platform -. "R2 STT" .-> STT[Speech-to-text provider]
-  Platform -. "R3 payments" .-> Gateway[Payment gateway]
+  Platform -.->|"R2 STT"| STT[Speech-to-text provider]
+  Platform -.->|"R3 payments"| Gateway[Payment gateway]
   Platform --> Telemetry[Monitoring and alerting]
   classDef optional stroke-dasharray:5 5
   class Researcher,Finance,STT,Gateway optional
@@ -42,9 +42,9 @@ flowchart TB
   Worker --> AI[FastAPI Inference R1]
   AI --> Provider[Hosted LLM provider]
   Worker --> PG
-  API -. R2 .-> Store[(Private Audio Object Storage)]
-  API -. R3 authenticated API .-> Billing[Billing Service R3]
-  API -. R3 authenticated API .-> Research[Research Release Service R3]
+  API -.->|"R2"| Store[(Private Audio Object Storage)]
+  API -.->|"R3 authenticated API"| Billing[Billing Service R3]
+  API -.->|"R3 authenticated API"| Research[Research Release Service R3]
   Billing --> BillingDB[(Billing PostgreSQL)]
   Research --> ResearchDB[(Research PostgreSQL)]
   Billing --> Gateway[Payment provider]
@@ -74,12 +74,12 @@ flowchart LR
  Eval --> Plat
  Plat --> Worker[Worker deployable]
  Worker --> AI[AI FastAPI - no DB connection]
- Client -. "R3 contract" .-> Billing[Billing - own DB]
- Client -. "R3 contract" .-> Research[Research - own DB]
- Billing -. versioned events .-> Plat
- Privacy -. approved release channel R3 .-> Research
+ Client -.->|"R3 contract"| Billing[Billing - own DB]
+ Client -.->|"R3 contract"| Research[Research - own DB]
+ Billing -.->|"versioned events"| Plat
+ Privacy -.->|"approved release channel R3"| Research
  note["Cross-context access via exported application contracts; no repository imports across owners"]
- note -. rule .-> CORE
+ note -.->|"rule"| CORE
 ```
 
 ## D04 CORE ERD
@@ -203,7 +203,7 @@ flowchart LR
   PG[(Core Postgres)]
  end
  Web --> WAF
- Mobile -. R2/R3 .-> WAF
+ Mobile -.->|"R2/R3"| WAF
  WAF --> API
  API --> PG
  API --> Redis
@@ -211,8 +211,8 @@ flowchart LR
  Worker --> PG
  Worker -->|authenticated + timeouts| AI
  AI -->|provider adapter| LLM[External LLM]
- API -. R3 only /v1/billing .-> Billing[Billing service]
- API -. R3 only /v1/research .-> Research[Research service]
+ API -.->|"R3 only /v1/billing"| Billing[Billing service]
+ API -.->|"R3 only /v1/research"| Research[Research service]
  classDef future stroke-dasharray:5 5
  class Mobile,Billing,Research future
 ```
@@ -261,7 +261,7 @@ stateDiagram-v2
  pending --> processing : worker claims
  processing --> completed : valid checked result
  processing --> retry_wait : transient error
- retry_wait --> processing : retry <= max attempts
+ retry_wait --> processing : retry ไม่เกิน max attempts
  processing --> needs_review : invalid / weak evidence
  processing --> failed : permanent error / max attempts
  pending --> canceled : user deletion workflow
@@ -299,7 +299,7 @@ flowchart TD
  Quota -->|Exceeded| QuotaReject[Reject server side]
  Quota -->|Satisfied or not applicable| DB[Apply DB/storage defense-in-depth policy]
  DB --> Final[Execute + audit critical change]
- note["Free / Basic / Pro = package tiers, not RBAC roles"] -. rule .-> Role
+ note["Free / Basic / Pro = package tiers, not RBAC roles"] -.->|"rule"| Role
 ```
 
 ## D10 PRIVACY LIFECYCLE
@@ -350,9 +350,9 @@ sequenceDiagram
  U->>W: Correct and submit transcript
  W->>A: POST text answer + idempotency key
  alt No retention opt-in
-  A->>S: Schedule delete after processing (<=24h draft ceiling)
+  A->>S: Schedule delete after processing (ไม่เกิน 24h draft ceiling)
  else Explicit opt-in
-  A->>S: Apply approved retention policy (<=90d draft)
+  A->>S: Apply approved retention policy (ไม่เกิน 90d draft)
  end
  Note over A,S: Release gate needs legal and privacy approval
 ```
@@ -398,7 +398,7 @@ flowchart TD
  Source[(Core production data restricted)] --> Pipeline
  Pipeline --> Eligibility[Check research_analysis eligibility; no contact flag substitution]
  Eligibility --> Aggregate[Group + count distinct users]
- Aggregate --> Risk{Cell size >=10 and complementary / differencing checks?}
+ Aggregate --> Risk{Cell size ไม่ต่ำกว่า 10 and complementary / differencing checks?}
  Risk -->|No| Suppress[Suppress / revise release]
  Risk -->|Yes| Approve[Authorized release approval]
  Suppress --> Review[Human privacy review]
@@ -427,17 +427,17 @@ flowchart TB
   Buck[(Private object storage R2)]
  end
  API --> PG & Redis
- API -. R2 .-> Buck
+ API -.->|"R2"| Buck
  Redis --> Worker
  Worker --> PG & AI
  AI --> Provider[LLM provider]
  API --> Otel[Logs / metrics / traces]
  Worker --> Otel
  AI --> Otel
- Secrets[Production secret manager] -. restricted credentials .-> API & Worker & AI
+ Secrets[Production secret manager] -.->|"restricted credentials"| API & Worker & AI
  Backup[Backup + restore policy] --> PG
- API -. R3 authenticated call .-> Billing[Billing deployable + separate DB]
- API -. R3 authenticated call .-> Research[Research deployable + separate DB]
+ API -.->|"R3 authenticated call"| Billing[Billing deployable + separate DB]
+ API -.->|"R3 authenticated call"| Research[Research deployable + separate DB]
  classDef future stroke-dasharray:5 5
  class Buck,Billing,Research future
 ```
@@ -456,15 +456,15 @@ flowchart TB
   Worker --> PG
   Worker --> AI[FastAPI Deployment]
   AI --> Stub[LLM stub / sandbox provider]
-  HPA[HPA CPU / queue metric when installed] -. scale .-> API & Worker
+  HPA[HPA CPU / queue metric when installed] -.->|"scale"| API & Worker
   OTel[OpenTelemetry Collector] --> Metrics[Grafana + metrics/traces]
   API --> OTel
   Worker --> OTel
   AI --> OTel
  end
- GitOps[Argo CD - app resources] -. reconciles .-> Cluster
- IaC[Terraform - cluster/network/infra] -. provisions .-> Cluster
- Source[(Production accounts / secrets / backups)] -. X NEVER CONNECT .-> Cluster
+ GitOps[Argo CD - app resources] -.->|"reconciles"| Cluster
+ IaC[Terraform - cluster/network/infra] -.->|"provisions"| Cluster
+ Source[(Production accounts / secrets / backups)] -.->|"X NEVER CONNECT"| Cluster
 ```
 
 ## D16 CI CD
@@ -484,7 +484,7 @@ flowchart TB
  Argo --> Demo[Kubernetes synthetic showcase]
  Prod --> Real[(Real personal production data)]
  Demo --> Fake[(Synthetic data only)]
- Real -. never copied .-> Fake
+ Real -.->|"never copied"| Fake
 ```
 
 ## D17 OBSERVABILITY RECOVERY
@@ -505,7 +505,7 @@ flowchart LR
  Backups --> Restore[Quarterly restore drill - proposed]
  Alerts --> Oncall[Team response]
  Cost[LLM token usage + budgets] --> Metrics
- Note["SRS proposed: non-AI P95 <=2s; text feedback P95 <=15s; RPO <=24h; RTO <=8h; availability >=99.5% - NOT measured"] -. target .-> Metrics
+ Note["SRS proposed: non-AI P95 ไม่เกิน 2s; text feedback P95 ไม่เกิน 15s; RPO ไม่เกิน 24h; RTO ไม่เกิน 8h; availability ไม่ต่ำกว่า 99.5% - NOT measured"] -.->|"target"| Metrics
 ```
 
 ## D18 REPO BOUNDARIES
@@ -536,7 +536,7 @@ flowchart TB
  Research --> Contracts & ResearchDB
  Infra[infra Terraform / managed / k8s / Argo] --> Apps
  Tests[tests architecture / contract / integration / security / AI eval] --> Contracts
- Rule["NO: cross-owner Prisma imports or AI direct DB access"] -. enforce .-> Tests
+ Rule["NO: cross-owner Prisma imports or AI direct DB access"] -.->|"enforce"| Tests
 ```
 
 ## D19 RELEASE ROADMAP
@@ -550,7 +550,7 @@ Voice/STT, speech metrics, grammar, progress, adaptive features"]
 Plans/quotas, gateway/refunds, governed research releases"]
  R1 --> Production[Managed Production]
  R1 --> Showcase[Kubernetes synthetic showcase]
- R2 -. approval gate .-> Production
- R3 -. approval gate .-> Production
- Note["R1 does not depend on R2/R3 runtime. Native mobile remains optional extension."] -. rule .-> R1
+ R2 -.->|"approval gate"| Production
+ R3 -.->|"approval gate"| Production
+ Note["R1 does not depend on R2/R3 runtime. Native mobile remains optional extension."] -.->|"rule"| R1
 ```

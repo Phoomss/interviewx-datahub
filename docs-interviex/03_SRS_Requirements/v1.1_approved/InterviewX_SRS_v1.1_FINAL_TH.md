@@ -162,9 +162,9 @@ flowchart TD
     end
 
     subgraph Subsystems["ระบบย่อยหลัก (Subsystems & Use Case Diagrams)"]
-        D21["ระบบฝึกสัมภาษณ์และประเมินผล AI\n(Practice & Evaluation Engine — แผนภาพ D21)"]
-        D22["ระบบยืนยันตัวตนและคุ้มครองข้อมูลส่วนบุคคล\n(Identity & PDPA Governance — แผนภาพ D22)"]
-        D23["ระบบบริหารงาน การเงิน และข้อมูลวิจัย\n(Admin, Billing & Research — แผนภาพ D23)"]
+        D21["ระบบฝึกสัมภาษณ์และประเมินผล AI<br/>(Practice & Evaluation Engine — แผนภาพ D21)"]
+        D22["ระบบยืนยันตัวตนและคุ้มครองข้อมูลส่วนบุคคล<br/>(Identity & PDPA Governance — แผนภาพ D22)"]
+        D23["ระบบบริหารงาน การเงิน และข้อมูลวิจัย<br/>(Admin, Billing & Research — แผนภาพ D23)"]
     end
 
     Guest -->|สำรวจ/ทดลอง| D21

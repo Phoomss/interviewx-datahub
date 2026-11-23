@@ -24,26 +24,26 @@
 ```mermaid
 flowchart TD
     subgraph ClientLayer["ส่วนติดต่อผู้ใช้ (Frontend Clients)"]
-        Web["Responsive Web App (Next.js)\n[รองรับทั้ง 5 บทบาท: User + Admin + Researcher]"]
-        Mobile["Native Mobile App (iOS / Android)\n[เฉพาะ End Users: Guest และ Registered User เท่านั้น]"]
+        Web["Responsive Web App (Next.js)<br/>[รองรับทั้ง 5 บทบาท: User + Admin + Researcher]"]
+        Mobile["Native Mobile App (iOS / Android)<br/>[เฉพาะ End Users: Guest และ Registered User เท่านั้น]"]
     end
 
     subgraph SecurityBoundary["ด่านความปลอดภัยและเกตเวย์ (Gateway & Security Enforcement)"]
-        GW["NestJS Core API Gateway / BFF\n(ตรวจสอบ JWT, Server-Side RBAC, เช็ก Ownership)"]
+        GW["NestJS Core API Gateway / BFF<br/>(ตรวจสอบ JWT, Server-Side RBAC, เช็ก Ownership)"]
         BlockRule{"คำขอจาก Mobile เป็นสิทธิ์ Admin หรือไม่?"}
     end
 
     subgraph BackendCore["บริการหลังบ้านร่วมกัน (Unified Backend - Zero Duplication)"]
-        NestCore["NestJS Modular Monolith\n(Identity, Interview, Evaluation, Privacy)"]
-        Queue["คิวประมวลผล Redis / BullMQ\n(Transactional Outbox Pattern)"]
-        FastAPI["FastAPI AI Service\n(Stateless Rubric Scoring Engine)"]
-        PG[("ฐานข้อมูลหลัก PostgreSQL\n(Single Source of Truth)")]
+        NestCore["NestJS Modular Monolith<br/>(Identity, Interview, Evaluation, Privacy)"]
+        Queue["คิวประมวลผล Redis / BullMQ<br/>(Transactional Outbox Pattern)"]
+        FastAPI["FastAPI AI Service<br/>(Stateless Rubric Scoring Engine)"]
+        PG[("ฐานข้อมูลหลัก PostgreSQL<br/>(Single Source of Truth)")]
     end
 
     Web --> GW
     Mobile --> GW
     GW --> BlockRule
-    BlockRule -->|ใช่: ละเมิดสิทธิ์| Reject["403 Forbidden\n(Admin/Researcher สงวนบน Web เท่านั้น)"]
+    BlockRule -->|ใช่: ละเมิดสิทธิ์| Reject["403 Forbidden<br/>(Admin/Researcher สงวนบน Web เท่านั้น)"]
     BlockRule -->|ไม่ใช่: อนุญาต| NestCore
     NestCore --> PG
     NestCore --> Queue
@@ -145,11 +145,11 @@ flowchart TD
 flowchart LR
     subgraph Sprint2Backlog["Sprint 2 Backlog Packages"]
         direction TB
-        BE["Backend Team (NestJS)\n- WP-BE-01: Auth & Session API\n- WP-BE-02: Interview & Idempotency\n- WP-BE-03: BullMQ & Outbox\n- WP-BE-04: RBAC & IDOR Defense"]
-        AI["AI Service Team (FastAPI)\n- WP-AI-01: Rubric Scorer Engine\n- WP-AI-02: Prompt Injection Defense"]
-        FE["Frontend Web Team (Next.js)\n- WP-FE-01: Interview Room & Autosave\n- WP-FE-02: Feedback Dashboard\n- WP-FE-03: Responsive A11y (WCAG)"]
-        MB["Mobile Team (React Native)\n- WP-MB-01: Monorepo Setup & Contracts\n- WP-MB-02: Keychain Storage Prototype"]
-        QA["QA & Testing Team\n- WP-QA-01: Network Drop Simulation\n- WP-QA-02: 100% Data Sync Tests\n- WP-QA-03: Concurrency Load Tests"]
+        BE["Backend Team (NestJS)<br/>- WP-BE-01: Auth & Session API<br/>- WP-BE-02: Interview & Idempotency<br/>- WP-BE-03: BullMQ & Outbox<br/>- WP-BE-04: RBAC & IDOR Defense"]
+        AI["AI Service Team (FastAPI)<br/>- WP-AI-01: Rubric Scorer Engine<br/>- WP-AI-02: Prompt Injection Defense"]
+        FE["Frontend Web Team (Next.js)<br/>- WP-FE-01: Interview Room & Autosave<br/>- WP-FE-02: Feedback Dashboard<br/>- WP-FE-03: Responsive A11y (WCAG)"]
+        MB["Mobile Team (React Native)<br/>- WP-MB-01: Monorepo Setup & Contracts<br/>- WP-MB-02: Keychain Storage Prototype"]
+        QA["QA & Testing Team<br/>- WP-QA-01: Network Drop Simulation<br/>- WP-QA-02: 100% Data Sync Tests<br/>- WP-QA-03: Concurrency Load Tests"]
     end
 ```
 

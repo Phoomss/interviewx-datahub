@@ -8,10 +8,10 @@
 
 ```mermaid
 flowchart TD
-    E2E["1. End-to-End Tests (Playwright)\nการทดสอบโฟลว์ผู้ใช้: Upload -> Review -> Export"]
-    Integration["2. Integration Tests (Supertest, Pytest, Testcontainers)\nทดสอบการเชื่อมต่อระหว่าง Service, DB, Redis, MinIO"]
-    DataQuality["3. Data Quality & Pipeline Tests (Pydantic, Assertion Suites)\nทดสอบ Zero PII Leakage, ความถูกต้องของ Schema, ความสอดคล้องของช่วงเวลา"]
-    Unit["4. Unit Tests (Vitest / Jest, Pytest)\nทดสอบฟังก์ชันย่อย, ตรรกะคำนวณ, DTO Validation, Text Parsing"]
+    E2E["1. End-to-End Tests (Playwright)<br/>การทดสอบโฟลว์ผู้ใช้: Upload -> Review -> Export"]
+    Integration["2. Integration Tests (Supertest, Pytest, Testcontainers)<br/>ทดสอบการเชื่อมต่อระหว่าง Service, DB, Redis, MinIO"]
+    DataQuality["3. Data Quality & Pipeline Tests (Pydantic, Assertion Suites)<br/>ทดสอบ Zero PII Leakage, ความถูกต้องของ Schema, ความสอดคล้องของช่วงเวลา"]
+    Unit["4. Unit Tests (Vitest / Jest, Pytest)<br/>ทดสอบฟังก์ชันย่อย, ตรรกะคำนวณ, DTO Validation, Text Parsing"]
 
     Unit --> DataQuality --> Integration --> E2E
 ```

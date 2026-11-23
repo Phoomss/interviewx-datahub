@@ -62,12 +62,12 @@
 flowchart LR
     CandidateData["ข้อมูล Profile ที่เลือก"] --> Gate1{"1. สถานะ = APPROVED?"}
     Gate1 -- ไม่ผ่าน --> Drop1["ตัดทิ้งจาก Export"]
-    Gate1 -- ผ่าน --> Gate2{"2. กรอง PII ทั้งหมดออก?\n(Zero PII Leakage)"}
+    Gate1 -- ผ่าน --> Gate2{"2. กรอง PII ทั้งหมดออก?<br/>(Zero PII Leakage)"}
     Gate2 -- ไม่ผ่าน --> Drop2["บล็อกการ Export ทันที"]
-    Gate2 -- ผ่าน --> Gate3{"3. ตรวจสอบความสมบูรณ์\n(Completeness & Sanity)"}
+    Gate2 -- ผ่าน --> Gate3{"3. ตรวจสอบความสมบูรณ์<br/>(Completeness & Sanity)"}
     Gate3 -- ไม่ผ่าน --> Drop3["ตัดทิ้งจาก Export"]
-    Gate3 -- ผ่าน --> Formatter["4. แปลงเป็น JSONL\n(Alpaca / ShareGPT)"]
-    Formatter --> ExportArtifact["สร้าง Dataset Artifact\nบันทึกลง MinIO + MLflow"]
+    Gate3 -- ผ่าน --> Formatter["4. แปลงเป็น JSONL<br/>(Alpaca / ShareGPT)"]
+    Formatter --> ExportArtifact["สร้าง Dataset Artifact<br/>บันทึกลง MinIO + MLflow"]
 ```
 
 1. **Rule 1 (Approval Check)**: เฉพาะเรซูเมที่มีสถานะ `APPROVED` เท่านั้นจึงจะมีสิทธิ์ถูกคัดเลือก

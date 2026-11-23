@@ -25,16 +25,16 @@ flowchart TD
     RawDoc["เรซูเมต้นฉบับ (PDF/DOCX)"] --> Parser["FastAPI Extraction"]
     
     subgraph PrivacyVault["พื้นที่ควบคุมความปลอดภัยสูง (Protected PII Boundary)"]
-        Parser -->|สกัดชื่อ, อีเมล, เบอร์, เลขบัตร| PiiVault[("ตาราง PiiVault\n(Restricted Access)")]
-        RawDoc -->|จัดเก็บไฟล์ดิบ| MinIOSecret[("MinIO Bucket: raw-documents\n(Encrypted & Presigned Only)")]
+        Parser -->|สกัดชื่อ, อีเมล, เบอร์, เลขบัตร| PiiVault[("ตาราง PiiVault<br/>(Restricted Access)")]
+        RawDoc -->|จัดเก็บไฟล์ดิบ| MinIOSecret[("MinIO Bucket: raw-documents<br/>(Encrypted & Presigned Only)")]
     end
 
     subgraph TrainingReady["พื้นที่ข้อมูลฝึกสอน (Training Data Pool)"]
-        Parser -->|สกัดทักษะ, ประวัติงาน, การศึกษา| ParsedProfile[("ตาราง ParsedProfile\n(Anonymized Structured Data)")]
+        Parser -->|สกัดทักษะ, ประวัติงาน, การศึกษา| ParsedProfile[("ตาราง ParsedProfile<br/>(Anonymized Structured Data)")]
         ParsedProfile --> CleanExport["LLM Training Export Engine"]
     end
 
-    CleanExport --> ExportFile["Dataset (.jsonl)\n(100% ปราศจาก PII)"]
+    CleanExport --> ExportFile["Dataset (.jsonl)<br/>(100% ปราศจาก PII)"]
 ```
 
 - **PiiVault**: ข้อมูลส่วนบุคคลทุกรายการ (ชื่อ, นามสกุล, อีเมล, เบอร์โทรศัพท์, เลขบัตรประชาชน, เลขที่หนังสือเดินทาง, วันเดือนปีเกิด) ถูกเข้ารหัสด้วย **AES-256-GCM** จัดเก็บลงในคอลัมน์ `encryptedPayload` โดยไม่มีการเก็บเป็น Plaintext ในคอลัมน์เด็ดขาด

@@ -55,27 +55,27 @@
 ```mermaid
 flowchart TD
     subgraph ClientLayer["🖥️ Frontend Client (Next.js 14 • Port 3000)"]
-        UI["Universal Synthetic Studio\nTaxonomy Manager • Resume QA Workspace\nDatasets Multi-Format Export"]
+        UI["Universal Synthetic Studio<br/>Taxonomy Manager • Resume QA Workspace<br/>Datasets Multi-Format Export"]
     end
 
     subgraph APILayer["⚙️ Backend Core Gateway (NestJS 10 • Port 4000)"]
-        Nest["NestJS REST API Gateway\nPrisma ORM • Swagger • DTO Validation"]
+        Nest["NestJS REST API Gateway<br/>Prisma ORM • Swagger • DTO Validation"]
         Audit["Audit Logger & PII Vault Controller"]
         ExportEngine["Export Engine (JSON / CSV / XLSX / Alpaca)"]
     end
 
     subgraph AIEngine["🧠 AI & NLP Service (FastAPI • Port 8000)"]
-        FastAPI["FastAPI Python 3.11\nPydantic v2 Engine"]
+        FastAPI["FastAPI Python 3.11<br/>Pydantic v2 Engine"]
         Parser["PyMuPDF & python-docx Parser"]
         Extractor["Intelligent Resume / Profile Extractor"]
         UniversalGen["7-Dimension Universal Synthetic Generator"]
     end
 
     subgraph DataStore["💾 Data & Artifact Storage"]
-        PG[("PostgreSQL 16\nStructured Records, Taxonomy & Vault")]
-        Redis[("Redis 7\nQueue & Cache")]
-        MinIO[("MinIO S3\nRaw Documents & Export Artifacts")]
-        MLflow[("MLflow 2.17\nDataset Lineage & Run Tracking")]
+        PG[("PostgreSQL 16<br/>Structured Records, Taxonomy & Vault")]
+        Redis[("Redis 7<br/>Queue & Cache")]
+        MinIO[("MinIO S3<br/>Raw Documents & Export Artifacts")]
+        MLflow[("MLflow 2.17<br/>Dataset Lineage & Run Tracking")]
     end
 
     UI -->|HTTP / REST| Nest

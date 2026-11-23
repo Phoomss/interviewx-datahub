@@ -8,25 +8,25 @@
 
 ```mermaid
 flowchart TD
-    StartIngest["1. เริ่มต้นนำเข้าเอกสาร\n(Upload PDF/DOCX หรือ Trigger Synthetic)"] --> SaveMinIO["2. บันทึกไฟล์ดิบลง MinIO\nและบันทึกระเบียนใน PostgreSQL (สถานะ UPLOADED)"]
-    SaveMinIO --> EnqueueParse["3. ส่ง Job เข้าสู่ Redis Queue\n(BullMQ: resume-processing-queue)"]
+    StartIngest["1. เริ่มต้นนำเข้าเอกสาร<br/>(Upload PDF/DOCX หรือ Trigger Synthetic)"] --> SaveMinIO["2. บันทึกไฟล์ดิบลง MinIO<br/>และบันทึกระเบียนใน PostgreSQL (สถานะ UPLOADED)"]
+    SaveMinIO --> EnqueueParse["3. ส่ง Job เข้าสู่ Redis Queue<br/>(BullMQ: resume-processing-queue)"]
     
     subgraph WorkerProcessing["การประมวลผลเบื้องหลัง (Background Worker & AI Service)"]
         EnqueueParse --> WorkerPick["4. NestJS Worker ดึง Job จากคิว"]
         WorkerPick --> CallFastAPI["5. เรียก FastAPI: /internal/v1/parser/extract-text"]
-        CallFastAPI --> TextExtract["6. สกัดข้อความดิบ\n(PyMuPDF / python-docx)"]
-        TextExtract --> LLMExtract["7. เรียก LLM สกัดโครงสร้าง Profile\n(Pydantic Schema Validation)"]
+        CallFastAPI --> TextExtract["6. สกัดข้อความดิบ<br/>(PyMuPDF / python-docx)"]
+        TextExtract --> LLMExtract["7. เรียก LLM สกัดโครงสร้าง Profile<br/>(Pydantic Schema Validation)"]
         LLMExtract --> SeparatePII["8. แยก PII ออกจากข้อมูลทักษะ/ประวัติ"]
     end
 
-    SeparatePII --> QualityGate{"9. ตรวจสอบคุณภาพขั้นต้น\n(Sanity Check & Confidence)"}
-    QualityGate -- ผ่านเกณฑ์ --> SaveParsed["10. บันทึก ParsedProfile & PiiVault\nอัปเดตสถานะเป็น PARSED"]
-    QualityGate -- ล้มเหลว/ผิดรูปแบบ --> DeadLetter["ส่งเข้า Dead Letter Queue (DLQ)\nอัปเดตสถานะเป็น PARSE_FAILED"]
+    SeparatePII --> QualityGate{"9. ตรวจสอบคุณภาพขั้นต้น<br/>(Sanity Check & Confidence)"}
+    QualityGate -- ผ่านเกณฑ์ --> SaveParsed["10. บันทึก ParsedProfile & PiiVault<br/>อัปเดตสถานะเป็น PARSED"]
+    QualityGate -- ล้มเหลว/ผิดรูปแบบ --> DeadLetter["ส่งเข้า Dead Letter Queue (DLQ)<br/>อัปเดตสถานะเป็น PARSE_FAILED"]
 
-    SaveParsed --> HumanReview{"11. Human-in-the-Loop QA\n(Annotator ตรวจสอบในระบบ)"}
-    HumanReview -- ผ่านการรับรอง --> Approved["สถานะ: APPROVED\n(พร้อมสำหรับ LLM Training Pool)"]
-    HumanReview -- มีการแก้ไขข้อมูล --> Corrected["บันทึก Diff ลง AnnotationReview\nสถานะ: APPROVED"]
-    HumanReview -- ไม่สามารถใช้งานได้ --> Rejected["สถานะ: REJECTED\n(ไม่นำไปใช้เทรน)"]
+    SaveParsed --> HumanReview{"11. Human-in-the-Loop QA<br/>(Annotator ตรวจสอบในระบบ)"}
+    HumanReview -- ผ่านการรับรอง --> Approved["สถานะ: APPROVED<br/>(พร้อมสำหรับ LLM Training Pool)"]
+    HumanReview -- มีการแก้ไขข้อมูล --> Corrected["บันทึก Diff ลง AnnotationReview<br/>สถานะ: APPROVED"]
+    HumanReview -- ไม่สามารถใช้งานได้ --> Rejected["สถานะ: REJECTED<br/>(ไม่นำไปใช้เทรน)"]
 ```
 
 ---

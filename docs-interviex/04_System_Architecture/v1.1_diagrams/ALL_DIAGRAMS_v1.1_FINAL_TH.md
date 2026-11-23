@@ -52,8 +52,8 @@ flowchart LR
 
   Platform --> Email["ผู้ให้บริการส่งอีเมลระบบ (Transactional Email)"]
   Platform --> LLM["ผู้ให้บริการโมเดลภาษาขนาดใหญ่ภายนอก (Hosted LLM)"]
-  Platform -. "R2 แปลงเสียงเป็นข้อความ" .-> STT["ผู้ให้บริการ Speech-to-Text (STT)"]
-  Platform -. "R3 ระบบชำระเงิน" .-> Gateway["ผู้ให้บริการเกตเวย์ชำระเงิน (Payment Gateway)"]
+  Platform -.->|"R2 แปลงเสียงเป็นข้อความ"| STT["ผู้ให้บริการ Speech-to-Text (STT)"]
+  Platform -.->|"R3 ระบบชำระเงิน"| Gateway["ผู้ให้บริการเกตเวย์ชำระเงิน (Payment Gateway)"]
   Platform --> Telemetry["ระบบเฝ้าระวังและแจ้งเตือน (Monitoring & Alerting)"]
 
   classDef optional stroke-dasharray:5 5
@@ -240,8 +240,8 @@ flowchart LR
  Worker -->|ตรวจสอบสิทธิ์พร้อม Timeout| AI
  AI -->|อะแดปเตอร์เฉพาะ| LLM["โมเดลภาษาภายนอก (Hosted LLM)"]
 
- RBACGate -. "R3 ระบบบิลลิ่ง (Web & Mobile)" .-> Billing["บริการบิลลิ่ง"]
- RBACGate -. "R3 ระบบวิจัย (เฉพาะบน Web)" .-> Research["บริการข้อมูลวิจัย"]
+ RBACGate -.->|"R3 ระบบบิลลิ่ง (Web & Mobile)"| Billing["บริการบิลลิ่ง"]
+ RBACGate -.->|"R3 ระบบวิจัย (เฉพาะบน Web)"| Research["บริการข้อมูลวิจัย"]
 
  classDef future stroke-dasharray:5 5
  class Billing,Research future
@@ -364,8 +364,8 @@ flowchart TD
  Quota -->|ผ่าน| DB["บังคับใช้การป้องกันเชิงลึกที่ระดับฐานข้อมูล (RLS)"]
  DB --> Final["ดำเนินการตามคำขอ + บันทึก Audit Log แบบปกปิดข้อมูลสำคัญ"]
 
- note["แพ็กเกจ Free / Basic / Pro คือระดับโควตา ไม่ใช่บทบาทความปลอดภัย RBAC"] -. กฎ .-> Role
- note2["แพลตฟอร์มไม่ได้เป็นตัวให้สิทธิ์ ระบบหลังบ้านจะตรวจสอบโทเค็นอย่างเข้มงวด"] -. กฎ .-> PlatCheck
+ note["แพ็กเกจ Free / Basic / Pro คือระดับโควตา ไม่ใช่บทบาทความปลอดภัย RBAC"] -.->|"กฎ"| Role
+ note2["แพลตฟอร์มไม่ได้เป็นตัวให้สิทธิ์ ระบบหลังบ้านจะตรวจสอบโทเค็นอย่างเข้มงวด"] -.->|"กฎ"| PlatCheck
 ```
 
 ---
@@ -389,8 +389,7 @@ flowchart TB
 (พอร์ทัลผู้ดูแลระบบเฉพาะบน Web)"]
  Contact --> ContactService["API ติดต่อผู้วิจัยที่ได้รับอนุมัติ
 (บริการเฉพาะขอบเขตวัตถุประสงค์)"]
- Voice --> AudioPolicy["วงจรชีวิตไฟล์เสียง + กำหนดอายุการจัดเก็บ
-(ปกติ <=24 ชม.; ยินยอม <=90 วัน; ล้างแคชในมือถือทันที)"]
+ Voice --> AudioPolicy["วงจรชีวิตไฟล์เสียง + กำหนดอายุการจัดเก็บ<br/>(ปกติ ไม่เกิน 24 ชม.; ยินยอม ไม่เกิน 90 วัน; ล้างแคชในมือถือทันที)"]
 
  User["ผู้ใช้งาน (Web / Native Mobile)"] --> Request["คำขอใช้สิทธิ์ตามกฎหมายคุ้มครองข้อมูลส่วนบุคคล R1 (FR35)"]
  Request --> Verify["ตรวจสอบยืนยันตัวตน / ขอบเขต / ข้อยกเว้นทางกฎหมาย"]
@@ -515,7 +514,7 @@ flowchart TD
  Pipeline --> Eligibility["ตรวจสอบความยินยอมวัตถุประสงค์ research_analysis
 (ห้ามสับสนกับความยินยอมให้ติดต่อกลับ)"]
  Eligibility --> Aggregate["จัดกลุ่มตามหมวดหมู่/ระดับความยาก + นับจำนวนผู้ใช้ที่ไม่ซ้ำกัน"]
- Aggregate --> Risk{"จำนวนผู้ใช้ในกลุ่ม (Cell Size) >= 10 คน
+ Aggregate --> Risk{"จำนวนผู้ใช้ในกลุ่ม (Cell Size) ไม่ต่ำกว่า 10 คน
 และผ่านการตรวจสอบการตัดข้อมูลย่อย (Differencing)?"}
 
  Risk -->|ไม่ผ่าน| Suppress["ตัดข้อมูลกลุ่มย่อยทิ้ง / ปฏิเสธการส่งออกอัตโนมัติ"]
@@ -576,7 +575,7 @@ flowchart TB
  end
 
  API --> PG & Redis
- API -. "R2 อัปโหลดไฟล์เสียง" .-> Buck
+ API -.->|"R2 อัปโหลดไฟล์เสียง"| Buck
  Redis --> Worker
  Worker --> PG & AI
  AI --> LLM["ผู้ให้บริการโมเดล AI ภายนอก
@@ -588,11 +587,11 @@ flowchart TB
  AI --> Otel
 
  Secrets["ระบบจัดเก็บรหัสผ่านความปลอดภัยสูง
-(KMS / Vault)"] -. "ส่งมอบข้อมูลความลับ" .-> API & Worker & AI
+(KMS / Vault)"] -.->|"ส่งมอบข้อมูลความลับ"| API & Worker & AI
  Backup["ระบบสำรองข้อมูลและกู้คืนจากภัยพิบัติอัตโนมัติ"] --> PG
 
- API -. "R3 คำขอที่ตรวจสอบสิทธิ์แล้ว" .-> Billing["บริการระบบบิลลิ่ง + ฐานข้อมูลแยก"]
- API -. "R3 คำขอเฉพาะบน Web" .-> Research["บริการระบบวิจัย + ฐานข้อมูลแยก"]
+ API -.->|"R3 คำขอที่ตรวจสอบสิทธิ์แล้ว"| Billing["บริการระบบบิลลิ่ง + ฐานข้อมูลแยก"]
+ API -.->|"R3 คำขอเฉพาะบน Web"| Research["บริการระบบวิจัย + ฐานข้อมูลแยก"]
 
  classDef future stroke-dasharray:5 5
  class Buck,Billing,Research future
@@ -618,16 +617,16 @@ flowchart TB
   Worker --> AI["พ็อด FastAPI บริการ AI"]
   AI --> Stub["ระบบจำลองโมเดล AI (Mock LLM Provider)"]
 
-  HPA["ตัวปรับขยายพ็อดอัตโนมัติ (HPA Autoscaler)"] -. "ปรับขยายแนวนอน" .-> API & Worker
+  HPA["ตัวปรับขยายพ็อดอัตโนมัติ (HPA Autoscaler)"] -.->|"ปรับขยายแนวนอน"| API & Worker
   OTel["OpenTelemetry DaemonSet ประจำโหนด"] --> Metrics["แดชบอร์ด Grafana + ร่องรอยการทำงาน Jaeger"]
   API --> OTel
   Worker --> OTel
   AI --> OTel
  end
 
- GitOps["Argo CD - ตรวจสอบความสอดคล้องของแอป"] -. "ปรับสถานะระบบให้ตรงกับโค้ด" .-> Cluster
- IaC["Terraform - จัดการคลัสเตอร์และเครือข่าย"] -. "สร้างโครงสร้างพื้นฐาน" .-> Cluster
- ProdSource[("ข้อมูลจริง Production, ข้อมูลส่วนบุคคล และข้อมูลสำรอง")] -. "X ตัดขาดการเชื่อมต่ออย่างสิ้นเชิง (ป้องกันข้อมูลรั่วไหล 100%)" .-> Cluster
+ GitOps["Argo CD - ตรวจสอบความสอดคล้องของแอป"] -.->|"ปรับสถานะระบบให้ตรงกับโค้ด"| Cluster
+ IaC["Terraform - จัดการคลัสเตอร์และเครือข่าย"] -.->|"สร้างโครงสร้างพื้นฐาน"| Cluster
+ ProdSource[("ข้อมูลจริง Production, ข้อมูลส่วนบุคคล และข้อมูลสำรอง")] -.->|"X ตัดขาดการเชื่อมต่ออย่างสิ้นเชิง (ป้องกันข้อมูลรั่วไหล 100%)"| Cluster
 ```
 
 ---
@@ -654,7 +653,7 @@ flowchart TB
 
  Prod --> RealDB[("ฐานข้อมูล Production ที่มีข้อมูลส่วนบุคคลจริง")]
  Demo --> FakeDB[("ฐานข้อมูลที่มีเฉพาะข้อมูลจำลอง Synthetic Data เท่านั้น")]
- RealDB -. "มาตรการความปลอดภัยขั้นสูงสุด: ห้ามคัดลอกข้อมูลจริงมายัง Sandbox เด็ดขาด" .-> FakeDB
+ RealDB -.->|"มาตรการความปลอดภัยขั้นสูงสุด: ห้ามคัดลอกข้อมูลจริงมายัง Sandbox เด็ดขาด"| FakeDB
 ```
 
 ---
@@ -679,10 +678,10 @@ flowchart LR
  Alerts --> Oncall["วิศวกรผู้ดูแลระบบเวรประจำวัน (On-Call Team)"]
 
  PG[("ฐานข้อมูลหลัก PostgreSQL")] --> Backups["การสำรองข้อมูลอัตโนมัติประจำวันพร้อมการเข้ารหัส"]
- Backups --> Restore["การซักซ้อมกู้คืนระบบประจำไตรมาส (RPO <=24 ชม., RTO <=8 ชม.)"]
+ Backups --> Restore["การซักซ้อมกู้คืนระบบประจำไตรมาส (RPO ไม่เกิน 24 ชม., RTO ไม่เกิน 8 ชม.)"]
 
  TokenCost["ตัวนับปริมาณการใช้โทเค็น AI และงบประมาณ"] --> Metrics
- Note["เป้าหมายตามเอกสาร SRS: เวลาตอบสนอง Non-AI P95 <=2s (Web), <=2.5s (Mobile); ผลประเมิน AI <=15s; ความพร้อมใช้งาน >=99.5%; RPO <=24h; RTO <=8h"] -. "เป้าหมายการเฝ้าระวัง" .-> Metrics
+ Note["เป้าหมายตามเอกสาร SRS: เวลาตอบสนอง Non-AI P95 ไม่เกิน 2s (Web), ไม่เกิน 2.5s (Mobile); ผลประเมิน AI ไม่เกิน 15s; ความพร้อมใช้งาน 99.5% ขึ้นไป; RPO ไม่เกิน 24h; RTO ไม่เกิน 8h"] -.->|เป้าหมายการเฝ้าระวัง| Metrics
 ```
 
 ---
@@ -727,7 +726,7 @@ flowchart TB
 1. Mobile และ Web ใช้ Contracts และ Schema Validation ร่วมกัน
 2. ห้ามนำเข้าฐานข้อมูลข้าม Bounded Context เด็ดขาด
 3. บริการ AI ต้องไม่มีการเชื่อมต่อกับฐานข้อมูลโดยตรง
-4. เส้นทาง API ของ Admin และ Research ถูกบล็อกไม่ให้ Mobile เข้าถึงได้เด็ดขาด"] -. "บังคับใช้ผ่านระบบ CI" .-> Tests
+4. เส้นทาง API ของ Admin และ Research ถูกบล็อกไม่ให้ Mobile เข้าถึงได้เด็ดขาด"] -.->|"บังคับใช้ผ่านระบบ CI"| Tests
 ```
 
 ---
@@ -751,12 +750,12 @@ Responsive Web, การตรวจสอบตัวตน, ฝึกสั�
  R1 --> Production["สภาพแวดล้อมระบบจริง (Managed Production)"]
  R1 --> Showcase["สภาพแวดล้อมสาธิตบน Kubernetes (Showcase Sandbox)"]
 
- R2 -. "เกณฑ์การอนุมัติคุณภาพแอปมือถือและระบบเสียง" .-> Production
- R3 -. "เกณฑ์การอนุมัติด้านกฎหมาย ภาษี และธรรมาภิบาลข้อมูลวิจัย" .-> Production
+ R2 -.->|"เกณฑ์การอนุมัติคุณภาพแอปมือถือและระบบเสียง"| Production
+ R3 -.->|"เกณฑ์การอนุมัติด้านกฎหมาย ภาษี และธรรมาภิบาลข้อมูลวิจัย"| Production
 
  Note["API บริการหลังบ้านใน R1 ถูกออกแบบให้พร้อมรองรับ Mobile ตั้งแต่เริ่มต้น
 การเปิดตัว Native Mobile Application ถูกจัดสรรไว้ในรอบ R2 (ตามการตัดสินใจ D-M01)
-พอร์ทัลผู้ดูแลระบบและผู้วิจัยสงวนไว้เฉพาะบน Web Application เท่านั้นตลอดไป"] -. "กฎแผนงาน" .-> R1
+พอร์ทัลผู้ดูแลระบบและผู้วิจัยสงวนไว้เฉพาะบน Web Application เท่านั้นตลอดไป"] -.->|"กฎแผนงาน"| R1
 ```
 
 ---
@@ -880,43 +879,43 @@ flowchart LR
   User --> UC06
   User --> UC07
   User --> UC08
-  User -. "สมัครสมาชิก" .-> UC09
+  User -.->|"สมัครสมาชิก"| UC09
 
   Admin --> UC10
-  Admin -. "จัดการสิทธิ์ข้อมูล DSR" .-> UC08
+  Admin -.->|"จัดการสิทธิ์ข้อมูล DSR"| UC08
   Finance --> UC09
-  Researcher -. "สกัดชุดข้อมูลวิจัยนิรนาม" .-> UC08
+  Researcher -.->|"สกัดชุดข้อมูลวิจัยนิรนาม"| UC08
 
   %% Includes
-  UC02 -. "«include»" .-> INC_Verify
-  UC04 -. "«include»" .-> INC_GenQ
-  UC04 -. "«include»" .-> INC_CheckQuota
-  UC04 -. "«include»" .-> INC_SubmitAnswer
+  UC02 -.->|"«include»"| INC_Verify
+  UC04 -.->|"«include»"| INC_GenQ
+  UC04 -.->|"«include»"| INC_CheckQuota
+  UC04 -.->|"«include»"| INC_SubmitAnswer
 
-  UC05 -. "«include»" .-> INC_VoiceConsent
-  UC05 -. "«include»" .-> INC_STT
-  UC05 -. "«include»" .-> INC_GenQ
-  UC05 -. "«include»" .-> INC_SubmitAnswer
+  UC05 -.->|"«include»"| INC_VoiceConsent
+  UC05 -.->|"«include»"| INC_STT
+  UC05 -.->|"«include»"| INC_GenQ
+  UC05 -.->|"«include»"| INC_SubmitAnswer
 
-  UC06 -. "«include»" .-> INC_RubricScore
-  UC06 -. "«include»" .-> INC_STARAnalysis
+  UC06 -.->|"«include»"| INC_RubricScore
+  UC06 -.->|"«include»"| INC_STARAnalysis
 
-  UC08 -. "«include»" .-> INC_AuditLog
-  UC10 -. "«include»" .-> INC_AuditLog
+  UC08 -.->|"«include»"| INC_AuditLog
+  UC10 -.->|"«include»"| INC_AuditLog
 
   %% Extends (Points FROM Extension TO Base)
-  EXT_Autosave -. "«extend»\n[พิมพ์ยังไม่เสร็จ/เน็ตหลุด]" .-> UC04
-  EXT_Pressure -. "«extend»\n[เลือกโหมดท้าทาย]" .-> UC04
-  EXT_Pressure -. "«extend»\n[เลือกโหมดท้าทาย]" .-> UC05
+  EXT_Autosave -.->|"«extend»<br/>(พิมพ์ยังไม่เสร็จ/เน็ตหลุด)"| UC04
+  EXT_Pressure -.->|"«extend»<br/>(เลือกโหมดท้าทาย)"| UC04
+  EXT_Pressure -.->|"«extend»<br/>(เลือกโหมดท้าทาย)"| UC05
 
-  EXT_Guidance -. "«extend»\n[ต้องการตัวอย่างคำตอบที่ดี]" .-> UC06
-  EXT_Appeal -. "«extend»\n[พบผลคะแนนคลาดเคลื่อน]" .-> UC06
-  EXT_ExportPDF -. "«extend»\n[ต้องการเก็บไฟล์ไว้อ่าน]" .-> UC06
+  EXT_Guidance -.->|"«extend»<br/>(ต้องการตัวอย่างคำตอบที่ดี)"| UC06
+  EXT_Appeal -.->|"«extend»<br/>(พบผลคะแนนคลาดเคลื่อน)"| UC06
+  EXT_ExportPDF -.->|"«extend»<br/>(ต้องการเก็บไฟล์ไว้อ่าน)"| UC06
 
-  EXT_Portability -. "«extend»\n[ยื่นคำขอรับไฟล์]" .-> UC08
-  EXT_Erasure -. "«extend»\n[ยื่นคำขอยกเลิกบัญชี]" .-> UC08
+  EXT_Portability -.->|"«extend»<br/>(ยื่นคำขอรับไฟล์)"| UC08
+  EXT_Erasure -.->|"«extend»<br/>(ยื่นคำขอยกเลิกบัญชี)"| UC08
 
-  EXT_Refund -. "«extend»\n[มีคำขอคืนเงินในเงื่อนไข]" .-> UC09
+  EXT_Refund -.->|"«extend»<br/>(มีคำขอคืนเงินในเงื่อนไข)"| UC09
 
   %% External System Connections
   INC_Verify --> EmailGateway
@@ -928,17 +927,17 @@ flowchart LR
   EXT_Refund --> PaymentGW
 
   %% Styling
-  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
-  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
-  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
-  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
-  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px
 
-  class UC01,UC02,UC03,UC04,UC05,UC06,UC07,UC08,UC09,UC10 baseStyle;
-  class INC_Verify,INC_GenQ,INC_CheckQuota,INC_SubmitAnswer,INC_VoiceConsent,INC_STT,INC_RubricScore,INC_STARAnalysis,INC_AuditLog incStyle;
-  class EXT_Autosave,EXT_Pressure,EXT_Guidance,EXT_Appeal,EXT_ExportPDF,EXT_Portability,EXT_Erasure,EXT_Refund extStyle;
-  class Guest,User,Admin,Finance,Researcher actorStyle;
-  class EmailGateway,LLMService,STTService,PaymentGW extSysStyle;
+  class UC01,UC02,UC03,UC04,UC05,UC06,UC07,UC08,UC09,UC10 baseStyle
+  class INC_Verify,INC_GenQ,INC_CheckQuota,INC_SubmitAnswer,INC_VoiceConsent,INC_STT,INC_RubricScore,INC_STARAnalysis,INC_AuditLog incStyle
+  class EXT_Autosave,EXT_Pressure,EXT_Guidance,EXT_Appeal,EXT_ExportPDF,EXT_Portability,EXT_Erasure,EXT_Refund extStyle
+  class Guest,User,Admin,Finance,Researcher actorStyle
+  class EmailGateway,LLMService,STTService,PaymentGW extSysStyle
 ```
 
 > 📖 ดูรายละเอียดโมเดลกรณีการใช้งานฉบับสมบูรณ์ พร้อมตาราง Traceability ได้ที่:  
@@ -1046,32 +1045,32 @@ flowchart LR
   User --> UC_ReviewEval
 
   %% Start Session Relationships
-  UC_StartSession -. "«include»" .-> INC_FetchQ
-  UC_StartSession -. "«include»" .-> INC_CheckQuota
-  EXT_DifficultyScaling -. "«extend»\n[เมื่อผู้ใช้ระบุระดับทักษะ]" .-> UC_StartSession
-  EXT_PressureMode -. "«extend»\n[เมื่อผู้ใช้ต้องการฝึกกดดัน]" .-> UC_StartSession
-  EXT_FollowupQ -. "«extend»\n[เมื่อคำตอบก่อนหน้าเปิดประเด็น]" .-> INC_FetchQ
+  UC_StartSession -.->|"«include»"| INC_FetchQ
+  UC_StartSession -.->|"«include»"| INC_CheckQuota
+  EXT_DifficultyScaling -.->|"«extend»<br/>(เมื่อผู้ใช้ระบุระดับทักษะ)"| UC_StartSession
+  EXT_PressureMode -.->|"«extend»<br/>(เมื่อผู้ใช้ต้องการฝึกกดดัน)"| UC_StartSession
+  EXT_FollowupQ -.->|"«extend»<br/>(เมื่อคำตอบก่อนหน้าเปิดประเด็น)"| INC_FetchQ
 
   %% Practice Text Relationships
-  UC_PracticeText -. "«include»" .-> INC_SubmitAnswer
-  EXT_Autosave -. "«extend»\n[ขณะพิมพ์ / สัญญาณเน็ตสะดุด]" .-> UC_PracticeText
+  UC_PracticeText -.->|"«include»"| INC_SubmitAnswer
+  EXT_Autosave -.->|"«extend»<br/>(ขณะพิมพ์ / สัญญาณเน็ตสะดุด)"| UC_PracticeText
 
   %% Practice Voice Relationships
-  UC_PracticeVoice -. "«include»" .-> INC_VoiceConsent
-  UC_PracticeVoice -. "«include»" .-> INC_STT
-  UC_PracticeVoice -. "«include»" .-> INC_SubmitAnswer
-  EXT_EditTranscript -. "«extend»\n[เมื่อพบข้อความถอดเสียงผิด]" .-> UC_PracticeVoice
+  UC_PracticeVoice -.->|"«include»"| INC_VoiceConsent
+  UC_PracticeVoice -.->|"«include»"| INC_STT
+  UC_PracticeVoice -.->|"«include»"| INC_SubmitAnswer
+  EXT_EditTranscript -.->|"«extend»<br/>(เมื่อพบข้อความถอดเสียงผิด)"| UC_PracticeVoice
 
   %% Review Evaluation Relationships
-  UC_ReviewEval -. "«include»" .-> INC_RubricScore
-  UC_ReviewEval -. "«include»" .-> INC_STARRelevance
-  UC_ReviewEval -. "«include»" .-> INC_StrengthsReport
+  UC_ReviewEval -.->|"«include»"| INC_RubricScore
+  UC_ReviewEval -.->|"«include»"| INC_STARRelevance
+  UC_ReviewEval -.->|"«include»"| INC_StrengthsReport
 
-  EXT_GrammarAnalysis -. "«extend»\n[เมื่อตอบสัมภาษณ์ภาษาอังกฤษ]" .-> UC_ReviewEval
-  EXT_SpeechPace -. "«extend»\n[เฉพาะเซสชันสัมภาษณ์ด้วยเสียง R2]" .-> UC_ReviewEval
-  EXT_ImprovementTips -. "«extend»\n[เมื่อผู้ใช้ต้องการแนวทางปรับปรุง]" .-> UC_ReviewEval
-  EXT_AppealScore -. "«extend»\n[เมื่อพบผลคะแนนไม่สอดคล้อง]" .-> UC_ReviewEval
-  EXT_ExportPDF -. "«extend»\n[เมื่อต้องการดาวน์โหลดเก็บไว้]" .-> UC_ReviewEval
+  EXT_GrammarAnalysis -.->|"«extend»<br/>(เมื่อตอบสัมภาษณ์ภาษาอังกฤษ)"| UC_ReviewEval
+  EXT_SpeechPace -.->|"«extend»<br/>(เฉพาะเซสชันสัมภาษณ์ด้วยเสียง R2)"| UC_ReviewEval
+  EXT_ImprovementTips -.->|"«extend»<br/>(เมื่อผู้ใช้ต้องการแนวทางปรับปรุง)"| UC_ReviewEval
+  EXT_AppealScore -.->|"«extend»<br/>(เมื่อพบผลคะแนนไม่สอดคล้อง)"| UC_ReviewEval
+  EXT_ExportPDF -.->|"«extend»<br/>(เมื่อต้องการดาวน์โหลดเก็บไว้)"| UC_ReviewEval
 
   %% External Connections
   INC_FetchQ --> LLM
@@ -1082,17 +1081,17 @@ flowchart LR
   EXT_GrammarAnalysis --> LLM
   EXT_ImprovementTips --> LLM
 
-  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
-  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
-  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
-  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
-  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px
 
-  class UC_StartSession,UC_PracticeText,UC_PracticeVoice,UC_ReviewEval baseStyle;
-  class INC_FetchQ,INC_CheckQuota,INC_SubmitAnswer,INC_VoiceConsent,INC_STT,INC_RubricScore,INC_STARRelevance,INC_StrengthsReport incStyle;
-  class EXT_DifficultyScaling,EXT_PressureMode,EXT_FollowupQ,EXT_Autosave,EXT_EditTranscript,EXT_GrammarAnalysis,EXT_SpeechPace,EXT_ImprovementTips,EXT_AppealScore,EXT_ExportPDF extStyle;
-  class User actorStyle;
-  class LLM,STT extSysStyle;
+  class UC_StartSession,UC_PracticeText,UC_PracticeVoice,UC_ReviewEval baseStyle
+  class INC_FetchQ,INC_CheckQuota,INC_SubmitAnswer,INC_VoiceConsent,INC_STT,INC_RubricScore,INC_STARRelevance,INC_StrengthsReport incStyle
+  class EXT_DifficultyScaling,EXT_PressureMode,EXT_FollowupQ,EXT_Autosave,EXT_EditTranscript,EXT_GrammarAnalysis,EXT_SpeechPace,EXT_ImprovementTips,EXT_AppealScore,EXT_ExportPDF extStyle
+  class User actorStyle
+  class LLM,STT extSysStyle
 ```
 
 ---
@@ -1169,37 +1168,37 @@ flowchart LR
   Admin --> UC_DSRWorkflow
 
   %% Includes
-  UC_Register -. "«include»" .-> INC_VerifyEmail
-  UC_Login -. "«include»" .-> INC_IssueTokens
-  UC_ConsentDashboard -. "«include»" .-> INC_AuditRecord
+  UC_Register -.->|"«include»"| INC_VerifyEmail
+  UC_Login -.->|"«include»"| INC_IssueTokens
+  UC_ConsentDashboard -.->|"«include»"| INC_AuditRecord
 
   %% Extends
-  EXT_ResetPassword -. "«extend»\n[เมื่อผู้ใช้ลืมรหัสผ่าน]" .-> UC_Login
-  EXT_ChangePassword -. "«extend»\n[เมื่อต้องการเปลี่ยนรหัสผ่าน]" .-> UC_Login
-  EXT_LogoutAll -. "«extend»\n[เมื่อพบอุปกรณ์ต้องสงสัย]" .-> UC_Login
+  EXT_ResetPassword -.->|"«extend»<br/>(เมื่อผู้ใช้ลืมรหัสผ่าน)"| UC_Login
+  EXT_ChangePassword -.->|"«extend»<br/>(เมื่อต้องการเปลี่ยนรหัสผ่าน)"| UC_Login
+  EXT_LogoutAll -.->|"«extend»<br/>(เมื่อพบอุปกรณ์ต้องสงสัย)"| UC_Login
 
-  EXT_RevokeConsent -. "«extend»\n[เมื่อต้องการระงับการใช้ข้อมูล]" .-> UC_ConsentDashboard
-  EXT_DataPortability -. "«extend»\n[เมื่อยื่นคำขอรับไฟล์ JSON/CSV]" .-> UC_ConsentDashboard
-  EXT_AccountErasure -. "«extend»\n[เมื่อยืนยันขอลบบัญชีถาวร]" .-> UC_ConsentDashboard
+  EXT_RevokeConsent -.->|"«extend»<br/>(เมื่อต้องการระงับการใช้ข้อมูล)"| UC_ConsentDashboard
+  EXT_DataPortability -.->|"«extend»<br/>(เมื่อยื่นคำขอรับไฟล์ JSON/CSV)"| UC_ConsentDashboard
+  EXT_AccountErasure -.->|"«extend»<br/>(เมื่อยืนยันขอลบบัญชีถาวร)"| UC_ConsentDashboard
 
   %% DSR Inclusion
-  EXT_DataPortability -. "«include»" .-> UC_DSRWorkflow
-  EXT_AccountErasure -. "«include»" .-> UC_DSRWorkflow
+  EXT_DataPortability -.->|"«include»"| UC_DSRWorkflow
+  EXT_AccountErasure -.->|"«include»"| UC_DSRWorkflow
 
   INC_VerifyEmail --> EmailGateway
   EXT_ResetPassword --> EmailGateway
 
-  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
-  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
-  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
-  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
-  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px
 
-  class UC_Register,UC_Login,UC_ManageProfile,UC_ConsentDashboard,UC_DSRWorkflow baseStyle;
-  class INC_VerifyEmail,INC_IssueTokens,INC_AuditRecord incStyle;
-  class EXT_ResetPassword,EXT_ChangePassword,EXT_LogoutAll,EXT_RevokeConsent,EXT_DataPortability,EXT_AccountErasure extStyle;
-  class Guest,User,Admin actorStyle;
-  class EmailGateway extSysStyle;
+  class UC_Register,UC_Login,UC_ManageProfile,UC_ConsentDashboard,UC_DSRWorkflow baseStyle
+  class INC_VerifyEmail,INC_IssueTokens,INC_AuditRecord incStyle
+  class EXT_ResetPassword,EXT_ChangePassword,EXT_LogoutAll,EXT_RevokeConsent,EXT_DataPortability,EXT_AccountErasure extStyle
+  class Guest,User,Admin actorStyle
+  class EmailGateway extSysStyle
 ```
 
 ---
@@ -1211,57 +1210,36 @@ flowchart LR
 ```mermaid
 flowchart LR
   subgraph StaffUsers["ทีมงานภายใน (Web Only)"]
-    Admin([🛡️ System Admin])
-    Finance([💳 Finance Admin R3])
-    Researcher([🔬 Research Engineer R3])
+    Admin(["🛡️ System Admin"])
+    Finance(["💳 Finance Admin R3"])
+    Researcher(["🔬 Research Engineer R3"])
   end
 
   subgraph BackofficeBoundary["พอร์ทัลการบริหารจัดการระบบและกำกับดูแล (Backoffice & Governance Portal)"]
     direction TB
 
     %% Base Use Cases
-    UC_ManageQuestions(["(UC10) บริหารคลังคำถามและรูบริก
-(Question Bank & Rubric Console - FR24)"])
-    UC_ManageUsers(["บริหารจัดการผู้ใช้และสิทธิ์
-(User & Role RBAC Console - FR25)"])
-    UC_AuditViewer(["ตรวจสอบประวัติความปลอดภัย
-(Security Audit Viewer - FR26)"])
-    UC_FinancialDashboard(["(UC09) ดูแดชบอร์ดรายได้และการเงิน
-(Financial & MRR Dashboard - FR31)"])
-    UC_ResearchExport(["(UC08.1) ส่งออกชุดข้อมูลวิจัย
-(Research Dataset Release - FR18.1)"])
+    UC_ManageQuestions(["(UC10) บริหารคลังคำถามและรูบริก<br/>(Question Bank & Rubric Console - FR24)"])
+    UC_ManageUsers(["บริหารจัดการผู้ใช้และสิทธิ์<br/>(User & Role RBAC Console - FR25)"])
+    UC_AuditViewer(["ตรวจสอบประวัติความปลอดภัย<br/>(Security Audit Viewer - FR26)"])
+    UC_FinancialDashboard(["(UC09) ดูแดชบอร์ดรายได้และการเงิน<br/>(Financial & MRR Dashboard - FR31)"])
+    UC_ResearchExport(["(UC08.1) ส่งออกชุดข้อมูลวิจัย<br/>(Research Dataset Release - FR18.1)"])
 
     %% Includes
-    INC_ImmutableVersion(["«include»
-บันทึกเวอร์ชันแบบ Immutable
-(Rubric Version Pinning)"])
-    INC_AuditTrail(["«include»
-บันทึกหลักฐาน Audit Trail
-(Audit Log Event Record)"])
-    INC_DiffPrivacy(["«include»
-ตัด PII และใส่สัญญาณรบกวน DP
-(Differential Privacy & Cell >= 10)"])
-    INC_PaymentAPI(["«include»
-ส่งคำสั่งผ่าน API ธนาคาร/เกตเวย์
-(Execute Payment API Call)"])
+    INC_ImmutableVersion(["«include»<br/>บันทึกเวอร์ชันแบบ Immutable<br/>(Rubric Version Pinning)"])
+    INC_AuditTrail(["«include»<br/>บันทึกหลักฐาน Audit Trail<br/>(Audit Log Event Record)"])
+    INC_DiffPrivacy(["«include»<br/>ตัด PII และใส่สัญญาณรบกวน DP<br/>(Differential Privacy & Cell ขนาด 10 ขึ้นไป)"])
+    INC_PaymentAPI(["«include»<br/>ส่งคำสั่งผ่าน API ธนาคาร/เกตเวย์<br/>(Execute Payment API Call)"])
 
     %% Extends
-    EXT_ConfigPrompt(["«extend»
-ทดสอบและปรับแต่ง Prompt โมเดล
-(AI Model & Prompt Config - FR34)"])
-    EXT_SuspendAccount(["«extend»
-ระงับและปลดล็อกบัญชีผู้ใช้
-(Suspend & Unlock User - FR32)"])
-    EXT_ResolveAppeal(["«extend»
-พิจารณาและตัดสินข้ออุทธรณ์คะแนน
-(Resolve Score Appeal - FR17)"])
-    EXT_ProcessRefund(["«extend»
-พิจารณาและอนุมัติการคืนเงิน
-(Process Refund Request - FR30)"])
+    EXT_ConfigPrompt(["«extend»<br/>ทดสอบและปรับแต่ง Prompt โมเดล<br/>(AI Model & Prompt Config - FR34)"])
+    EXT_SuspendAccount(["«extend»<br/>ระงับและปลดล็อกบัญชีผู้ใช้<br/>(Suspend & Unlock User - FR32)"])
+    EXT_ResolveAppeal(["«extend»<br/>พิจารณาและตัดสินข้ออุทธรณ์คะแนน<br/>(Resolve Score Appeal - FR17)"])
+    EXT_ProcessRefund(["«extend»<br/>พิจารณาและอนุมัติการคืนเงิน<br/>(Process Refund Request - FR30)"])
   end
 
   subgraph ExternalGW["ระบบภายนอก"]
-    PaymentGateway[[🏦 Payment Gateway Provider]]
+    PaymentGateway["🏦 Payment Gateway Provider"]
   end
 
   %% Associations
@@ -1272,30 +1250,30 @@ flowchart LR
   Researcher --> UC_ResearchExport
 
   %% Includes
-  UC_ManageQuestions -. "«include»" .-> INC_ImmutableVersion
-  UC_ManageQuestions -. "«include»" .-> INC_AuditTrail
-  UC_ManageUsers -. "«include»" .-> INC_AuditTrail
-  UC_ResearchExport -. "«include»" .-> INC_DiffPrivacy
-  EXT_ProcessRefund -. "«include»" .-> INC_PaymentAPI
+  UC_ManageQuestions -.->|«include»| INC_ImmutableVersion
+  UC_ManageQuestions -.->|«include»| INC_AuditTrail
+  UC_ManageUsers -.->|«include»| INC_AuditTrail
+  UC_ResearchExport -.->|«include»| INC_DiffPrivacy
+  EXT_ProcessRefund -.->|«include»| INC_PaymentAPI
   INC_PaymentAPI --> PaymentGateway
 
   %% Extends
-  EXT_ConfigPrompt -. "«extend»\n[เมื่อปรับปรุงหรือเปลี่ยนเวอร์ชันโมเดล]" .-> UC_ManageQuestions
-  EXT_SuspendAccount -. "«extend»\n[เมื่อพบบัญชีทุจริตหรือละเมิดกฎ]" .-> UC_ManageUsers
-  EXT_ResolveAppeal -. "«extend»\n[เมื่อมีคำขออุทธรณ์คะแนนในคิว]" .-> UC_ManageQuestions
-  EXT_ProcessRefund -. "«extend»\n[เมื่อมีคำขอคืนเงินตามเงื่อนไข]" .-> UC_FinancialDashboard
+  EXT_ConfigPrompt -.->|"«extend» (เมื่อปรับปรุงหรือเปลี่ยนเวอร์ชันโมเดล)"| UC_ManageQuestions
+  EXT_SuspendAccount -.->|"«extend» (เมื่อพบบัญชีทุจริตหรือละเมิดกฎ)"| UC_ManageUsers
+  EXT_ResolveAppeal -.->|"«extend» (เมื่อมีคำขออุทธรณ์คะแนนในคิว)"| UC_ManageQuestions
+  EXT_ProcessRefund -.->|"«extend» (เมื่อมีคำขอคืนเงินตามเงื่อนไข)"| UC_FinancialDashboard
 
-  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
-  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
-  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
-  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
-  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px
 
-  class UC_ManageQuestions,UC_ManageUsers,UC_AuditViewer,UC_FinancialDashboard,UC_ResearchExport baseStyle;
-  class INC_ImmutableVersion,INC_AuditTrail,INC_DiffPrivacy,INC_PaymentAPI incStyle;
-  class EXT_ConfigPrompt,EXT_SuspendAccount,EXT_ResolveAppeal,EXT_ProcessRefund extStyle;
-  class Admin,Finance,Researcher actorStyle;
-  class PaymentGateway extSysStyle;
+  class UC_ManageQuestions,UC_ManageUsers,UC_AuditViewer,UC_FinancialDashboard,UC_ResearchExport baseStyle
+  class INC_ImmutableVersion,INC_AuditTrail,INC_DiffPrivacy,INC_PaymentAPI incStyle
+  class EXT_ConfigPrompt,EXT_SuspendAccount,EXT_ResolveAppeal,EXT_ProcessRefund extStyle
+  class Admin,Finance,Researcher actorStyle
+  class PaymentGateway extSysStyle
 ```
 
 ---
@@ -1309,25 +1287,25 @@ flowchart LR
 ```mermaid
 flowchart TD
     %% Styling & Classes
-    classDef clientWeb fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
-    classDef clientMobile fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#b45309;
-    classDef sharedContracts fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#5b21b6;
-    classDef securityGate fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#991b1b;
-    classDef backendCore fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#047857;
-    classDef dataStore fill:#f1f5f9,stroke:#475569,stroke-width:2px,color:#1e293b;
-    classDef external fill:#f3f4f6,stroke:#9ca3af,stroke-width:1px,color:#374151;
+    classDef clientWeb fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1
+    classDef clientMobile fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#b45309
+    classDef sharedContracts fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#5b21b6
+    classDef securityGate fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#991b1b
+    classDef backendCore fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#047857
+    classDef dataStore fill:#f1f5f9,stroke:#475569,stroke-width:2px,color:#1e293b
+    classDef external fill:#f3f4f6,stroke:#9ca3af,stroke-width:1px,color:#374151
 
     %% 1. Client Layer
     subgraph ClientLayer["1. ส่วนติดต่อผู้ใช้ (Frontend Clients Layer)"]
         subgraph WebApp["Responsive Web Application (apps/web)"]
-            W_Tech["Next.js 14+ (TypeScript / Tailwind / shadcn/ui)"]
+            W_Tech["Next.js 14+<br/>(TypeScript / Tailwind / shadcn/ui)"]
             W_Roles["รองรับ 5 บทบาท:<br/>- Guest<br/>- Registered User<br/>- Researcher<br/>- Payment / Finance Admin<br/>- System Admin"]
             W_Auth["Auth: HTTP-Only, Secure, SameSite Cookie<br/>+ CSRF Protection"]
             W_View["Viewport: Desktop, Tablet, Mobile Browser (360px+)"]
         end
 
         subgraph MobileApp["Native Mobile Application (apps/mobile)"]
-            M_Tech["React Native / Expo (iOS 16+ / Android 13+)"]
+            M_Tech["React Native / Expo<br/>(iOS 16+ / Android 13+)"]
             M_Roles["รองรับเฉพาะ 2 บทบาท End-User:<br/>- Guest<br/>- Registered User<br/>(Admin & Research สงวนบน Web 100%)"]
             M_Auth["Auth: Bearer JWT<br/>(iOS Keychain / Android Keystore)"]
             M_Storage["Offline Draft Autosave (ทุก 5 วินาที)<br/>Network Flakiness Resilient"]
@@ -1414,14 +1392,14 @@ flowchart TD
     WebApp -.-> WebCheckout
     MobileApp -.->|D-M04: In-App Browser Redirect| WebCheckout
 
-    %% Apply Classes
-    class WebApp,W_Tech,W_Roles,W_Auth,W_View clientWeb;
-    class MobileApp,M_Tech,M_Roles,M_Auth,M_Storage clientMobile;
-    class MonorepoLayer,Contracts,UI_Shared sharedContracts;
-    class GatewayLayer,CDN_WAF,IngressGateway,AuthGuard,ClientGuard,IdempotencyMW,RateLimiter,RejectAdmin securityGate;
-    class BackendCore,NestJS,Mod_Identity,Mod_Interview,Mod_Eval,Mod_Privacy,AsyncQueue,OutboxPoll,BullQueue,EvalWorker,AIService,FastAPI,PydanticVal backendCore;
-    class DataLayer,Postgres,ObjectStore dataStore;
-    class ExternalServices,ExtLLM,WebCheckout external;
+    %% Apply Classes (Only to nodes, never subgraphs)
+    class W_Tech,W_Roles,W_Auth,W_View clientWeb
+    class M_Tech,M_Roles,M_Auth,M_Storage clientMobile
+    class Contracts,UI_Shared sharedContracts
+    class CDN_WAF,AuthGuard,ClientGuard,IdempotencyMW,RateLimiter,RejectAdmin securityGate
+    class Mod_Identity,Mod_Interview,Mod_Eval,Mod_Privacy,OutboxPoll,BullQueue,EvalWorker,FastAPI,PydanticVal,BackendRouting backendCore
+    class Postgres,ObjectStore dataStore
+    class ExtLLM,WebCheckout external
 ```
 
 ---
@@ -1451,7 +1429,7 @@ sequenceDiagram
     
     UserMobile->>ClientMobile: เข้าสู่ระบบ (Email / Password)
     ClientMobile->>API: POST /api/v1/auth/login (Client-Type: mobile)
-    API-->>ClientMobile: 200 OK { accessToken: "JWT...", refreshToken: "..." }
+    API-->>ClientMobile: 200 OK (ส่งมอบ JWT และ Refresh Token)
     ClientMobile->>ClientMobile: จัดเก็บโทเค็นลงใน iOS Keychain / Android Keystore
     end
 
@@ -1459,7 +1437,7 @@ sequenceDiagram
     rect rgb(255, 240, 240)
     note over UserMobile, API: 2. การควบคุมสิทธิ์ตามประเภทไคลเอนต์ (Strict Client RBAC)
     UserMobile->>ClientMobile: พยายามเข้าถึงเมนู Admin / Financial Portal
-    ClientMobile->>API: GET /api/v1/admin/dashboard (Authorization: Bearer <JWT>)
+    ClientMobile->>API: GET /api/v1/admin/dashboard (Authorization: Bearer Token)
     API->>API: Client-Type Check: ตรวจพบคำขอจาก Mobile Client
     API-->>ClientMobile: 403 Forbidden (Admin functions are restricted to Web only)
     end
@@ -1473,26 +1451,26 @@ sequenceDiagram
     end
     UserMobile->>ClientMobile: กดปุ่ม "ส่งคำตอบ"
     ClientMobile->>ClientMobile: สร้าง UUIDv4 สำหรับ Idempotency-Key
-    ClientMobile->>API: POST /api/v1/interviews/{id}/answers<br/>Header: Idempotency-Key: 550e8400-e29b...<br/>Header: Authorization: Bearer <JWT>
+    ClientMobile->>API: POST /api/v1/interviews/{id}/answers (พร้อม Idempotency-Key และ Bearer Token)
     
     API->>API: ถอดรหัส JWT จาก Bearer Header + ตรวจสอบสิทธิ์ความเป็นเจ้าของ Session
     API->>DB: ตรวจสอบ Idempotency-Key ซ้ำหรือไม่?
     alt เป็นคำขอใหม่ (Key ยังไม่เคยมีในระบบ)
         API->>DB: BEGIN - บันทึกคำตอบ + สร้าง Job (pending) + บันทึก Outbox Event + บันทึก Key
         DB-->>API: COMMIT
-        API-->>ClientMobile: 202 Accepted { jobId: "job_123", status: "pending" }
+        API-->>ClientMobile: 202 Accepted (jobId: job_123, status: pending)
         API->>Queue: Dispatcher ส่ง Job เข้าคิว Redis / BullMQ
         Queue->>AI: ดำเนินการประเมินผล AI ด้วย Rubric
         AI->>DB: บันทึกผลคะแนนและฟีดแบ็ก (completed)
     else สัญญาณเน็ตมือถือหลุด ไคลเอนต์ Retry ส่งซ้ำด้วย Key เดิม
         API->>DB: พบคีย์เดิมในระบบ (ตรวจสอบสถานะงาน)
         DB-->>API: คืนค่าสถานะงานปัจจุบัน (pending หรือ completed)
-        API-->>ClientMobile: 202 Accepted { jobId: "job_123", status: "pending" } (ไม่สร้างงานซ้ำ)
+        API-->>ClientMobile: 202 Accepted (jobId: job_123, status: pending - ไม่สร้างงานซ้ำ)
     end
     
     loop Polling ผลการประเมิน (หรือ Push Notification)
         ClientMobile->>API: GET /api/v1/evaluations/job_123
-        API-->>ClientMobile: 200 OK { status: "completed", score: 85, feedback: {...} }
+        API-->>ClientMobile: 200 OK (status: completed, score: 85, feedback data)
     end
     ClientMobile->>UserMobile: แสดงผลการประเมิน, จุดแข็ง, จุดที่ควรพัฒนา
     end
