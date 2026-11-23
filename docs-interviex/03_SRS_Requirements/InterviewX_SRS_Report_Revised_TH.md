@@ -2000,15 +2000,15 @@ sequenceDiagram
 ```mermaid
 flowchart TB
   subgraph Clients["ส่วนติดต่อผู้ใช้ (Untrusted Clients)"]
-    Browser["Next.js Responsive Web App\n(เดสก์ท็อป / แท็บเล็ต / เบราว์เซอร์มือถือ)"]
-    Mobile["Native Mobile App\n(iOS & Android - ผู้ใช้ทั่วไปเท่านั้น)"]
+    Browser["Next.js Responsive Web App<br/>(เดสก์ท็อป / แท็บเล็ต / เบราว์เซอร์มือถือ)"]
+    Mobile["Native Mobile App<br/>(iOS & Android - ผู้ใช้ทั่วไปเท่านั้น)"]
   end
 
-  Edge["เครือข่ายส่งมอบข้อมูลและไฟร์วอลล์ (CDN / WAF / Reverse Proxy / TLS)"]
+  Edge["เครือข่ายส่งมอบข้อมูลและไฟร์วอลล์<br/>(CDN / WAF / Reverse Proxy / TLS)"]
   Browser --> Edge
   Mobile --> Edge
 
-  Edge --> API["NestJS Core API / BFF (ส่วนบริการหลังบ้านร่วมกัน)"]
+  Edge --> API["NestJS Core API / BFF<br/>(ส่วนบริการหลังบ้านร่วมกัน)"]
 
   subgraph Core["NestJS Modular Monolith (โมดูลบริการหลัก)"]
     ID["การจัดการตัวตน + ตรวจสอบ RBAC + ควบคุมสิทธิ์แพ็กเกจ"]
@@ -2019,8 +2019,21 @@ flowchart TB
     PlatformModule["แพลตฟอร์ม / กล่องข้อความออก (Outbox) / ป้องกันคำขอซ้ำ / บันทึกประวัติ"]
   end
 
-  API --> ID & Content & Interview & Eval & Privacy & PlatformModule
-  ID & Content & Interview & Eval & Privacy & PlatformModule --> PG[("ฐานข้อมูลหลัก PostgreSQL:\nแยก Schema ตาม Bounded Context")]
+  API --> ID
+  API --> Content
+  API --> Interview
+  API --> Eval
+  API --> Privacy
+  API --> PlatformModule
+
+  ID --> PG
+  Content --> PG
+  Interview --> PG
+  Eval --> PG
+  Privacy --> PG
+  PlatformModule --> PG
+  
+  PG[("ฐานข้อมูลหลัก PostgreSQL:<br/>แยก Schema ตาม Bounded Context")]
   
   PlatformModule --> Redis[("คิว Redis / BullMQ")]
   Redis --> Worker["คนงานประมวลผลการประเมิน (Evaluation Worker)"]
@@ -2041,17 +2054,17 @@ flowchart TB
   ResearchSvc --> ResearchDB
   BillingSvc -.-> PlatformModule
 
-  classDef client fill:#f1f5f9,stroke:#64748b,stroke-width:2px;
-  classDef edge fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
-  classDef core fill:#ecfdf5,stroke:#059669,stroke-width:2px;
-  classDef data fill:#f8fafc,stroke:#334155,stroke-width:2px;
-  classDef r3 fill:#fef3c7,stroke:#b45309,stroke-width:2px;
+  classDef client fill:#f1f5f9,stroke:#64748b,stroke-width:2px
+  classDef edge fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px
+  classDef core fill:#ecfdf5,stroke:#059669,stroke-width:2px
+  classDef data fill:#f8fafc,stroke:#334155,stroke-width:2px
+  classDef r3 fill:#fef3c7,stroke:#b45309,stroke-width:2px
 
-  class Browser,Mobile client;
-  class Edge,API edge;
-  class ID,Content,Interview,Eval,Privacy,PlatformModule,Worker,AI core;
-  class PG,Redis,MinIO,BillingDB,ResearchDB data;
-  class BillingSvc,ResearchSvc r3;
+  class Browser,Mobile client
+  class Edge,API edge
+  class ID,Content,Interview,Eval,Privacy,PlatformModule,Worker,AI core
+  class PG,Redis,MinIO,BillingDB,ResearchDB data
+  class BillingSvc,ResearchSvc r3
 ```
 
 ---
@@ -2069,22 +2082,30 @@ flowchart LR
   Plat["แพลตฟอร์ม: ป้องกันคำขอซ้ำ / Outbox / ตรวจสอบระบบ"]
  end
 
- ClientFrontends["ส่วนติดต่อผู้ใช้\n(Responsive Web & Native Mobile)"] --> API["Public API Gateway / BFF"]
- API --> Access & Interview & Eval & Privacy & Content
+ ClientFrontends["ส่วนติดต่อผู้ใช้<br/>(Responsive Web & Native Mobile)"] --> API["Public API Gateway / BFF"]
+ API --> Access
+ API --> Interview
+ API --> Eval
+ API --> Privacy
+ API --> Content
+
  Interview --> Content
  Interview --> Access
  Eval --> Interview
  Privacy --> Access
  Interview --> Plat
  Eval --> Plat
+
  Plat --> Worker["ชุดประมวลผลงานพื้นหลัง (Worker)"]
  Worker --> AI["FastAPI บริการ AI - ไม่เชื่อมต่อฐานข้อมูลโดยตรง"]
- API -. "สัญญา R3" .-> Billing["ระบบบิลลิ่ง - ฐานข้อมูลแยกอิสระ"]
- API -. "สัญญา R3 (เฉพาะ Web)" .-> Research["ระบบงานวิจัย - ฐานข้อมูลแยกอิสระ"]
- Billing -. "ส่งเหตุการณ์ข้อมูล" .-> Plat
- Privacy -. "ช่องทางส่งมอบข้อมูลที่อนุมัติ R3" .-> Research
 
- note["การเข้าถึงข้ามบริบทกระทำผ่าน Contract ที่ส่งออกเท่านั้น ห้ามนำเข้า Repository ข้ามเจ้าของ บังคับใช้ขอบเขต Role และ Platform ที่ระดับ Gateway"]
+ API -.->|สัญญา R3| Billing["ระบบบิลลิ่ง - ฐานข้อมูลแยกอิสระ"]
+ API -.->|"สัญญา R3 (เฉพาะ Web)"| Research["ระบบงานวิจัย - ฐานข้อมูลแยกอิสระ"]
+ Billing -.->|ส่งเหตุการณ์ข้อมูล| Plat
+ Privacy -.->|ช่องทางส่งมอบข้อมูลที่อนุมัติ R3| Research
+
+ note["ข้อกำหนด: การเข้าถึงข้ามบริบทกระทำผ่าน Contract ที่ส่งออกเท่านั้น<br/>ห้ามนำเข้า Repository ข้ามเจ้าของ บังคับใช้ขอบเขต Role และ Platform ที่ระดับ Gateway"]
+ note -.-> CORE
 ```
 
 ---
