@@ -1,0 +1,14 @@
+flowchart LR
+  Guest([Guest]) --> Web[InterviewX Responsive Web / PWA]
+  User([Registered User]) --> Web
+  Admin([System Admin]) --> Web
+  Researcher([Researcher R3]) --> Web
+  Finance([Finance Admin R3]) --> Web
+  Web --> Platform[InterviewX Platform]
+  Platform --> Email[Transactional email provider]
+  Platform --> LLM[LLM provider]
+  Platform -. "R2 STT" .-> STT[Speech-to-text provider]
+  Platform -. "R3 payments" .-> Gateway[Payment gateway]
+  Platform --> Telemetry[Monitoring and alerting]
+  classDef optional stroke-dasharray:5 5
+  class Researcher,Finance,STT,Gateway optional

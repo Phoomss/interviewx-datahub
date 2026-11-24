@@ -1,0 +1,25 @@
+flowchart LR
+ subgraph CORE[Core NestJS - single deployable]
+  Access[Identity / Access]
+
+  Interview[Interview]
+  Content[Content]
+  Eval[Evaluation]
+  Privacy[Privacy]
+  Plat[Platform: idempotency / outbox / audit]
+ end
+ Client[Public API / BFF] --> Access & Interview & Eval & Privacy & Content
+ Interview --> Content
+ Interview --> Access
+ Eval --> Interview
+ Privacy --> Access
+ Interview --> Plat
+ Eval --> Plat
+ Plat --> Worker[Worker deployable]
+ Worker --> AI[AI FastAPI - no DB connection]
+ Client -. "R3 contract" .-> Billing[Billing - own DB]
+ Client -. "R3 contract" .-> Research[Research - own DB]
+ Billing -. versioned events .-> Plat
+ Privacy -. approved release channel R3 .-> Research
+ note["Cross-context access via exported application contracts; no repository imports across owners"]
+ note -. rule .-> CORE

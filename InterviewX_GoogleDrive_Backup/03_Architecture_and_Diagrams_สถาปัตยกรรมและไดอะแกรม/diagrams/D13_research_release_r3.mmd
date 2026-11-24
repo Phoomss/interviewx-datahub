@@ -1,0 +1,19 @@
+flowchart TD
+ Request[Researcher request R3] --> Gate{Purpose approval + role scope + valid basis?}
+ Gate -->|No| Deny[Denied + audited]
+ Gate -->|Yes| Pipeline[Privileged release pipeline]
+ Source[(Core production data restricted)] --> Pipeline
+ Pipeline --> Eligibility[Check research_analysis eligibility; no contact flag substitution]
+ Eligibility --> Aggregate[Group + count distinct users]
+ Aggregate --> Risk{Cell size >=10 and complementary / differencing checks?}
+ Risk -->|No| Suppress[Suppress / revise release]
+ Risk -->|Yes| Approve[Authorized release approval]
+ Suppress --> Review[Human privacy review]
+ Review --> Approve
+ Approve --> Store[(Research DB approved aggregates)]
+ Store --> API[Research scoped API]
+ API --> Result[Aggregate only; never raw answers/audio]
+ API --> Log[Audit allow/deny, purpose, dataset, query, row count]
+ Deny --> Log
+ classDef secure fill:#e2e8f0,stroke:#334155
+ class Store secure

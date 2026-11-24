@@ -1,0 +1,11 @@
+flowchart LR
+ R1["R1 CORE
+Web/PWA, identity, interview text, AI rubric, feedback, history, privacy, audit"] --> R2["R2 ENHANCED
+Voice/STT, speech metrics, grammar, progress, adaptive features"]
+ R2 --> R3["R3 COMMERCIAL + RESEARCH
+Plans/quotas, gateway/refunds, governed research releases"]
+ R1 --> Production[Managed Production]
+ R1 --> Showcase[Kubernetes synthetic showcase]
+ R2 -. approval gate .-> Production
+ R3 -. approval gate .-> Production
+ Note["R1 does not depend on R2/R3 runtime. Native mobile remains optional extension."] -. rule .-> R1

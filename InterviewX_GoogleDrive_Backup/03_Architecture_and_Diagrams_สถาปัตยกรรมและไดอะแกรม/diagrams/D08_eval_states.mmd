@@ -1,0 +1,21 @@
+stateDiagram-v2
+ [*] --> pending : answer committed
+ pending --> processing : worker claims
+ processing --> completed : valid checked result
+ processing --> retry_wait : transient error
+ retry_wait --> processing : retry <= max attempts
+ processing --> needs_review : invalid / weak evidence
+ processing --> failed : permanent error / max attempts
+ pending --> canceled : user deletion workflow
+ retry_wait --> canceled : user deletion workflow
+ completed --> [*]
+ needs_review --> [*]
+ failed --> [*]
+ canceled --> [*]
+ note right of completed
+  Only validated rubric score
+  Persist model / prompt / rubric version
+ end note
+ note right of needs_review
+  Never fabricate numeric score
+ end note

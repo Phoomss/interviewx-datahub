@@ -1,0 +1,98 @@
+flowchart LR
+  subgraph Actors["ผู้แสดงบทบาท"]
+    Guest([👤 Guest])
+    User([👤 Registered User])
+    Admin([🛡️ System Admin / เจ้าหน้าที่ DPO])
+  end
+
+  subgraph PrivacyBoundary["ระบบการตรวจสอบสิทธิ์และธรรมาภิบาลข้อมูล (Identity & Privacy Governance)"]
+    direction TB
+
+    %% Base Use Cases
+    UC_Register(["ลงทะเบียนบัญชีผู้ใช้ใหม่
+(Sign Up with Email - FR01)"])
+    UC_Login(["(UC02) เข้าสู่ระบบด้วยอีเมล
+(Authenticate & Issue Tokens)"])
+    UC_ManageProfile(["(UC03) ตั้งค่าโปรไฟล์และเป้าหมาย
+(Manage Profile & Goals - FR02)"])
+    UC_ConsentDashboard(["(UC08) จัดการความยินยอม PDPA
+(Manage Consent Preferences - FR18)"])
+    UC_DSRWorkflow(["(FR35) ดำเนินการตามคำร้องขอสิทธิ์
+(Data Subject Rights SLA Workflow)"])
+
+    %% Includes
+    INC_VerifyEmail(["«include»
+ส่งลิงก์ยืนยันตัวตนทางอีเมล
+(Send Secure Verification Link)"])
+    INC_IssueTokens(["«include»
+สร้าง Access & Refresh Tokens
+(JWT Token Generation)"])
+    INC_AuditRecord(["«include»
+บันทึกหลักฐาน Timestamp ไม่แก้ไขได้
+(Immutable Consent Event Log)"])
+
+    %% Extends
+    EXT_ResetPassword(["«extend»
+ขอรีเซ็ตรหัสผ่านผ่านอีเมล
+(Password Reset Request)"])
+    EXT_ChangePassword(["«extend»
+เปลี่ยนรหัสผ่านประจำตัว
+(Change Password - FR23)"])
+    EXT_LogoutAll(["«extend»
+ยกเลิกเซสชันทุกอุปกรณ์
+(Logout from All Devices - FR23)"])
+    EXT_RevokeConsent(["«extend»
+เพิกถอนความยินยอมรายวัตถุประสงค์
+(Revoke Specific Consent - FR18)"])
+    EXT_DataPortability(["«extend»
+ขอรับสำเนาข้อมูลส่วนบุคคล
+(Data Portability Request - FR21)"])
+    EXT_AccountErasure(["«extend»
+ขอลบบัญชีและทำลายข้อมูลส่วนบุคคล
+(Right to Erasure / Deletion - FR22)"])
+  end
+
+  subgraph MailService["ระบบภายนอก"]
+    EmailGateway[[✉️ Transactional Email]]
+  end
+
+  %% Associations
+  Guest --> UC_Register
+  Guest --> UC_Login
+  User --> UC_Login
+  User --> UC_ManageProfile
+  User --> UC_ConsentDashboard
+  Admin --> UC_DSRWorkflow
+
+  %% Includes
+  UC_Register -. "«include»" .-> INC_VerifyEmail
+  UC_Login -. "«include»" .-> INC_IssueTokens
+  UC_ConsentDashboard -. "«include»" .-> INC_AuditRecord
+
+  %% Extends
+  EXT_ResetPassword -. "«extend»\n[เมื่อผู้ใช้ลืมรหัสผ่าน]" .-> UC_Login
+  EXT_ChangePassword -. "«extend»\n[เมื่อต้องการเปลี่ยนรหัสผ่าน]" .-> UC_Login
+  EXT_LogoutAll -. "«extend»\n[เมื่อพบอุปกรณ์ต้องสงสัย]" .-> UC_Login
+
+  EXT_RevokeConsent -. "«extend»\n[เมื่อต้องการระงับการใช้ข้อมูล]" .-> UC_ConsentDashboard
+  EXT_DataPortability -. "«extend»\n[เมื่อยื่นคำขอรับไฟล์ JSON/CSV]" .-> UC_ConsentDashboard
+  EXT_AccountErasure -. "«extend»\n[เมื่อยืนยันขอลบบัญชีถาวร]" .-> UC_ConsentDashboard
+
+  %% DSR Inclusion
+  EXT_DataPortability -. "«include»" .-> UC_DSRWorkflow
+  EXT_AccountErasure -. "«include»" .-> UC_DSRWorkflow
+
+  INC_VerifyEmail --> EmailGateway
+  EXT_ResetPassword --> EmailGateway
+
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+
+  class UC_Register,UC_Login,UC_ManageProfile,UC_ConsentDashboard,UC_DSRWorkflow baseStyle;
+  class INC_VerifyEmail,INC_IssueTokens,INC_AuditRecord incStyle;
+  class EXT_ResetPassword,EXT_ChangePassword,EXT_LogoutAll,EXT_RevokeConsent,EXT_DataPortability,EXT_AccountErasure extStyle;
+  class Guest,User,Admin actorStyle;
+  class EmailGateway extSysStyle;

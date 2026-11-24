@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 1120" width="100%" height="100%" style="background:#ffffff; font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Shadow filter for cards -->
+    <filter id="cardShadow" x="-4%" y="-4%" width="108%" height="108%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.04" />
+    </filter>
+    <filter id="elevatedShadow" x="-6%" y="-6%" width="112%" height="112%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.08" />
+    </filter>
+
+    <!-- Markers for arrows -->
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#0284c7" />
+    </marker>
+    <marker id="arrowTeal" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#0d9488" />
+    </marker>
+    <marker id="arrowPurple" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#7c3aed" />
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#16a34a" />
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#dc2626" />
+    </marker>
+  </defs>
+
+  <!-- Canvas Border -->
+  <rect x="2" y="2" width="1796" height="1116" rx="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+
+  <!-- ================= HEADER SECTION ================= -->
+  <text x="48" y="44" font-size="11" font-weight="700" letter-spacing="1.5" fill="#475569">INTERVIEWX / AI ENGINE · DATA PIPELINE</text>
+  <text x="1752" y="44" text-anchor="end" font-size="11" font-weight="700" letter-spacing="1.5" fill="#b45309">APPROVED BASELINE · v1.1 FINAL</text>
+
+  <!-- Title & Subtitle -->
+  <text x="48" y="86" font-size="34" font-weight="800" fill="#0f172a" letter-spacing="-0.5">D26 — AI Data Pipeline Flow</text>
+  <text x="48" y="116" font-size="13" font-weight="500" fill="#64748b">End-to-end evaluation lifecycle · PII &amp; Prompt injection filter · Version-pinned Rubric · 10s LLM Timeout · Pydantic V2 schema validation</text>
+
+  <!-- ================= METADATA & LEGEND BAR ================= -->
+  <rect x="48" y="140" width="1704" height="42" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="68" y="166" font-size="12" font-weight="700" fill="#1e293b" letter-spacing="0.5">14 COMPONENTS · 16 LINKS</text>
+
+  <!-- Legend Items -->
+  <g transform="translate(680, 162)">
+    <line x1="0" y1="0" x2="30" y2="0" stroke="#0284c7" stroke-width="2.5" />
+    <text x="38" y="4" font-size="12" font-weight="500" fill="#475569">Ingestion / Payload</text>
+  </g>
+  <g transform="translate(940, 162)">
+    <line x1="0" y1="0" x2="30" y2="0" stroke="#7c3aed" stroke-width="2.5" />
+    <text x="38" y="4" font-size="12" font-weight="500" fill="#475569">LLM Inference &amp; Config</text>
+  </g>
+  <g transform="translate(1220, 162)">
+    <line x1="0" y1="0" x2="30" y2="0" stroke="#16a34a" stroke-width="2.5" />
+    <text x="38" y="4" font-size="12" font-weight="500" fill="#475569">Validation / Completed</text>
+  </g>
+  <g transform="translate(1500, 162)">
+    <line x1="0" y1="0" x2="30" y2="0" stroke="#dc2626" stroke-width="2" stroke-dasharray="4,3" />
+    <text x="38" y="4" font-size="12" font-weight="500" fill="#475569">Review Required / Anomaly</text>
+  </g>
+
+  <!-- ================= 00 · EXTERNAL INGESTION CONTAINER ================= -->
+  <rect x="48" y="202" width="1704" height="130" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="72" y="228" font-size="12" font-weight="700" fill="#0f172a" letter-spacing="0.5">00 · EXTERNAL INGESTION &amp; ENTRYPOINT</text>
+  <text x="72" y="246" font-size="11" font-weight="500" fill="#64748b">Candidate submission via Web / Mobile clients and asynchronous BullMQ job dispatching</text>
+
+  <!-- Node: Candidate Raw Answer -->
+  <g transform="translate(120, 256)" filter="url(#cardShadow)">
+    <rect width="260" height="58" rx="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5"/>
+    <text x="130" y="25" text-anchor="middle" font-size="13" font-weight="700" fill="#0369a1">Candidate Raw Answer</text>
+    <text x="130" y="44" text-anchor="middle" font-size="11" font-weight="500" fill="#0284c7">Text Input / STT Transcript</text>
+  </g>
+
+  <!-- Node: Redis / BullMQ Dispatcher -->
+  <g transform="translate(560, 256)" filter="url(#cardShadow)">
+    <rect width="260" height="58" rx="8" fill="#f3e8ff" stroke="#7c3aed" stroke-width="1.5"/>
+    <text x="130" y="25" text-anchor="middle" font-size="13" font-weight="700" fill="#6b21a8">Evaluation Job Dispatcher</text>
+    <text x="130" y="44" text-anchor="middle" font-size="11" font-weight="500" fill="#7c3aed">BullMQ Queue · Redis Job Stream</text>
+  </g>
+
+  <!-- Node: Execution Context Metadata -->
+  <g transform="translate(1000, 256)" filter="url(#cardShadow)">
+    <rect width="270" height="58" rx="8" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="135" y="25" text-anchor="middle" font-size="13" font-weight="700" fill="#334155">Session Metadata &amp; Auth</text>
+    <text x="135" y="44" text-anchor="middle" font-size="11" font-weight="500" fill="#64748b">interviewId · questionId · userId</text>
+  </g>
+
+  <!-- Node: Outbox & Audit Logger -->
+  <g transform="translate(1410, 256)" filter="url(#cardShadow)">
+    <rect width="280" height="58" rx="8" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
+    <text x="140" y="25" text-anchor="middle" font-size="13" font-weight="700" fill="#1e293b">Provenance &amp; Audit Log</text>
+    <text x="140" y="44" text-anchor="middle" font-size="11" font-weight="500" fill="#475569">Append-only Ingestion Audit Event</text>
+  </g>
+
+  <!-- Connector: Answer -> Job Dispatcher -->
+  <path d="M 380 285 L 560 285" fill="none" stroke="#0284c7" stroke-width="2" marker-end="url(#arrowBlue)"/>
+  <rect x="424" y="274" width="92" height="20" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="470" y="288" text-anchor="middle" font-size="10" font-weight="600" fill="#0369a1">Enqueues Job</text>
+
+  <!-- Connector: Dispatcher -> Context Metadata -->
+  <path d="M 820 285 L 1000 285" fill="none" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrowPurple)"/>
+  <rect x="862" y="274" width="96" height="20" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="910" y="288" text-anchor="middle" font-size="10" font-weight="600" fill="#6b21a8">Binds Metadata</text>
+
+
+  <!-- ================= MAIN PIPELINE CONTAINER ================= -->
+  <rect x="48" y="352" width="1704" height="680" rx="16" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+  <text x="76" y="382" font-size="15" font-weight="800" fill="#0369a1" letter-spacing="0.5">AI EVALUATION PIPELINE RUNTIME (FASTAPI &amp; WORKER CLUSTER)</text>
+  <text x="76" y="401" font-size="12" font-weight="500" fill="#64748b">Stateless AI processing · Immutable rubric versioning · PII sanitization · Strict Pydantic output validation</text>
+
+  <!-- ---------------- 01 · SECURITY & CONTEXT PINNING ---------------- -->
+  <rect x="72" y="420" width="490" height="580" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="92" y="446" font-size="12" font-weight="700" fill="#0f172a" letter-spacing="0.5">01 · CONTEXT PREPARATION &amp; PINNING</text>
+  <text x="92" y="464" font-size="11" font-weight="500" fill="#64748b">Sanitizes injection &amp; pins exact rubric/prompt versions</text>
+
+  <!-- Node: Sanitizer & Guardrails -->
+  <g transform="translate(100, 485)" filter="url(#cardShadow)">
+    <rect width="434" height="68" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+    <text x="217" y="28" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e">Security Sanitizer &amp; Guardrails</text>
+    <text x="217" y="48" text-anchor="middle" font-size="11" font-weight="500" fill="#b45309">Prompt Injection Defense · PII Masking · HTML Tag Stripping</text>
+  </g>
+
+  <!-- Node: Pinned Rubric Version -->
+  <g transform="translate(100, 585)" filter="url(#cardShadow)">
+    <path d="M 10 0 L 424 0 A 10 10 0 0 1 434 10 L 434 58 A 10 10 0 0 1 424 68 L 10 68 A 10 10 0 0 1 0 58 L 0 10 A 10 10 0 0 1 10 0 Z" fill="#ecfdf5" stroke="#059669" stroke-width="1.5"/>
+    <text x="217" y="28" text-anchor="middle" font-size="13" font-weight="700" fill="#065f46">Pinned Rubric Version (Immutable)</text>
+    <text x="217" y="48" text-anchor="middle" font-size="11" font-weight="500" fill="#059669">4 Dimensions: Relevance, STAR Structure, Problem Solving, Comm</text>
+  </g>
+
+  <!-- Node: Pinned AI Config Version -->
+  <g transform="translate(100, 685)" filter="url(#cardShadow)">
+    <rect width="434" height="68" rx="8" fill="#f3e8ff" stroke="#7c3aed" stroke-width="1.5"/>
+    <text x="217" y="28" text-anchor="middle" font-size="13" font-weight="700" fill="#6b21a8">AI System Prompt &amp; Config Version</text>
+    <text x="217" y="48" text-anchor="middle" font-size="11" font-weight="500" fill="#7c3aed">Pinned System Prompt · Model Hyperparameters (Temp=0.2)</text>
+  </g>
+
+  <!-- Node: Context Enclave Bundle -->
+  <g transform="translate(100, 785)" filter="url(#elevatedShadow)">
+    <rect width="434" height="74" rx="8" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+    <text x="217" y="28" text-anchor="middle" font-size="13" font-weight="800" fill="#0369a1">Sanitized Evaluation Context Bundle</text>
+    <text x="217" y="46" text-anchor="middle" font-size="11" font-weight="600" fill="#0284c7">{ clean_answer, rubric_spec, system_prompt, job_id }</text>
+    <text x="217" y="62" text-anchor="middle" font-size="10" font-weight="500" fill="#64748b">Immutable Payload Hash Generated for Provenance</text>
+  </g>
+
+  <!-- Connectors in 01 -->
+  <path d="M 317 553 L 317 585" fill="none" stroke="#d97706" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+  <path d="M 317 653 L 317 685" fill="none" stroke="#059669" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+  <path d="M 317 753 L 317 785" fill="none" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+
+
+  <!-- ---------------- 02 · INFERENCE & MODEL CLIENT ---------------- -->
+  <rect x="585" y="420" width="540" height="580" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="605" y="446" font-size="12" font-weight="700" fill="#0f172a" letter-spacing="0.5">02 · ASYNC INFERENCE &amp; LLM DISPATCH</text>
+  <text x="605" y="464" font-size="11" font-weight="500" fill="#64748b">10s latency watchdog, retry budget, and raw JSON parsing</text>
+
+  <!-- Node: FastAPI LLM Client Adapter -->
+  <g transform="translate(620, 495)" filter="url(#cardShadow)">
+    <rect width="470" height="74" rx="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5"/>
+    <text x="235" y="28" text-anchor="middle" font-size="13" font-weight="700" fill="#0369a1">FastAPI LLM Client Adapter</text>
+    <text x="235" y="48" text-anchor="middle" font-size="11" font-weight="500" fill="#0284c7">Non-blocking HTTP Client · Timeout: 10s · Exponential Retry (Max 2)</text>
+    <text x="235" y="63" text-anchor="middle" font-size="10" font-weight="600" fill="#0369a1">Header: x-correlation-id propagation</text>
+  </g>
+
+  <!-- Node: External LLM Cloud Provider -->
+  <g transform="translate(620, 620)" filter="url(#cardShadow)">
+    <rect width="470" height="78" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+    <text x="235" y="30" text-anchor="middle" font-size="14" font-weight="800" fill="#5b21b6">External LLM Foundation Model</text>
+    <text x="235" y="50" text-anchor="middle" font-size="11" font-weight="500" fill="#6b21a8">Primary Model: Hosted Enterprise LLM API</text>
+    <text x="235" y="66" text-anchor="middle" font-size="10" font-weight="600" fill="#7c3aed">TLS 1.3 Outbound Egress · Strict Zero-Data-Retention Agreement</text>
+  </g>
+
+  <!-- Node: Raw Output Parser & Extractor -->
+  <g transform="translate(620, 750)" filter="url(#cardShadow)">
+    <rect width="470" height="74" rx="8" fill="#f1f5f9" stroke="#475569" stroke-width="1.5"/>
+    <text x="235" y="28" text-anchor="middle" font-size="13" font-weight="700" fill="#1e293b">Raw Output Parser &amp; JSON Extractor</text>
+    <text x="235" y="48" text-anchor="middle" font-size="11" font-weight="500" fill="#475569">Extracts JSON codeblocks from raw response</text>
+    <text x="235" y="63" text-anchor="middle" font-size="10" font-weight="500" fill="#64748b">Raw Response Size &amp; Token Usage Logged to OpenTelemetry</text>
+  </g>
+
+  <!-- Connectors in 02 -->
+  <path d="M 534 822 L 585 822 L 585 532 L 620 532" fill="none" stroke="#0284c7" stroke-width="2" marker-end="url(#arrowBlue)"/>
+  <rect x="548" y="660" width="76" height="20" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="586" y="674" text-anchor="middle" font-size="10" font-weight="600" fill="#0369a1">Dispatches</text>
+
+  <path d="M 855 569 L 855 620" fill="none" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrowPurple)"/>
+  <rect x="805" y="586" width="100" height="20" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="855" y="600" text-anchor="middle" font-size="10" font-weight="600" fill="#6b21a8">HTTPS Call (10s)</text>
+
+  <path d="M 855 698 L 855 750" fill="none" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrowPurple)"/>
+  <rect x="800" y="716" width="110" height="20" rx="4" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="855" y="730" text-anchor="middle" font-size="10" font-weight="600" fill="#6b21a8">Raw JSON Stream</text>
+
+
+  <!-- ---------------- 03 · SCHEMA VALIDATION & QUALITY ASSURANCE ---------------- -->
+  <rect x="1150" y="420" width="575" height="580" rx="12" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+  <text x="1170" y="446" font-size="12" font-weight="700" fill="#0f172a" letter-spacing="0.5">03 · STRICT SCHEMA VALIDATION &amp; GOVERNANCE</text>
+  <text x="1170" y="464" font-size="11" font-weight="500" fill="#64748b">Pydantic V2 model validation, range enforcement &amp; persistence</text>
+
+  <!-- Node: Pydantic Schema Validator -->
+  <g transform="translate(1185, 490)" filter="url(#cardShadow)">
+    <rect width="505" height="70" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+    <text x="252" y="28" text-anchor="middle" font-size="13" font-weight="800" fill="#065f46">Pydantic V2 Schema Validator Engine</text>
+    <text x="252" y="48" text-anchor="middle" font-size="11" font-weight="500" fill="#059669">EvaluationResultSchema · Structural &amp; Type Strictness</text>
+  </g>
+
+  <!-- Callout: Criteria Specification Box -->
+  <g transform="translate(1185, 580)">
+    <rect width="505" height="96" rx="8" fill="#ffffff" stroke="#0d9488" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <text x="20" y="24" font-size="11" font-weight="700" fill="#0f766e" letter-spacing="0.5">MANDATORY PYDANTIC VALIDATION CRITERIA:</text>
+    <text x="20" y="44" font-size="11" font-weight="500" fill="#334155">✓ All 4 rubric dimensions present: relevance, star, problem_solving, comm</text>
+    <text x="20" y="62" font-size="11" font-weight="500" fill="#334155">✓ Individual and overall scores strictly bounded within [0, 100] interval</text>
+    <text x="20" y="80" font-size="11" font-weight="500" fill="#334155">✓ Exact candidate response evidence excerpt citations required</text>
+  </g>
+
+  <!-- Decision: Is Output Valid? -->
+  <g transform="translate(1337, 700)">
+    <polygon points="100,0 200,45 100,90 0,45" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+    <text x="100" y="40" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">Output Conforms to</text>
+    <text x="100" y="56" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">Pydantic Schema?</text>
+  </g>
+
+  <!-- State: Valid (Completed) -->
+  <g transform="translate(1185, 830)" filter="url(#elevatedShadow)">
+    <rect width="235" height="135" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+    <rect x="0" y="0" width="235" height="30" rx="8" fill="#dcfce7"/>
+    <text x="117" y="20" text-anchor="middle" font-size="12" font-weight="800" fill="#15803d">STATUS: COMPLETED</text>
+    <text x="15" y="52" font-size="11" font-weight="700" fill="#166534">PostgreSQL Persistence</text>
+    <text x="15" y="70" font-size="10" font-weight="500" fill="#15803d">• Insert evaluation result record</text>
+    <text x="15" y="86" font-size="10" font-weight="500" fill="#15803d">• Commit scores &amp; feedback text</text>
+    <text x="15" y="102" font-size="10" font-weight="500" fill="#15803d">• Store rubric_version_id hash</text>
+    <text x="15" y="118" font-size="10" font-weight="700" fill="#166534">Ready for Web/Mobile Polling</text>
+  </g>
+
+  <!-- State: Invalid (Needs Review) -->
+  <g transform="translate(1455, 830)" filter="url(#elevatedShadow)">
+    <rect width="235" height="135" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="2" stroke-dasharray="5,4"/>
+    <rect x="0" y="0" width="235" height="30" rx="8" fill="#fee2e2"/>
+    <text x="117" y="20" text-anchor="middle" font-size="12" font-weight="800" fill="#991b1b">STATUS: NEEDS_REVIEW</text>
+    <text x="15" y="52" font-size="11" font-weight="700" fill="#991b1b">Human Review Enclave</text>
+    <text x="15" y="70" font-size="10" font-weight="500" fill="#b91c1c">• Quarantine malformed output</text>
+    <text x="15" y="86" font-size="10" font-weight="500" fill="#b91c1c">• Log validation error payload</text>
+    <text x="15" y="102" font-size="10" font-weight="500" fill="#b91c1c">• Dispatch Admin On-call Alert</text>
+    <text x="15" y="118" font-size="10" font-weight="700" fill="#991b1b">Score Appeal &amp; Audit Ready</text>
+  </g>
+
+  <!-- Connectors in 03 -->
+  <path d="M 1090 787 L 1130 787 L 1130 525 L 1185 525" fill="none" stroke="#0284c7" stroke-width="2" marker-end="url(#arrowBlue)"/>
+  <path d="M 1437 560 L 1437 580" fill="none" stroke="#059669" stroke-width="1.5" marker-end="url(#arrowTeal)"/>
+  <path d="M 1437 676 L 1437 700" fill="none" stroke="#059669" stroke-width="1.5" marker-end="url(#arrowTeal)"/>
+
+  <!-- Decision branches -->
+  <path d="M 1337 745 L 1302 745 L 1302 830" fill="none" stroke="#16a34a" stroke-width="2" marker-end="url(#arrowGreen)"/>
+  <rect x="1262" y="770" width="80" height="20" rx="4" fill="#ffffff" stroke="#16a34a" stroke-width="1"/>
+  <text x="1302" y="784" text-anchor="middle" font-size="10" font-weight="700" fill="#15803d">YES (Valid)</text>
+
+  <path d="M 1537 745 L 1572 745 L 1572 830" fill="none" stroke="#dc2626" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arrowRed)"/>
+  <rect x="1530" y="770" width="85" height="20" rx="4" fill="#ffffff" stroke="#dc2626" stroke-width="1"/>
+  <text x="1572" y="784" text-anchor="middle" font-size="10" font-weight="700" fill="#991b1b">NO (Anomaly)</text>
+
+
+  <!-- ================= BOTTOM CALLOUT BANNER ================= -->
+  <rect x="48" y="1050" width="1704" height="42" rx="6" fill="#fff7ed" stroke="#ffedd5" stroke-width="1"/>
+  <text x="70" y="1076" font-size="12" font-weight="500" fill="#9a3412">
+    <tspan font-weight="800">DETERMINISTIC &amp; AUDITABLE PROVENANCE:</tspan> Every evaluation pins immutable rubric and prompt version hashes. Pydantic validation prevents score drift and eliminates silent hallucinations before database commitment.
+  </text>
+  <text x="1730" y="1076" text-anchor="end" font-size="11" font-weight="700" fill="#c2410c" letter-spacing="1">ENTERPRISE BASELINE · v1.1 FINAL</text>
+
+</svg>

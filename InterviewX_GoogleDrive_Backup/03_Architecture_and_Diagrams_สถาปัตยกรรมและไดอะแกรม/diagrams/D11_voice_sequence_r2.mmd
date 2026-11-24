@@ -1,0 +1,26 @@
+sequenceDiagram
+ actor U as User
+ participant W as Web
+ participant A as NestJS Core
+ participant S as Private object storage
+ participant ST as STT adapter/provider
+ participant D as PostgreSQL
+ U->>W: Select voice mode (R2)
+ W->>U: Microphone permission + separate retention choice
+ U-->>W: Permission + opt in/out
+ W->>A: Request signed upload session
+ A->>D: Record purpose/version/time for retention choice
+ A-->>W: Scoped temporary signed upload
+ W->>S: Upload encrypted audio (short-lived)
+ W->>A: Signal upload completed
+ A->>ST: Transcribe with scoped object access
+ ST-->>A: Transcript
+ A-->>W: Editable transcript
+ U->>W: Correct and submit transcript
+ W->>A: POST text answer + idempotency key
+ alt No retention opt-in
+  A->>S: Schedule delete after processing (<=24h draft ceiling)
+ else Explicit opt-in
+  A->>S: Apply approved retention policy (<=90d draft)
+ end
+ Note over A,S: Release gate needs legal and privacy approval

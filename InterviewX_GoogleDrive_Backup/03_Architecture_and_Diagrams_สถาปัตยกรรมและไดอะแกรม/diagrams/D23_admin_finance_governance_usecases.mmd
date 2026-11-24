@@ -1,0 +1,87 @@
+flowchart LR
+  subgraph StaffUsers["ทีมงานภายใน (Web Only)"]
+    Admin([🛡️ System Admin])
+    Finance([💳 Finance Admin R3])
+    Researcher([🔬 Research Engineer R3])
+  end
+
+  subgraph BackofficeBoundary["พอร์ทัลการบริหารจัดการระบบและกำกับดูแล (Backoffice & Governance Portal)"]
+    direction TB
+
+    %% Base Use Cases
+    UC_ManageQuestions(["(UC10) บริหารคลังคำถามและรูบริก
+(Question Bank & Rubric Console - FR24)"])
+    UC_ManageUsers(["บริหารจัดการผู้ใช้และสิทธิ์
+(User & Role RBAC Console - FR25)"])
+    UC_AuditViewer(["ตรวจสอบประวัติความปลอดภัย
+(Security Audit Viewer - FR26)"])
+    UC_FinancialDashboard(["(UC09) ดูแดชบอร์ดรายได้และการเงิน
+(Financial & MRR Dashboard - FR31)"])
+    UC_ResearchExport(["(UC08.1) ส่งออกชุดข้อมูลวิจัย
+(Research Dataset Release - FR18.1)"])
+
+    %% Includes
+    INC_ImmutableVersion(["«include»
+บันทึกเวอร์ชันแบบ Immutable
+(Rubric Version Pinning)"])
+    INC_AuditTrail(["«include»
+บันทึกหลักฐาน Audit Trail
+(Audit Log Event Record)"])
+    INC_DiffPrivacy(["«include»
+ตัด PII และใส่สัญญาณรบกวน DP
+(Differential Privacy & Cell >= 10)"])
+    INC_PaymentAPI(["«include»
+ส่งคำสั่งผ่าน API ธนาคาร/เกตเวย์
+(Execute Payment API Call)"])
+
+    %% Extends
+    EXT_ConfigPrompt(["«extend»
+ทดสอบและปรับแต่ง Prompt โมเดล
+(AI Model & Prompt Config - FR34)"])
+    EXT_SuspendAccount(["«extend»
+ระงับและปลดล็อกบัญชีผู้ใช้
+(Suspend & Unlock User - FR32)"])
+    EXT_ResolveAppeal(["«extend»
+พิจารณาและตัดสินข้ออุทธรณ์คะแนน
+(Resolve Score Appeal - FR17)"])
+    EXT_ProcessRefund(["«extend»
+พิจารณาและอนุมัติการคืนเงิน
+(Process Refund Request - FR30)"])
+  end
+
+  subgraph ExternalGW["ระบบภายนอก"]
+    PaymentGateway[[🏦 Payment Gateway Provider]]
+  end
+
+  %% Associations
+  Admin --> UC_ManageQuestions
+  Admin --> UC_ManageUsers
+  Admin --> UC_AuditViewer
+  Finance --> UC_FinancialDashboard
+  Researcher --> UC_ResearchExport
+
+  %% Includes
+  UC_ManageQuestions -. "«include»" .-> INC_ImmutableVersion
+  UC_ManageQuestions -. "«include»" .-> INC_AuditTrail
+  UC_ManageUsers -. "«include»" .-> INC_AuditTrail
+  UC_ResearchExport -. "«include»" .-> INC_DiffPrivacy
+  EXT_ProcessRefund -. "«include»" .-> INC_PaymentAPI
+  INC_PaymentAPI --> PaymentGateway
+
+  %% Extends
+  EXT_ConfigPrompt -. "«extend»\n[เมื่อปรับปรุงหรือเปลี่ยนเวอร์ชันโมเดล]" .-> UC_ManageQuestions
+  EXT_SuspendAccount -. "«extend»\n[เมื่อพบบัญชีทุจริตหรือละเมิดกฎ]" .-> UC_ManageUsers
+  EXT_ResolveAppeal -. "«extend»\n[เมื่อมีคำขออุทธรณ์คะแนนในคิว]" .-> UC_ManageQuestions
+  EXT_ProcessRefund -. "«extend»\n[เมื่อมีคำขอคืนเงินตามเงื่อนไข]" .-> UC_FinancialDashboard
+
+  classDef baseStyle fill:#dbeafe,stroke:#1d4ed8,stroke-width:2px;
+  classDef incStyle fill:#dcfce7,stroke:#15803d,stroke-width:2px;
+  classDef extStyle fill:#fef3c7,stroke:#b45309,stroke-width:2px,stroke-dasharray:4 4;
+  classDef actorStyle fill:#f1f5f9,stroke:#334155,stroke-width:2px;
+  classDef extSysStyle fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px;
+
+  class UC_ManageQuestions,UC_ManageUsers,UC_AuditViewer,UC_FinancialDashboard,UC_ResearchExport baseStyle;
+  class INC_ImmutableVersion,INC_AuditTrail,INC_DiffPrivacy,INC_PaymentAPI incStyle;
+  class EXT_ConfigPrompt,EXT_SuspendAccount,EXT_ResolveAppeal,EXT_ProcessRefund extStyle;
+  class Admin,Finance,Researcher actorStyle;
+  class PaymentGateway extSysStyle;

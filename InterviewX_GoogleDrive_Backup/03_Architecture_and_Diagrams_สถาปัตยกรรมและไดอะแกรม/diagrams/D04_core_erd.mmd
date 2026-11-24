@@ -1,0 +1,53 @@
+erDiagram
+ USERS ||--o{ AUTH_IDENTITIES : owns
+ USERS ||--o{ REFRESH_SESSIONS : refreshes
+ USERS ||--o{ USER_ROLES : granted
+ ROLES ||--o{ USER_ROLES : assigns
+ ROLES ||--o{ ROLE_PERMISSIONS : includes
+ PERMISSIONS ||--o{ ROLE_PERMISSIONS : defines
+ USERS ||--o{ INTERVIEW_SESSIONS : starts
+ RUBRIC_VERSIONS ||--o{ INTERVIEW_SESSIONS : pins
+ AI_CONFIG_VERSIONS ||--o{ INTERVIEW_SESSIONS : pins
+ INTERVIEW_SESSIONS ||--o{ SESSION_QUESTIONS : contains
+ QUESTION_BANK o|--o{ SESSION_QUESTIONS : sources
+ SESSION_QUESTIONS ||--o{ ANSWERS : receives
+ ANSWERS ||--o| EVALUATION_JOBS : triggers
+ EVALUATION_JOBS ||--o| FEEDBACK : produces
+ ANSWERS ||--o| FEEDBACK : scored
+ RUBRIC_VERSIONS ||--o{ FEEDBACK : rubric
+ AI_CONFIG_VERSIONS ||--o{ FEEDBACK : model
+ FEEDBACK ||--o{ APPEALS : disputed
+ USERS ||--o{ CONSENT_EVENTS : grants
+ USERS ||--o{ PROCESSING_NOTICES : notified
+ USERS ||--o{ DATA_RIGHTS_REQUESTS : requests
+ USERS ||--o{ CONTACT_DETAILS : contact
+ ANSWERS ||--o{ AUDIO_OBJECTS : audio_R2
+ ANSWERS ||--o| SPEECH_METRICS : speech_R2
+ USERS ||--o{ IDEMPOTENCY_KEYS : dedupes
+ USERS { uuid id PK
+   citext email UK
+   timestamptz deleted_at }
+ INTERVIEW_SESSIONS { uuid id PK
+   uuid user_id FK
+   uuid rubric_version_id FK
+   uuid ai_config_version_id FK }
+ SESSION_QUESTIONS { uuid id PK
+   uuid session_id FK
+   int sequence_no }
+ ANSWERS { uuid id PK
+   uuid question_id FK
+   int attempt_number }
+ EVALUATION_JOBS { uuid id PK
+   uuid answer_id FK
+   text state }
+ FEEDBACK { uuid id PK
+   uuid job_id FK
+   uuid answer_id FK
+   numeric score }
+ CONSENT_EVENTS { uuid id PK
+   uuid user_id FK
+   text purpose_key
+   text action }
+ IDEMPOTENCY_KEYS { text scope PK
+   uuid actor_id PK
+   text key PK }

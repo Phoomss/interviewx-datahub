@@ -1,0 +1,26 @@
+flowchart TB
+  Browser[Next.js Web / PWA R1] --> Edge[CDN / WAF / TLS]
+  Edge --> API[NestJS Core API / BFF R1]
+  subgraph Core[NestJS Modular Monolith R1]
+    ID[Identity + RBAC]
+    Content[Content + Rubric]
+    Interview[Interview]
+    Eval[Evaluation Read Model]
+    Privacy[Privacy + Governance]
+    Platform[Platform / Outbox / Audit]
+  end
+  API --> ID & Content & Interview & Eval & Privacy & Platform
+  ID & Content & Interview & Eval & Privacy & Platform --> PG[(Core PostgreSQL: schema per context)]
+  Platform --> Redis[(Redis / BullMQ)]
+  Redis --> Worker[Evaluation Worker R1]
+  Worker --> AI[FastAPI Inference R1]
+  AI --> Provider[Hosted LLM provider]
+  Worker --> PG
+  API -. R2 .-> Store[(Private Audio Object Storage)]
+  API -. R3 authenticated API .-> Billing[Billing Service R3]
+  API -. R3 authenticated API .-> Research[Research Release Service R3]
+  Billing --> BillingDB[(Billing PostgreSQL)]
+  Research --> ResearchDB[(Research PostgreSQL)]
+  Billing --> Gateway[Payment provider]
+  classDef future stroke-dasharray:5 5
+  class Store,Billing,BillingDB,Research,ResearchDB,Gateway future

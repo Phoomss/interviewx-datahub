@@ -1,0 +1,16 @@
+flowchart LR
+ Web[Web] --> Trace[Correlation ID]
+ API[NestJS API] --> OTel[OpenTelemetry]
+ Worker[Evaluation worker] --> OTel
+ AI[FastAPI] --> OTel
+ Trace --> OTel
+ OTel --> Logs[Sanitized logs]
+ OTel --> Metrics[Latency / errors / queue depth / cost]
+ OTel --> Traces[Distributed traces]
+ Metrics --> Alerts[Alerts + incident runbooks]
+ Logs --> Alerts
+ PG[(Managed PG)] --> Backups[Encrypted backups]
+ Backups --> Restore[Quarterly restore drill - proposed]
+ Alerts --> Oncall[Team response]
+ Cost[LLM token usage + budgets] --> Metrics
+ Note["SRS proposed: non-AI P95 <=2s; text feedback P95 <=15s; RPO <=24h; RTO <=8h; availability >=99.5% - NOT measured"] -. target .-> Metrics

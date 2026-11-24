@@ -1,0 +1,19 @@
+flowchart TD
+ Start["งานประเมินผลถูกดึงจากคิว Redis"] --> CallAI["เรียกใช้งานโมเดล AI หลัก (Primary LLM)"]
+ CallAI --> CheckSuccess{"โมเดลตอบกลับสำเร็จภายใน 10 วินาทีหรือไม่"}
+
+ CheckSuccess -->|สำเร็จ| Validate["ตรวจสอบโครงสร้างคะแนนด้วย Pydantic"]
+ Validate --> CheckValid{"คะแนนถูกต้องสมบูรณ์หรือไม่"}
+ CheckValid -->|ถูกต้อง| Complete["บันทึกผลสำเร็จ: สถานะ completed"]
+
+ CheckSuccess -->|ล้มเหลว หรือ Timeout| Trip{"ล้มเหลวติดต่อกัน 5 ครั้งขึ้นไปหรือไม่"}
+ Trip -->|เปิด Circuit| FallbackLLM["สลับไปยังโมเดลสำรอง (Secondary Backup LLM)"]
+ Trip -->|ยังไม่เปิด Circuit| Retry["เพิ่มรอบ Retry (Exponential Backoff สูงสุด 3 ครั้ง)"]
+ Retry --> CallAI
+
+ FallbackLLM --> CheckFallback{"โมเดลสำรองสำเร็จหรือไม่"}
+ CheckFallback -->|สำเร็จ| Validate
+ CheckFallback -->|ล้มเหลว| MarkReview["ปรับสถานะงานเป็น: needs_review<br/>(ส่งเข้าคิวทบทวนโดยผู้เชี่ยวชาญ)"]
+ CheckValid -->|ไม่ถูกต้อง| MarkReview
+
+ MarkReview --> Alert["ส่งแจ้งเตือนทีมงาน Admin On-call ทันที"]

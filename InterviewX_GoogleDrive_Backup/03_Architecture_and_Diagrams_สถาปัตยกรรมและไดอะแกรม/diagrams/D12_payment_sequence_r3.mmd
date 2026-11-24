@@ -1,0 +1,26 @@
+sequenceDiagram
+ actor U as User
+ participant API as API / BFF
+ participant B as Billing Service R3
+ participant G as Payment Gateway
+ participant DB as Billing PostgreSQL
+ participant C as Core Entitlement Integration
+ U->>API: Checkout selection
+ API->>B: Authenticated checkout request
+ B->>DB: Snapshot published package price
+ B->>G: Create hosted payment session
+ G-->>B: Hosted checkout reference
+ B-->>U: Gateway hosted redirect
+ G->>B: Signed webhook event
+ B->>B: Verify authenticity + provider event ID
+ B->>DB: Atomic inbox + state transition + outbox
+ alt Confirmed, new valid payment
+  B->>C: Versioned entitlement-granted event
+  C-->>B: Deduplicated fulfillment ACK
+ else Duplicate or pending
+  B->>B: No duplicate fulfillment
+ end
+ U->>API: GET payment status
+ API->>B: Fetch authorized status
+ B-->>U: pending / confirmed / failed
+ Note over B,DB: Refund needs request -> approval -> execution; rules not approved

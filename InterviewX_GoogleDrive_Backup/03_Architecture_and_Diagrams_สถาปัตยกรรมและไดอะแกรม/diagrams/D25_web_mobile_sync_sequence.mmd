@@ -1,0 +1,65 @@
+sequenceDiagram
+    autonumber
+    actor UserWeb as ผู้ใช้งาน Web
+    actor UserMobile as ผู้ใช้งาน Mobile
+    participant ClientWeb as Web Client (Next.js)
+    participant ClientMobile as Mobile App (React Native)
+    participant API as NestJS Gateway / Backend
+    participant DB as Core PostgreSQL
+    participant Queue as Redis / BullMQ
+    participant AI as Evaluation Worker & FastAPI
+
+    %% 1. Authentication Strategy Comparison
+    rect rgb(240, 248, 255)
+    note over UserWeb, API: 1. รูปแบบการยืนยันตัวตน (Authentication Strategy)
+    UserWeb->>ClientWeb: เข้าสู่ระบบ (Email / Password)
+    ClientWeb->>API: POST /api/v1/auth/login
+    API-->>ClientWeb: Set-Cookie: access_token (HTTP-Only, Secure, SameSite)
+    
+    UserMobile->>ClientMobile: เข้าสู่ระบบ (Email / Password)
+    ClientMobile->>API: POST /api/v1/auth/login (Client-Type: mobile)
+    API-->>ClientMobile: 200 OK { accessToken: "JWT...", refreshToken: "..." }
+    ClientMobile->>ClientMobile: จัดเก็บโทเค็นลงใน iOS Keychain / Android Keystore
+    end
+
+    %% 2. Strict Client RBAC Enforcement
+    rect rgb(255, 240, 240)
+    note over UserMobile, API: 2. การควบคุมสิทธิ์ตามประเภทไคลเอนต์ (Strict Client RBAC)
+    UserMobile->>ClientMobile: พยายามเข้าถึงเมนู Admin / Financial Portal
+    ClientMobile->>API: GET /api/v1/admin/dashboard (Authorization: Bearer <JWT>)
+    API->>API: Client-Type Check: ตรวจพบคำขอจาก Mobile Client
+    API-->>ClientMobile: 403 Forbidden (Admin functions are restricted to Web only)
+    end
+
+    %% 3. Answer Submission & Idempotency
+    rect rgb(240, 255, 240)
+    note over UserMobile, AI: 3. การส่งคำตอบสัมภาษณ์และป้องกันคำขอซ้ำ (Idempotency & Flakiness Resilience)
+    UserMobile->>ClientMobile: พิมพ์คำตอบสัมภาษณ์
+    loop Local Draft Autosave (ทุก 5 วินาที)
+        ClientMobile->>ClientMobile: บันทึกข้อความลง Local Storage สำรองไว้
+    end
+    UserMobile->>ClientMobile: กดปุ่ม "ส่งคำตอบ"
+    ClientMobile->>ClientMobile: สร้าง UUIDv4 สำหรับ Idempotency-Key
+    ClientMobile->>API: POST /api/v1/interviews/{id}/answers<br/>Header: Idempotency-Key: 550e8400-e29b...<br/>Header: Authorization: Bearer <JWT>
+    
+    API->>API: ถอดรหัส JWT จาก Bearer Header + ตรวจสอบสิทธิ์ความเป็นเจ้าของ Session
+    API->>DB: ตรวจสอบ Idempotency-Key ซ้ำหรือไม่?
+    alt เป็นคำขอใหม่ (Key ยังไม่เคยมีในระบบ)
+        API->>DB: BEGIN - บันทึกคำตอบ + สร้าง Job (pending) + บันทึก Outbox Event + บันทึก Key
+        DB-->>API: COMMIT
+        API-->>ClientMobile: 202 Accepted { jobId: "job_123", status: "pending" }
+        API->>Queue: Dispatcher ส่ง Job เข้าคิว Redis / BullMQ
+        Queue->>AI: ดำเนินการประเมินผล AI ด้วย Rubric
+        AI->>DB: บันทึกผลคะแนนและฟีดแบ็ก (completed)
+    else สัญญาณเน็ตมือถือหลุด ไคลเอนต์ Retry ส่งซ้ำด้วย Key เดิม
+        API->>DB: พบคีย์เดิมในระบบ (ตรวจสอบสถานะงาน)
+        DB-->>API: คืนค่าสถานะงานปัจจุบัน (pending หรือ completed)
+        API-->>ClientMobile: 202 Accepted { jobId: "job_123", status: "pending" } (ไม่สร้างงานซ้ำ)
+    end
+    
+    loop Polling ผลการประเมิน (หรือ Push Notification)
+        ClientMobile->>API: GET /api/v1/evaluations/job_123
+        API-->>ClientMobile: 200 OK { status: "completed", score: 85, feedback: {...} }
+    end
+    ClientMobile->>UserMobile: แสดงผลการประเมิน, จุดแข็ง, จุดที่ควรพัฒนา
+    end

@@ -1,0 +1,32 @@
+flowchart LR
+ subgraph Ingestion["1. รับข้อมูลคำตอบ"]
+  RawAnswer["คำตอบสัมภาษณ์<br/>(ข้อความ / ข้อความถอดเสียง)"]
+ end
+
+ subgraph ContextPrep["2. เตรียมบริบทและตรึงเวอร์ชัน"]
+  Rubric["เกณฑ์รูบริกที่ตรึงเวอร์ชัน<br/>(Rubric Version)"]
+  AIConfig["การตั้งค่าและพรอมต์ที่ตรึงเวอร์ชัน<br/>(AI Config Version)"]
+  Sanitizer["ตัวกรองความปลอดภัย<br/>(Prompt Injection & PII Filter)"]
+ end
+
+ subgraph Inference["3. เรียกประมวลผลโมเดล AI"]
+  LLMClient["อะแดปเตอร์เชื่อมต่อ LLM<br/>(Timeout 10s + 2 Retries)"]
+  RawOutput["ผลการประเมินดิบจาก AI<br/>(Raw JSON Response)"]
+ end
+
+ subgraph Validation["4. ตรวจสอบความถูกต้องเข้มงวด"]
+  Validator{"ตรวจสอบความถูกต้องตามเกณฑ์"}
+  ValCriteria["เกณฑ์ Pydantic Schema:<br/>- ครบ 4 มิติรูบริก<br/>- คะแนนอยู่ในช่วง 0 ถึง 100<br/>- มีข้อความหลักฐานอ้างอิง"]
+  Valid["ผ่านเกณฑ์สมบูรณ์<br/>(Status: completed)"]
+  Invalid["ไม่ผ่านเกณฑ์ / ค่าผิดปกติ<br/>(Status: needs_review)"]
+ end
+
+ RawAnswer --> Sanitizer
+ Sanitizer --> LLMClient
+ Rubric --> LLMClient
+ AIConfig --> LLMClient
+ LLMClient --> RawOutput
+ RawOutput --> Validator
+ Validator -.->|อิงตามเกณฑ์| ValCriteria
+ Validator -->|ใช่| Valid
+ Validator -->|ไม่ใช่| Invalid
