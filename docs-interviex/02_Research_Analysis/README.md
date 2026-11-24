@@ -29,6 +29,7 @@
 │       └── 📄 InterviewX_Research_Proposal_v1.0.pdf
 │
 └── 📂 survey/                                     # ข้อมูลการสำรวจความต้องการจริง (Empirical Data)
+    ├── 📄 INTERVIEWX_SURVEY_DETAILED_ANALYSIS.md      # ⭐ [ล่าสุด] รายงานวิเคราะห์ผลการสำรวจละเอียดทุกข้อ พร้อมข้อคิดเห็นเชิงคุณภาพ
     ├── 📊 Interview X Requirement Survey Form (การตอบกลับ) - การตอบแบบฟอร์ม 1.csv # ข้อมูลดิบจากผู้ตอบแบบสอบถาม (n=102)
     └── 📊 InterviewX_Survey_Validated_Aggregates.xlsx # ผลวิเคราะห์ทางสถิติและผลสรุปความต้องการที่ผ่านการตรวจสอบ
 `
